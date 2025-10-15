@@ -1,50 +1,71 @@
-# Welcome to your Expo app 👋
+# Piqe-Hiqe 📱
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile app for students to create, organize, and study flashcards and quizzes.  
+Helps manage study sessions with timers and reminders, while tracking progress and stats.
 
-## Get started
+---
 
-1. Install dependencies
+## 👥 Team Members
 
-   ```bash
-   npm install
-   ```
+- ..
+- ..
+- ..
+- ..
+- ..
+- ..
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 🚀 Getting Started
 
-In the output, you'll find options to open the app in a
+These instructions will help you get a copy of the project running locally.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### 1. Clone the repo
 
 ```bash
-npm run reset-project
+git git@github.com:drenmorina12/piqe-hiqe.git
+cd <piqe-hiqe>
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Install dependencies
 
-## Learn more
+```bash
+npm install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### 3. Run the project
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Start the Expo development server:
 
-## Join the community
+```bash
+npx expo start
+```
 
-Join our community of developers creating universal apps.
+- This opens the Expo Dev Tools in your browser.
+- You can run the app on:
+  - **Android emulator:** press `a`
+  - **iOS simulator:** press `i`
+  - **Physical device:** scan the QR code in the Expo Dev Tools with the Expo Go app
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+## 🗂️ Folder Structure
+
+```
+app/          → main app screens (each screen in its own folder)
+assets/       → images, icons, fonts, etc.
+components/   → reusable UI parts (buttons, cards, etc.)
+config/       → app-wide configuration (API setup, constants, etc.)
+constants/    → static values like colors, route names, etc.
+hooks/        → custom React hooks
+scripts/      → automation or build scripts
+utils/        → helper functions and utilities
+```
+
+---
+
+## 💡 Notes
+
+- Uses **JavaScript** (not TypeScript)
+- Uses **React Native + Expo Router**
+- Styling with **StyleSheet** (NativeWind can be integrated later if needed)
