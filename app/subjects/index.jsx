@@ -1,21 +1,15 @@
 import { Link } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-export default function HomeScreen() {
+export default function SubjectsScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Home Screen</Text>
+      <Text style={styles.title}>Subjects Screen</Text>
 
       <View style={styles.linksContainer}>
-        <Link href="/subjects" asChild>
+        <Link href="/subjects/flashcards" asChild>
           <Pressable style={styles.link}>
-            <Text style={styles.linkText}>Subjects</Text>
-          </Pressable>
-        </Link>
-
-        <Link href="/profile" asChild>
-          <Pressable style={styles.link}>
-            <Text style={styles.linkText}>Profile</Text>
+            <Text style={styles.linkText}>View Flashcards</Text>
           </Pressable>
         </Link>
       </View>
