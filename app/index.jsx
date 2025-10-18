@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import Header from './components/Header';
+import Header from '../components/layout/Header';
 
 export default function HomeScreen() {
   const [subjects, setSubjects] = useState([]);
