@@ -2,6 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import Header from './components/Header';
 
 export default function HomeScreen() {
@@ -22,9 +24,9 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }}>
       <Header
-        title="piqe-hiqe"
+        title="Piqe-Hiqe"
         subtitle="Your daily lessons"
         rightButton={<Ionicons name="add" size={28} color="white" />}
         onRightPress={() => setShowInput(!showInput)}
@@ -79,7 +81,7 @@ export default function HomeScreen() {
           </View>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
