@@ -1,25 +1,41 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-  Image,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Image,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function SignupScreen() {
+export default function ForgotPasswordScreen() {
   const [form, setForm] = useState({
-    name: '',
-    lastname: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
 
   const router = useRouter();
+
+  const handleResetPassword = () => {
+    // Simple frontend validation before navigating
+    if (!form.email || !form.password || !form.confirmPassword) {
+      alert('Please fill in all fields.');
+      return;
+    }
+
+    if (form.password !== form.confirmPassword) {
+      alert('Passwords do not match.');
+      return;
+    }
+
+    // Later: send form data to backend API here
+
+    alert('Password successfully reset!');
+    router.replace('/'); // go back to login
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
@@ -33,41 +49,15 @@ export default function SignupScreen() {
           />
 
           <Text style={styles.title}>
-            Create your<Text style={{ color: '#075eec' }}> Account</Text>
+            Reset <Text style={{ color: '#075eec' }}>Password</Text>
           </Text>
 
-          <Text style={styles.subtitle}>Join Piqe-Hiqe and start learning smarter</Text>
+          <Text style={styles.subtitle}>
+            Enter your email and set a new password to continue.
+          </Text>
         </View>
 
         <View style={styles.form}>
-          <View style={styles.inputRow}>
-            <View style={[styles.input, { flex: 1, marginRight: 8 }]}>
-              <Text style={styles.inputLabel}>First Name</Text>
-              <TextInput
-                autoCapitalize="words"
-                autoCorrect={false}
-                placeholder="John"
-                placeholderTextColor="#6b7280"
-                style={styles.inputControl}
-                value={form.name}
-                onChangeText={(name) => setForm({ ...form, name })}
-              />
-            </View>
-
-            <View style={[styles.input, { flex: 1, marginLeft: 8 }]}>
-              <Text style={styles.inputLabel}>Last Name</Text>
-              <TextInput
-                autoCapitalize="words"
-                autoCorrect={false}
-                placeholder="Doe"
-                placeholderTextColor="#6b7280"
-                style={styles.inputControl}
-                value={form.lastname}
-                onChangeText={(lastname) => setForm({ ...form, lastname })}
-              />
-            </View>
-          </View>
-
           <View style={styles.input}>
             <Text style={styles.inputLabel}>Email address</Text>
             <TextInput
@@ -83,7 +73,7 @@ export default function SignupScreen() {
           </View>
 
           <View style={styles.input}>
-            <Text style={styles.inputLabel}>Password</Text>
+            <Text style={styles.inputLabel}>New password</Text>
             <TextInput
               secureTextEntry={true}
               placeholder="********"
@@ -95,25 +85,23 @@ export default function SignupScreen() {
           </View>
 
           <View style={styles.input}>
-            <Text style={styles.inputLabel}>Confirm Password</Text>
+            <Text style={styles.inputLabel}>Confirm new password</Text>
             <TextInput
               secureTextEntry={true}
               placeholder="********"
               placeholderTextColor="#6b7280"
               style={styles.inputControl}
               value={form.confirmPassword}
-              onChangeText={(confirmPassword) => setForm({ ...form, confirmPassword })}
+              onChangeText={(confirmPassword) =>
+                setForm({ ...form, confirmPassword })
+              }
             />
           </View>
 
           <View style={styles.formAction}>
-            <TouchableOpacity
-              onPress={() => {
-                // Later: add validation or API call
-                router.replace('/homepage');
-              }}>
+            <TouchableOpacity onPress={handleResetPassword}>
               <View style={styles.btn}>
-                <Text style={styles.btnText}>Sign Up</Text>
+                <Text style={styles.btnText}>Update Password</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -122,7 +110,7 @@ export default function SignupScreen() {
             onPress={() => {
               router.push('/');
             }}>
-            <Text style={styles.formLink}>Already have an account? Sign in</Text>
+            <Text style={styles.formLink}>Back to Sign In</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -133,9 +121,18 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    flexShrink: 1,
-    flexBasis: 0,
     padding: 24,
+  },
+  header: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 40,
+  },
+  headerImg: {
+    width: 80,
+    height: 80,
+    alignSelf: 'center',
+    marginBottom: 30,
   },
   title: {
     fontSize: 30,
@@ -148,24 +145,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#929292',
     textAlign: 'center',
-  },
-  header: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 30,
-  },
-  headerImg: {
-    width: 80,
-    height: 80,
-    alignSelf: 'center',
-    marginBottom: 30,
+    marginHorizontal: 20,
   },
   form: {
     flexGrow: 1,
-  },
-  inputRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
   },
   input: {
     marginBottom: 16,
@@ -188,7 +172,7 @@ const styles = StyleSheet.create({
     borderColor: '#C9D3DB',
   },
   formAction: {
-    marginTop: 4,
+    marginTop: 10,
     marginBottom: 16,
   },
   btn: {

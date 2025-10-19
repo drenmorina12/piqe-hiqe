@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 
-export default function Example() {
+export default function WelcomeScreen() {
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -80,7 +80,7 @@ export default function Example() {
 
           <TouchableOpacity
             onPress={() => {
-              // handle link
+              router.push('/forgotpassword');
             }}>
             <Text style={styles.formLink}>Forgot password?</Text>
           </TouchableOpacity>
