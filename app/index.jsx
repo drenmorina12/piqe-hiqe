@@ -39,7 +39,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
       <StatusBar style="light" backgroundColor="#007AFF" />
       <Header
         title="Piqe-Hiqe"
@@ -92,7 +92,7 @@ export default function HomeScreen() {
           keyExtractor={(item) => item.id}
           numColumns={2}
           columnWrapperStyle={{ justifyContent: 'space-between', paddingHorizontal: 10 }}
-          contentContainerStyle={{ paddingVertical: 10 }}
+          contentContainerStyle={{ paddingVertical: 10, paddingBottom: 100 }}
           renderItem={({ item }) => (
             <View style={{ marginBottom: 15 }}>
               <Pressable onPress={() => handleSubjectPress(item)}>
@@ -115,22 +115,19 @@ export default function HomeScreen() {
             <Text style={{ color: '#777', marginTop: 20 }}>No subjects added yet.</Text>
           }
         />
+      </View>
 
-        <View style={styles.linksWrapper}>
-          <View style={styles.linksContainer}>
-            <Link href="/subjects" asChild>
-              <Pressable style={styles.link}>
-                <Text style={styles.linkText}>Subjects</Text>
-              </Pressable>
-            </Link>
+      {/* Sticky Bottom Buttons */}
+      <View style={styles.bottomButtonsContainer}>
+        <Pressable style={styles.bottomButton} disabled>
+          <Ionicons name="home" size={24} color="#007AFF" />
+          <Text style={styles.bottomButtonText}>Home</Text>
+        </Pressable>
 
-            <Link href="/progress" asChild>
-              <Pressable style={styles.link}>
-                <Text style={styles.linkText}>Shiko Progresin</Text>
-              </Pressable>
-            </Link>
-          </View>
-        </View>
+        <Pressable style={styles.bottomButton} onPress={() => router.push('/progress')}>
+          <Ionicons name="stats-chart" size={24} color="#007AFF" />
+          <Text style={styles.bottomButtonText}>Progress</Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
@@ -195,29 +192,36 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 20,
   },
-
-  linksWrapper: {
-    paddingVertical: 20,
-    width: '100%',
+  bottomButtonsContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: '#eee',
-    flex: 1,
-    justifyContent: 'center',
-  },
-  linksContainer: {
-    alignItems: 'center',
-    gap: 15,
-  },
-  link: {
-    backgroundColor: '#007AFF',
+    borderTopColor: '#E5E5EA',
     paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    width: '80%',
-    alignItems: 'center',
+    paddingHorizontal: 20,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
   },
-  linkText: {
-    color: '#fff',
+  bottomButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F9FAFB',
+    paddingVertical: 12,
+    borderRadius: 8,
+    gap: 8,
+  },
+  bottomButtonText: {
+    color: '#007AFF',
     fontSize: 16,
     fontWeight: '600',
   },
