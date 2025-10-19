@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import ProgressBar from './ProgressBar';
 
 const CollectionCard = ({ collection, onPress, gradientColors }) => {
   const progress = collection.cards > 0 ? (collection.completed / collection.cards) * 100 : 0;
@@ -34,16 +35,14 @@ const CollectionCard = ({ collection, onPress, gradientColors }) => {
             {collection.completed} / {collection.cards} cards
           </Text>
 
-          {/* Progress Bar */}
-          <View style={styles.progressBarContainer}>
-            <View
-              style={[
-                styles.progressBar,
-                isCompleted ? styles.progressBarComplete : styles.progressBarIncomplete,
-                { width: `${progress}%` },
-              ]}
-            />
-          </View>
+          {/* Progress Bar (extracted component) */}
+          <ProgressBar
+            value={progress}                      
+            height={8}
+            trackColor="#E5E7EB"
+            fillColor={isCompleted ? '#10B981' : (gradientColors?.[1] ?? '#4F46E5')}
+            style={{}}                            
+          />
         </View>
       </View>
     </Pressable>
@@ -85,9 +84,7 @@ const styles = StyleSheet.create({
   iconCompleted: {
     backgroundColor: '#D1FAE5',
   },
-  info: {
-    flex: 1,
-  },
+  info: { flex: 1 },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -115,21 +112,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6B7280',
     marginBottom: 12,
-  },
-  progressBarContainer: {
-    height: 8,
-    backgroundColor: '#E5E7EB',
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressBar: {
-    height: 8,
-    borderRadius: 4,
-  },
-  progressBarIncomplete: {
-    backgroundColor: '#4F46E5',
-  },
-  progressBarComplete: {
-    backgroundColor: '#10B981',
   },
 });
