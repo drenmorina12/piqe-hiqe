@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { useState } from 'react';
+import { StatusBar } from 'expo-status-bar';
 import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/layout/Header';
@@ -25,13 +26,24 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <StatusBar style="light" />
       <Header
-        title="Piqe-Hiqe"
-        subtitle="Your daily lessons"
-        rightButton={<Ionicons name="add" size={28} color="white" />}
-        onRightPress={() => setShowInput(!showInput)}
-      />
+      title="Piqe-Hiqe"
+      subtitle="Your daily lessons"
+      rightButton={
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}>
+          <Link href="/profile" asChild>
+            <Pressable>
+              <Ionicons name="person-circle-outline" size={28} color="white" />
+            </Pressable>
+          </Link>
 
+          <Pressable onPress={() => setShowInput(!showInput)}>
+            <Ionicons name="add" size={28} color="white" />
+          </Pressable>
+        </View>
+      }
+    />
       <View style={styles.container}>
         
         <View style={styles.generalStatsContainer}>
@@ -88,12 +100,6 @@ export default function HomeScreen() {
             <Link href="/progress" asChild>
               <Pressable style={styles.link}>
                 <Text style={styles.linkText}>Shiko Progresin</Text> 
-              </Pressable>
-            </Link>
-
-            <Link href="/profile" asChild>
-              <Pressable style={styles.link}>
-                <Text style={styles.linkText}>Profile</Text>
               </Pressable>
             </Link>
           </View>
