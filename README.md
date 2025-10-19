@@ -1,7 +1,7 @@
 # Piqe-Hiqe 📱
 
-A mobile app for students to create, organize, and study flashcards and quizzes.  
-Helps manage study sessions with timers and reminders, while tracking progress and stats.
+A mobile educational app designed to help students learn more effectively using **flashcards** and **interactive quizzes**.  
+The app allows users to create, organize, and review flashcards by subject, and track their progress in a simple way.
 
 ---
 
@@ -9,11 +9,30 @@ Helps manage study sessions with timers and reminders, while tracking progress a
 
 - Erëza Temaj
 - Dituri Kodra
-- Djellza Jasiqi 
+- Djellza Jasiqi
 - Dren Morina
 - Nora Morina
 - Riga Ferati
 
+---
+
+### 🎯 Core Features
+
+- **User Authentication:** Login and sign-up screens (structure prepared).
+- **Subjects:** View and manage subjects (two default subjects added for now).
+- **Collections:** Each subject opens a collections page showing flashcard groups.
+- **Flashcards:** Components and layout for creating and displaying flashcards.
+- **Profile Screen:** Basic user info page.
+
+---
+
+### 🧭 Main Screens
+
+- **Login / Sign Up** – authentication pages
+- **Home** – displays subjects list
+- **Collections** – shows collections based on selected subject
+- **Flashcards** – displays flashcards for a collection
+- **Profile** – simple profile management screen
 
 ---
 
@@ -64,9 +83,3 @@ utils/        → helper functions and utilities
 ```
 
 ---
-
-## 💡 Notes
-
-- Uses **JavaScript** (not TypeScript)
-- Uses **React Native + Expo Router**
-- Styling with **StyleSheet** (NativeWind can be integrated later if needed)

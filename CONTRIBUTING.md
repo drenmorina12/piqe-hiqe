@@ -1,10 +1,8 @@
 # ✌️ Contributing Guide
 
-Ekipa, çet xhi pi tija e ka shkru shumicen. Pak a shume me pa qysh shkon sistemi.
+Here is a guide so everyone is on the same page.
 
-N'README osht qysh me set up projektin. o7
-
-**Yapp:**
+You can find setup instructions in the README file.
 
 ---
 
@@ -108,6 +106,6 @@ Nothing too strict - just helps keep the history readable.
 
 ## 💬 Need Help?
 
-If something’s unclear, **Unlluçko** 💀💀!
+If anything’s unclear, feel free to ask in the group — don’t get stuck!
 
 ---
