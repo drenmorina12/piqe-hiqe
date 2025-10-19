@@ -1,13 +1,8 @@
-// app/progress.jsx
-
-// Importi i rregulluar për SafeAreaView (duke u bazuar në paralajmërimin e mëparshëm)
 import { FlatList, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// Importi që ju dhatë (duhet të jetë i saktë)
 import { StatsCard } from '../components/ui/StatsCard';
 
-// Të dhëna fiktive
 const SUBJECT_PROGRESS_DATA = [
   { id: 1, subject: 'Matematikë', easy: 40, medium: 35, hard: 25 },
   { id: 2, subject: 'Fizikë', easy: 55, medium: 30, hard: 15 },
@@ -15,7 +10,6 @@ const SUBJECT_PROGRESS_DATA = [
   { id: 4, subject: 'Programim', easy: 60, medium: 30, hard: 10 },
 ];
 
-// Ekrani i Progresit (VETËM NJË eksport default)
 export default function ProgressScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -28,7 +22,6 @@ export default function ProgressScreen() {
           data={SUBJECT_PROGRESS_DATA}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            // Këtu përdoret komponenti StatsCard
             <StatsCard
               subject={item.subject}
               easy={item.easy}
