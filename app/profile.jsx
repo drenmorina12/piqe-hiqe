@@ -1,22 +1,99 @@
+// app/profile.jsx
+
 import { StyleSheet, Text, View } from 'react-native';
+// Kujdes: Përdorni këtë import nëse keni instaluar react-native-safe-area-context
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Profile Screen</Text>
-    </View>
+    // Përdoret SafeAreaView për të shmangur zonat e 'notch' dhe 'status bar'
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        
+        {/* Titulli */}
+        <Text style={styles.title}>Profili i Përdoruesit</Text>
+        <Text style={styles.subtitle}>Detajet dhe Vendosjet</Text>
+        
+        {/* Detajet e Profilit (Statistikat individuale) */}
+        <View style={styles.infoBox}>
+          <Text style={styles.infoLabel}>Emri:</Text>
+          <Text style={styles.infoValue}>Dren Morina</Text>
+        </View>
+
+        <View style={styles.infoBox}>
+          <Text style={styles.infoLabel}>Email:</Text>
+          <Text style={styles.infoValue}>user@example.com</Text>
+        </View>
+
+        <View style={styles.infoBox}>
+          <Text style={styles.infoLabel}>Lëndët e regjistruara:</Text>
+          <Text style={styles.infoValue}>4</Text>
+        </View>
+
+        {/* Buton për të dalë (Logout) */}
+        <View style={styles.logoutContainer}>
+          <Text style={styles.logoutButton}>Dil (Logout)</Text>
+        </View>
+
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f5f5f5', // Ngjyra e sfondit
+  },
   container: {
     flex: 1,
-    justifyContent: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    marginTop: 20,
+    marginBottom: 10,
+    textAlign: 'center',
+    color: '#1a1a1a',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 30,
+    textAlign: 'center',
+  },
+  infoBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#fff',
+    padding: 15,
+    marginVertical: 8,
+    borderRadius: 8,
+    borderLeftWidth: 5,
+    borderLeftColor: '#007AFF', // Një ngjyrë theksi
+    elevation: 1,
   },
-  text: {
-    fontSize: 22,
+  infoLabel: {
+    fontSize: 16,
+    color: '#666',
+    fontWeight: '500',
+  },
+  infoValue: {
+    fontSize: 16,
+    color: '#1a1a1a',
+    fontWeight: '600',
+  },
+  logoutContainer: {
+    marginTop: 40,
+    width: '100%',
+    alignItems: 'center',
+  },
+  logoutButton: {
+    fontSize: 18,
+    color: 'red',
     fontWeight: 'bold',
-  },
+    padding: 10,
+  }
 });
