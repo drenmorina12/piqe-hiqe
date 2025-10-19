@@ -49,20 +49,20 @@ export default function SignupScreen() {
           />
 
           <Text style={styles.title}>
-            Create your<Text style={{ color: '#075eec' }}> Account</Text>
+            Krijoje <Text style={{ color: '#075eec' }}> llogarinë</Text> tuaj
           </Text>
 
-          <Text style={styles.subtitle}>Join Piqe-Hiqe and start learning smarter</Text>
+          <Text style={styles.subtitle}>Bashkohu me Piqe-Hiqe dhe fillo të mësosh më zgjuarsi</Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.inputRow}>
             <View style={[styles.input, { flex: 1, marginRight: 8 }]}>
-              <Text style={styles.inputLabel}>First Name</Text>
+              <Text style={styles.inputLabel}>Emri</Text>
               <TextInput
                 autoCapitalize="words"
                 autoCorrect={false}
-                placeholder="John"
+                placeholder="Filan"
                 placeholderTextColor="#6b7280"
                 style={styles.inputControl}
                 value={form.name}
@@ -71,11 +71,11 @@ export default function SignupScreen() {
             </View>
 
             <View style={[styles.input, { flex: 1, marginLeft: 8 }]}>
-              <Text style={styles.inputLabel}>Last Name</Text>
+              <Text style={styles.inputLabel}>Mbiemri</Text>
               <TextInput
                 autoCapitalize="words"
                 autoCorrect={false}
-                placeholder="Doe"
+                placeholder="Fisteku"
                 placeholderTextColor="#6b7280"
                 style={styles.inputControl}
                 value={form.lastname}
@@ -85,12 +85,12 @@ export default function SignupScreen() {
           </View>
 
           <View style={styles.input}>
-            <Text style={styles.inputLabel}>Email address</Text>
+            <Text style={styles.inputLabel}>Email adresa</Text>
             <TextInput
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="email-address"
-              placeholder="john@example.com"
+              placeholder="filan@example.com"
               placeholderTextColor="#6b7280"
               style={styles.inputControl}
               value={form.email}
@@ -99,7 +99,7 @@ export default function SignupScreen() {
           </View>
 
           <View style={styles.input}>
-            <Text style={styles.inputLabel}>Password</Text>
+            <Text style={styles.inputLabel}>Fjalëkalimi</Text>
             <TextInput
               secureTextEntry={true}
               placeholder="********"
@@ -111,7 +111,7 @@ export default function SignupScreen() {
           </View>
 
           <View style={styles.input}>
-            <Text style={styles.inputLabel}>Confirm Password</Text>
+            <Text style={styles.inputLabel}>Konfirmo Fjalëkalimin</Text>
             <TextInput
               secureTextEntry={true}
               placeholder="********"
@@ -124,7 +124,7 @@ export default function SignupScreen() {
 
           <TouchableOpacity onPress={handleSignUp}>
               <View style={styles.btn}>
-                <Text style={styles.btnText}>Sign Up</Text>
+                <Text style={styles.btnText}>Regjistrohu</Text>
               </View>
           </TouchableOpacity>
 
@@ -133,7 +133,8 @@ export default function SignupScreen() {
             onPress={() => {
               router.push('/');
             }}>
-            <Text style={styles.formLink}>Already have an account? Sign in</Text>
+            <Text style={styles.formLink}>Keni tashmë një llogari? <Text style={{ textDecorationLine: 'underline', color: '#075eec' }}>Identifikohu</Text>
+        </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -222,7 +223,7 @@ const styles = StyleSheet.create({
   formLink: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#075eec',
+    color: '#000000ff',
     textAlign: 'center',
   },
 });

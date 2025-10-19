@@ -10,30 +10,22 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function ForgotPasswordScreen() {
+
+export default function LoginScreen() {
   const [form, setForm] = useState({
     email: '',
     password: '',
-    confirmPassword: '',
   });
-
   const router = useRouter();
 
-  const handleResetPassword = () => {
-    if (!form.email || !form.password || !form.confirmPassword) {
-      alert('Please fill in all fields.');
-      return;
-    }
+  const handleSignIn = () => {
+  if (!form.email || !form.password) {
+    alert('Please fill in both email and password.');
+    return;
+  }
+  router.replace('/homepage'); 
+};
 
-    if (form.password !== form.confirmPassword) {
-      alert('Passwords do not match.');
-      return;
-    }
-
-    
-    alert('Password successfully reset!');
-    router.replace('/'); 
-  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
@@ -43,75 +35,76 @@ export default function ForgotPasswordScreen() {
             alt="App Logo"
             resizeMode="contain"
             style={styles.headerImg}
-            source={require('./../assets/images/login.png')}
-          />
+            source={require('./../assets/images/login.png')} />
 
           <Text style={styles.title}>
-            Rivendosni <Text style={{ color: '#075eec' }}>Fjalëkalimin</Text>
+            Mirë se erdhët në
           </Text>
+          <Text style={[styles.title, { color: '#075eec' }]}>
+                 Piqe-Hiqe</Text>
 
           <Text style={styles.subtitle}>
-            Shkruani emailin tuaj dhe vendosni një fjalëkalim të ri për të vazhduar.
+            Mëso me zgjuarsi, jo me lodhje
           </Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.input}>
             <Text style={styles.inputLabel}>Email adresa</Text>
+
             <TextInput
               autoCapitalize="none"
               autoCorrect={false}
+              clearButtonMode="while-editing"
               keyboardType="email-address"
+              onChangeText={email => setForm({ ...form, email })}
               placeholder="filan@example.com"
               placeholderTextColor="#6b7280"
               style={styles.inputControl}
-              value={form.email}
-              onChangeText={(email) => setForm({ ...form, email })}
-            />
+              value={form.email} />
           </View>
 
           <View style={styles.input}>
-            <Text style={styles.inputLabel}>Fjalëkalim i ri</Text>
-            <TextInput
-              secureTextEntry={true}
-              placeholder="********"
-              placeholderTextColor="#6b7280"
-              style={styles.inputControl}
-              value={form.password}
-              onChangeText={(password) => setForm({ ...form, password })}
-            />
-          </View>
+            <Text style={styles.inputLabel}>Fjalëkalimi</Text>
 
-          <View style={styles.input}>
-            <Text style={styles.inputLabel}>Konfirmo fjalëkalimin e ri</Text>
             <TextInput
-              secureTextEntry={true}
+              autoCorrect={false}
+              clearButtonMode="while-editing"
+              onChangeText={password => setForm({ ...form, password })}
               placeholder="********"
               placeholderTextColor="#6b7280"
               style={styles.inputControl}
-              value={form.confirmPassword}
-              onChangeText={(confirmPassword) =>
-                setForm({ ...form, confirmPassword })
-              }
-            />
+              secureTextEntry={true}
+              value={form.password} />
           </View>
 
           <View style={styles.formAction}>
-            <TouchableOpacity onPress={handleResetPassword}>
+            <TouchableOpacity onPress={handleSignIn}>
               <View style={styles.btn}>
-                <Text style={styles.btnText}>Update Password</Text>
+               <Text style={styles.btnText}>Identifikohu</Text>
               </View>
             </TouchableOpacity>
+
           </View>
 
           <TouchableOpacity
             onPress={() => {
-              router.push('/');
+              router.push('/forgotpassword');
             }}>
-            <Text style={styles.formLink}>Back to Sign In</Text>
+            <Text style={styles.formLink}>Kamë harruar fjalëkalimin?</Text>
           </TouchableOpacity>
         </View>
       </View>
+
+      <TouchableOpacity
+        onPress={() => {
+          router.push('/signup');
+        }}>
+        <Text style={styles.formFooter}>
+          Nuk keni një llogari?{' '}
+          <Text style={{ textDecorationLine: 'underline', color: '#075eec' }}>Regjistrohu</Text>
+        </Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -119,21 +112,12 @@ export default function ForgotPasswordScreen() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 0,
     padding: 24,
   },
-  header: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 40,
-  },
-  headerImg: {
-    width: 80,
-    height: 80,
-    alignSelf: 'center',
-    marginBottom: 30,
-  },
   title: {
-    fontSize: 30,
+    fontSize: 31,
     fontWeight: '700',
     color: '#1D2A32',
     marginBottom: 6,
@@ -142,13 +126,44 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     color: '#929292',
-    textAlign: 'center',
-    marginHorizontal: 20,
   },
+  /** Header */
+  header: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 36,
+  },
+  headerImg: {
+    width: 80,
+    height: 80,
+    alignSelf: 'center',
+    marginBottom: 36,
+  },
+  /** Form */
   form: {
     flexGrow: 1,
-    justifyContent: 'center',
+    flexShrink: 1,
+    flexBasis: 0,
   },
+  formAction: {
+    marginTop: 4,
+    marginBottom: 16,
+  },
+  formLink: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#075eec',
+    textAlign: 'center',
+  },
+  formFooter: {
+    paddingVertical: 24,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#222',
+    textAlign: 'center',
+    letterSpacing: 0.15,
+  },
+  /** Input */
   input: {
     marginBottom: 16,
   },
@@ -168,11 +183,9 @@ const styles = StyleSheet.create({
     color: '#222',
     borderWidth: 1,
     borderColor: '#C9D3DB',
+    borderStyle: 'solid',
   },
-  formAction: {
-    marginTop: 10,
-    marginBottom: 16,
-  },
+  /** Button */
   btn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -189,11 +202,5 @@ const styles = StyleSheet.create({
     lineHeight: 26,
     fontWeight: '600',
     color: '#fff',
-  },
-  formLink: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#075eec',
-    textAlign: 'center',
   },
 });
