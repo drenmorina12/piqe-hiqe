@@ -1,15 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import {
-  FlatList,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View
-} from 'react-native';
+import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CollectionCard from '../../components/ui/CollectionCard';
 import { getSubjectById } from '../../constants/mockData';
@@ -18,7 +10,7 @@ export default function SubjectCollectionsScreen() {
   const { id } = useLocalSearchParams();
   const subject = getSubjectById(id);
 
-  // State for collections (will be updated dynamically)
+  // State for collections
   const [collections, setCollections] = useState(subject?.collections || []);
   const [modalVisible, setModalVisible] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState('');
@@ -106,10 +98,7 @@ export default function SubjectCollectionsScreen() {
         />
 
         {/* Add Collection Button */}
-        <Pressable
-          style={styles.addButton}
-          onPress={() => setModalVisible(true)}
-        >
+        <Pressable style={styles.addButton} onPress={() => setModalVisible(true)}>
           <Ionicons name="add" size={20} color="#4F46E5" />
           <Text style={styles.addButtonText}>Add Collection</Text>
         </Pressable>

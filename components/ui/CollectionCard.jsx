@@ -8,19 +8,12 @@ const CollectionCard = ({ collection, onPress, gradientColors }) => {
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.card,
-        pressed && styles.cardPressed,
-      ]}
+      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
     >
       <View style={styles.content}>
         {/* Icon */}
         <View style={[styles.iconWrapper, isCompleted ? styles.iconCompleted : styles.iconDefault]}>
-          <Ionicons
-            name="folder-open"
-            size={24}
-            color={isCompleted ? '#059669' : '#4F46E5'}
-          />
+          <Ionicons name="folder-open" size={24} color={isCompleted ? '#059669' : '#4F46E5'} />
         </View>
 
         {/* Collection Info */}
