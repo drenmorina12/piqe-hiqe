@@ -1,20 +1,17 @@
-// app/profile.jsx
 
 import { StyleSheet, Text, View } from 'react-native';
-// Kujdes: Përdorni këtë import nëse keni instaluar react-native-safe-area-context
+
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
   return (
-    // Përdoret SafeAreaView për të shmangur zonat e 'notch' dhe 'status bar'
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         
-        {/* Titulli */}
+      
         <Text style={styles.title}>Profili i Përdoruesit</Text>
         <Text style={styles.subtitle}>Detajet dhe Vendosjet</Text>
         
-        {/* Detajet e Profilit (Statistikat individuale) */}
         <View style={styles.infoBox}>
           <Text style={styles.infoLabel}>Emri:</Text>
           <Text style={styles.infoValue}>Dren Morina</Text>
@@ -30,7 +27,6 @@ export default function ProfileScreen() {
           <Text style={styles.infoValue}>4</Text>
         </View>
 
-        {/* Buton për të dalë (Logout) */}
         <View style={styles.logoutContainer}>
           <Text style={styles.logoutButton}>Dil (Logout)</Text>
         </View>
@@ -72,7 +68,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 8,
     borderLeftWidth: 5,
-    borderLeftColor: '#007AFF', // Një ngjyrë theksi
+    borderLeftColor: '#007AFF',
     elevation: 1,
   },
   infoLabel: {
