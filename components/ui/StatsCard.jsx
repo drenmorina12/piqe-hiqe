@@ -1,30 +1,23 @@
-// components/ui/StatsCard.jsx (VERSIONI FINAL)
 
 import { StyleSheet, Text, View } from 'react-native';
 
 const StatsCard = ({ subject, easy, medium, hard, label }) => {
-  // Përcakton modalitetin e shfaqjes
   const isGeneralStat = label !== undefined;
 
-  // Tani return kthen VETËM një element të vetëm View
   return (
     <View style={[styles.card, isGeneralStat && styles.generalCard]}>
       
-      {/* 1. Titulli/Vlera Kryesore (përdoret për shifrën e madhe në modalitetin General) */}
       <Text style={[styles.subjectTitle, isGeneralStat && styles.generalValue]}>
           {subject} 
       </Text>
       
-      {/* 2. Etiketa e Përgjithshme (shfaqet vetëm në modalitetin General) */}
       {isGeneralStat && (
         <Text style={styles.generalLabel}>{label}</Text>
       )}
 
-      {/* 3. Kontrolli i Progresit (shfaqet vetëm në modalitetin e Lëndëve) */}
       {!isGeneralStat && (
         <View style={styles.statsGroup}>
           
-          {/* Stat e Lehtë (Easy) */}
           <View style={styles.statItem}>
             <View style={[styles.progressCircle, styles.easyColor]}>
               <Text style={styles.progressText}>{easy}%</Text>
@@ -33,7 +26,6 @@ const StatsCard = ({ subject, easy, medium, hard, label }) => {
             <Text style={styles.statValue}>{Math.round(easy * 10)}</Text>
           </View>
 
-          {/* Stat Mesatare (Medium) */}
           <View style={styles.statItem}>
             <View style={[styles.progressCircle, styles.mediumColor]}>
               <Text style={styles.progressText}>{medium}%</Text>
@@ -42,7 +34,6 @@ const StatsCard = ({ subject, easy, medium, hard, label }) => {
             <Text style={styles.statValue}>{Math.round(medium * 10)}</Text>
           </View>
 
-          {/* Stat Vështirë (Hard) */}
           <View style={styles.statItem}>
             <View style={[styles.progressCircle, styles.hardColor]}>
               <Text style={styles.progressText}>{hard}%</Text>
@@ -136,5 +127,4 @@ const styles = StyleSheet.create({
   }
 });
 
-// Eksporti i emërtuar (Named Export)
 export { StatsCard };
