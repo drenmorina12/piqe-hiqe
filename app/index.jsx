@@ -26,7 +26,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <StatusBar style="light" />
+      <StatusBar style="light" backgroundColor="#007AFF" />
       <Header
       title="Piqe-Hiqe"
       subtitle="Your daily lessons"
