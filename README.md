@@ -7,12 +7,13 @@ Helps manage study sessions with timers and reminders, while tracking progress a
 
 ## 👥 Team Members
 
-- ..
-- ..
-- ..
-- ..
-- ..
-- ..
+- Erëza Temaj
+- Dituri Kodra
+- Djellza Jasiqi 
+- Dren Morina
+- Nora Morina
+- Riga Ferati
+
 
 ---
 
