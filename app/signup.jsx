@@ -21,6 +21,22 @@ export default function SignupScreen() {
 
   const router = useRouter();
 
+  const handleSignUp = () => {
+  if (!form.name || !form.lastname || !form.email || !form.password || !form.confirmPassword) {
+    alert('Please fill in all fields.');
+    return;
+  }
+
+  if (form.password !== form.confirmPassword) {
+    alert('Passwords do not match.');
+    return;
+  }
+
+  alert('Account created successfully!');
+  router.replace('/homepage');
+};
+
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
       <View style={styles.container}>
@@ -106,17 +122,12 @@ export default function SignupScreen() {
             />
           </View>
 
-          <View style={styles.formAction}>
-            <TouchableOpacity
-              onPress={() => {
-                // Later: add validation or API call
-                router.replace('/homepage');
-              }}>
+          <TouchableOpacity onPress={handleSignUp}>
               <View style={styles.btn}>
                 <Text style={styles.btnText}>Sign Up</Text>
               </View>
-            </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
+
 
           <TouchableOpacity
             onPress={() => {

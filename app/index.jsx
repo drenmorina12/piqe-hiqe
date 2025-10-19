@@ -18,6 +18,15 @@ export default function WelcomeScreen() {
   });
   const router = useRouter();
 
+  const handleSignIn = () => {
+  if (!form.email || !form.password) {
+    alert('Please fill in both email and password.');
+    return;
+  }
+  router.replace('/homepage'); 
+};
+
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
       <View style={styles.container}>
@@ -68,14 +77,12 @@ export default function WelcomeScreen() {
           </View>
 
           <View style={styles.formAction}>
-            <TouchableOpacity
-              onPress={() => {
-                router.push('/homepage');
-              }}>
+            <TouchableOpacity onPress={handleSignIn}>
               <View style={styles.btn}>
-                <Text style={styles.btnText}>Sign in</Text>
+               <Text style={styles.btnText}>Sign in</Text>
               </View>
             </TouchableOpacity>
+
           </View>
 
           <TouchableOpacity

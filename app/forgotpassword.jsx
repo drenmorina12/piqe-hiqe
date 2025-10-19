@@ -1,12 +1,12 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-    Image,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -20,7 +20,6 @@ export default function ForgotPasswordScreen() {
   const router = useRouter();
 
   const handleResetPassword = () => {
-    // Simple frontend validation before navigating
     if (!form.email || !form.password || !form.confirmPassword) {
       alert('Please fill in all fields.');
       return;
@@ -31,10 +30,9 @@ export default function ForgotPasswordScreen() {
       return;
     }
 
-    // Later: send form data to backend API here
-
+    
     alert('Password successfully reset!');
-    router.replace('/'); // go back to login
+    router.replace('/'); 
   };
 
   return (
