@@ -5,7 +5,7 @@ import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-na
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/layout/Header';
 import SubjectCard from '../components/ui/SubjectCard';
-
+import { StatsCard } from '../components/ui/StatsCard';
 export default function HomeScreen() {
   const [subjects, setSubjects] = useState([]);
   const [newSubject, setNewSubject] = useState('');
@@ -33,6 +33,14 @@ export default function HomeScreen() {
       />
 
       <View style={styles.container}>
+        
+        <View style={styles.generalStatsContainer}>
+          
+            <StatsCard subject="12" easy={0} medium={0} hard={0} label="Day Streak" />
+            <StatsCard subject="245" easy={0} medium={0} hard={0} label="Cards Done" />
+            <StatsCard subject="6" easy={0} medium={0} hard={0} label="Subjects" />
+            </View>
+
         <Text style={styles.title}>Your Subjects</Text>
 
         {showInput && (
@@ -76,6 +84,12 @@ export default function HomeScreen() {
                 <Text style={styles.linkText}>Subjects</Text>
               </Pressable>
             </Link>
+            
+            <Link href="/progress" asChild>
+              <Pressable style={styles.link}>
+                <Text style={styles.linkText}>Shiko Progresin</Text> 
+              </Pressable>
+            </Link>
 
             <Link href="/profile" asChild>
               <Pressable style={styles.link}>
@@ -100,17 +114,21 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
+    marginTop: 10,
+    alignSelf: 'flex-start',
   },
   inputContainer: {
     flexDirection: 'row',
     marginBottom: 20,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 8,
     borderRadius: 6,
+    flex: 1,
     width: 200,
     marginRight: 10,
   },
@@ -137,8 +155,19 @@ const styles = StyleSheet.create({
   subjectText: {
     fontSize: 16,
   },
+  generalStatsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 5, 
+    width: '100%',
+    marginBottom: 20,
+  },
 
   linksWrapper: {
+    paddingVertical: 20,
+    width: '100%',
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
     flex: 1,
     justifyContent: 'center',
   },
@@ -151,10 +180,16 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
+     width: '80%', 
+    alignItems: 'center',
   },
   linkText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+   list: {
+    width: '100%',
+    flexGrow: 1,
   },
 });
