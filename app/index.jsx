@@ -3,8 +3,8 @@ import { Link } from 'expo-router';
 import { useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 import Header from '../components/layout/Header';
+import SubjectCard from '../components/ui/SubjectCard';
 
 export default function HomeScreen() {
   const [subjects, setSubjects] = useState([]);
@@ -52,11 +52,15 @@ export default function HomeScreen() {
         <FlatList
           data={subjects}
           keyExtractor={(item, index) => index.toString()}
+          numColumns={2}
+          columnWrapperStyle={{ justifyContent: 'space-between', paddingHorizontal: 10 }}
+          contentContainerStyle={{ paddingVertical: 10 }}
           renderItem={({ item }) => (
-            <View style={styles.subjectItem}>
-              <Text style={styles.subjectText}>{item}</Text>
-              <Pressable onPress={() => removeSubject(item)}>
-                <Ionicons name="trash" size={22} color="red" />
+            <View style={{ marginBottom: 15 }}>
+              <SubjectCard subjectName={item} icon={require('../assets/images/flashcard.png')} iconBackgroundColor="#bcdee1ff" collectionCount={5}
+            />
+              <Pressable onPress={() => removeSubject(item)} style={{ marginTop: 4, alignSelf: 'flex-end' }}>
+                <Ionicons name="trash" size={22} color="green"  />
               </Pressable>
             </View>
           )}
