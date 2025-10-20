@@ -42,15 +42,14 @@ export default function SubjectCollectionsScreen() {
   };
 
   const handleCollectionPress = (collection) => {
-  router.push({
-    pathname: "/subjects/flashcards",
-    params: {
-      subjectId: String(id),
-      collectionId: String(collection.id),
-    },
-  });
-};
-
+    router.push({
+      pathname: `/subjects/[subjectId]/collections/[collectionId]`,
+      params: {
+        subjectId: String(id),
+        collectionId: String(collection.id),
+      },
+    });
+  };
 
   return (
     <View style={styles.container}>
