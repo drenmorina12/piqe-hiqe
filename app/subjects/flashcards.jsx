@@ -1,6 +1,6 @@
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useMemo, useRef, useState } from "react";
-import { FlatList, SafeAreaView, StatusBar, StyleSheet, View } from "react-native";
+import { FlatList, StatusBar, StyleSheet, View } from "react-native";
 import SubjectHeader from "../../components/layout/SubjectHeader";
 import Button from "../../components/ui/Button";
 import FlashcardCard from "../../components/ui/FlashcardCard";
@@ -28,6 +28,7 @@ const flashcards = [
 
 export default function FlashcardsScreen() {
   const router = useRouter();
+  const { subjectId, collectionId } = useLocalSearchParams();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState({});
@@ -53,31 +54,31 @@ export default function FlashcardsScreen() {
     if (currentIndex < total - 1) {
       flatRef.current?.scrollToIndex({ index: currentIndex + 1, animated: true });
     } else {
-      router.replace("/collection"); 
+      router.replace(`/subjects/${subjectId}`);
     }
   };
 
   return (
-    <SafeAreaView style={styles.screen}>
-      <StatusBar barStyle="light-content" />
+    <View style={styles.screen}>
+          <StatusBar barStyle="light-content" />
 
       {/* Subject header */}
       <SubjectHeader
         subject={{
           name: "Mathematics",
-          icon: "book-outline",     
-          headerColor: "#4F46E5",   
+          icon: "book-outline",
+          headerColor: "#f090dbff",
         }}
         collectionCount={total}
-        onBackPress={() => router.replace("/collection")}
+        onBackPress={() => router.replace(`/subjects/${subjectId}`)}
       />
 
-      {/* Progress */}
+      {/* Progress bar */}
       <View style={styles.progressWrap}>
-        <ProgressBar current={progress} total={total} />
+        <ProgressBar value={progress / total} />
       </View>
 
-      {/* Cards */}
+      {/* Flashcards */}
       <FlatList
         ref={flatRef}
         data={flashcards}
@@ -93,23 +94,22 @@ export default function FlashcardsScreen() {
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16 }}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
       />
 
-      {/* Action Buttons */}
+      {/* Action buttons */}
       <View style={styles.buttonsContainer}>
         <View style={styles.row}>
           <Button
             title="Repeat"
             onPress={handleNext}
-            style={[styles.btn, { backgroundColor: "#DC2626" }]}
+            style={[styles.btn, { backgroundColor: "#dcbb26ff" }]}
           />
           <Button
             title="Hard"
             onPress={handleNext}
-            style={[styles.btn, { backgroundColor: "#EA580C" }]}
+            style={[styles.btn, { backgroundColor: "#c81616ff" }]}
           />
         </View>
 
@@ -117,23 +117,24 @@ export default function FlashcardsScreen() {
           <Button
             title="Medium"
             onPress={handleNext}
-            style={[styles.btn, { backgroundColor: "#3B82F6" }]}
+            style={[styles.btn, { backgroundColor: "#dbeb50ff" }]}
           />
           <Button
             title="Easy"
             onPress={handleNext}
-            style={[styles.btn, { backgroundColor: "rgba(166, 167, 246, 1)" }]}
+            style={[styles.btn, { backgroundColor: "rgba(124, 238, 85, 1)" }]}
           />
         </View>
       </View>
-    </SafeAreaView>
+    </View>
+    
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: "#F9FAFB" },
   progressWrap: { marginTop: 8, marginHorizontal: 16 },
-  buttonsContainer: { paddingHorizontal: 16, paddingBottom: 16 },
+  buttonsContainer: { paddingHorizontal: 16, paddingBottom: 16, marginBottom: 20 },
   row: { flexDirection: "row", gap: 12, marginTop: 8 },
   btn: {
     height: 56,

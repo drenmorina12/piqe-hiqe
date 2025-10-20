@@ -34,12 +34,12 @@ export default function FlashcardCard({ question, answer, revealed, onReveal }) 
 const styles = StyleSheet.create({
   wrapper: {
     width,
-    paddingVertical: 40,
+    paddingVertical: 15,
     alignItems: "center",
   },
   card: {
-    width: width * 0.85, 
-    minHeight: height * 0.55, 
+    width: width * 0.89, 
+    minHeight: height * 0.50, 
     backgroundColor: "#FFFFFF",
     borderRadius: 24,
     paddingVertical: 32,

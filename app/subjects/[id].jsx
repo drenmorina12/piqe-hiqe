@@ -42,9 +42,15 @@ export default function SubjectCollectionsScreen() {
   };
 
   const handleCollectionPress = (collection) => {
-    // TODO: Navigate to flashcards screen
-    console.log('Collection pressed:', collection.name);
-  };
+  router.push({
+    pathname: "/subjects/flashcards",
+    params: {
+      subjectId: String(id),
+      collectionId: String(collection.id),
+    },
+  });
+};
+
 
   return (
     <View style={styles.container}>
