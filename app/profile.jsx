@@ -1,7 +1,9 @@
 
 import { StyleSheet, Text, View } from 'react-native';
 
+import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Button from '../components/ui/Button';
 
 export default function ProfileScreen() {
   return (
@@ -28,7 +30,11 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.logoutContainer}>
-          <Text style={styles.logoutButton}>Dil (Logout)</Text>
+          <Button style={{backgroundColor: '#075eec',
+    borderRadius: 30,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center'}} title="Dil (Logout)" onPress={() => router.push('/login')} />
         </View>
 
       </View>
