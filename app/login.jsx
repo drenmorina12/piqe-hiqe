@@ -1,15 +1,8 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import {
-  Image,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import Button from '../components/ui/Button';
 
 export default function WelcomeScreen() {
   const [form, setForm] = useState({
@@ -19,13 +12,12 @@ export default function WelcomeScreen() {
   const router = useRouter();
 
   const handleSignIn = () => {
-  if (!form.email || !form.password) {
-    alert('Please fill in both email and password.');
-    return;
-  }
-  router.replace('/'); 
-};
-
+    if (!form.email || !form.password) {
+      alert('Please fill in both email and password.');
+      return;
+    }
+    router.replace('/');
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
@@ -35,15 +27,14 @@ export default function WelcomeScreen() {
             alt="App Logo"
             resizeMode="contain"
             style={styles.headerImg}
-            source={require('./../assets/images/login.png')} />
+            source={require('./../assets/images/login.png')}
+          />
 
           <Text style={styles.title}>
             Welcome to<Text style={{ color: '#075eec' }}> Piqe-Hiqe</Text>
           </Text>
 
-          <Text style={styles.subtitle}>
-            Learn smarter, not harder
-          </Text>
+          <Text style={styles.subtitle}>Learn smarter, not harder</Text>
         </View>
 
         <View style={styles.form}>
@@ -55,11 +46,12 @@ export default function WelcomeScreen() {
               autoCorrect={false}
               clearButtonMode="while-editing"
               keyboardType="email-address"
-              onChangeText={email => setForm({ ...form, email })}
+              onChangeText={(email) => setForm({ ...form, email })}
               placeholder="john@example.com"
               placeholderTextColor="#6b7280"
               style={styles.inputControl}
-              value={form.email} />
+              value={form.email}
+            />
           </View>
 
           <View style={styles.input}>
@@ -68,27 +60,29 @@ export default function WelcomeScreen() {
             <TextInput
               autoCorrect={false}
               clearButtonMode="while-editing"
-              onChangeText={password => setForm({ ...form, password })}
+              onChangeText={(password) => setForm({ ...form, password })}
               placeholder="********"
               placeholderTextColor="#6b7280"
               style={styles.inputControl}
               secureTextEntry={true}
-              value={form.password} />
+              value={form.password}
+            />
           </View>
 
           <View style={styles.formAction}>
-            <TouchableOpacity onPress={handleSignIn}>
-              <View style={styles.btn}>
-               <Text style={styles.btnText}>Sign in</Text>
-              </View>
-            </TouchableOpacity>
-
+            <Button
+              title="Sign in"
+              onPress={handleSignIn}
+              style={styles.btn}
+              textStyle={styles.btnText}
+            />
           </View>
 
           <TouchableOpacity
             onPress={() => {
               router.push('/forgotpassword');
-            }}>
+            }}
+          >
             <Text style={styles.formLink}>Forgot password?</Text>
           </TouchableOpacity>
         </View>
@@ -97,10 +91,10 @@ export default function WelcomeScreen() {
       <TouchableOpacity
         onPress={() => {
           router.push('/signup');
-        }}>
+        }}
+      >
         <Text style={styles.formFooter}>
-          Don't have an account?{' '}
-          <Text style={{ textDecorationLine: 'underline' }}>Sign up</Text>
+          Don't have an account? <Text style={{ textDecorationLine: 'underline' }}>Sign up</Text>
         </Text>
       </TouchableOpacity>
     </SafeAreaView>
