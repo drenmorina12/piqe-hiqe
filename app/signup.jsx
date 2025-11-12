@@ -1,14 +1,8 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import {
-  Image,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Button from '../components/ui/Button';
 export default function SignupScreen() {
   const [form, setForm] = useState({
     name: '',
@@ -19,17 +13,17 @@ export default function SignupScreen() {
   });
   const router = useRouter();
   const handleSignUp = () => {
-  if (!form.name || !form.lastname || !form.email || !form.password || !form.confirmPassword) {
-    alert('Please fill in all fields.');
-    return;
-  }
-  if (form.password !== form.confirmPassword) {
-    alert('Passwords do not match.');
-    return;
-  }
-  alert('Account created successfully!');
-  router.replace('/login');
-};
+    if (!form.name || !form.lastname || !form.email || !form.password || !form.confirmPassword) {
+      alert('Please fill in all fields.');
+      return;
+    }
+    if (form.password !== form.confirmPassword) {
+      alert('Passwords do not match.');
+      return;
+    }
+    alert('Account created successfully!');
+    router.replace('/login');
+  };
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
       <View style={styles.container}>
@@ -115,16 +109,18 @@ export default function SignupScreen() {
             />
           </View>
 
-          <TouchableOpacity onPress={handleSignUp}>
-              <View style={styles.btn}>
-                <Text style={styles.btnText}>Sign Up</Text>
-              </View>
-          </TouchableOpacity>
+          <Button
+            title="Sign Up"
+            onPress={handleSignUp}
+            style={styles.btn}
+            textStyle={styles.btnText}
+          />
 
           <TouchableOpacity
             onPress={() => {
               router.push('/');
-            }}>
+            }}
+          >
             <Text style={styles.formLink}>Already have an account? Sign in</Text>
           </TouchableOpacity>
         </View>
