@@ -1,8 +1,11 @@
 import { useRouter } from 'expo-router';
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Button from '../components/ui/Button';
+import { auth } from '../firebase';
+
 
 export default function WelcomeScreen() {
   const [form, setForm] = useState({
@@ -11,13 +14,40 @@ export default function WelcomeScreen() {
   });
   const router = useRouter();
 
-  const handleSignIn = () => {
-    if (!form.email || !form.password) {
-      alert('Please fill in both email and password.');
-      return;
-    }
-    router.replace('/');
-  };
+  const handleSignIn = async () => {
+  // 1. Validimi i inputeve PARA login-it
+  if (!form.email || !form.password) {
+    alert('Please fill in both email and password.');
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(form.email)) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+
+  try {
+    // 2. Thirrja e Firebase, presim me `await`
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      form.email.trim(),
+      form.password
+    );
+
+    const user = userCredential.user; // user është këtu
+
+    // 3. Nëse arriti këtu, login ka sukses
+    alert('Successfully signed in!');
+    router.replace('/'); // shko në Home / root
+
+  } catch (error) {
+    // 4. Kapim gabimin (p.sh. auth/invalid-credential)
+    console.log('LOGIN ERROR:', error.code, error.message);
+    alert('Signed in failed. Please check your credentials and try again.');
+  }
+};
+
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
