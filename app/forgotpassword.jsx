@@ -1,57 +1,67 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-    Image,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '../firebase'; // NDRYSHO rrugën nëse firebase.js është diku tjetër
+
 export default function ForgotPasswordScreen() {
-  const [form, setForm] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const handleResetPassword = () => {
-    if (!form.email || !form.password || !form.confirmPassword) {
-      alert('Please fill in all fields.');
+
+  const handleResetPassword = async () => {
+    if (!email) {
+      alert('Please enter your email.');
       return;
     }
-    if (form.password !== form.confirmPassword) {
-      alert('Passwords do not match.');
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert('Please enter a valid email address.');
       return;
     }
-    
-    alert('Password successfully reset!');
-    router.replace('/login'); 
+
+    try {
+      setLoading(true);
+      await sendPasswordResetEmail(auth, email.trim());
+      alert('Password reset email sent! Please check your inbox.');
+      router.replace('/login'); // ose router.back() nëse do veç me u kthy
+    } catch (error) {
+      console.log('RESET ERROR:', error.code, error.message);
+
+      if (error.code === 'auth/user-not-found') {
+        alert('No user found with this email.');
+      } else {
+        alert('Failed to send reset email: ' + error.code);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
+    <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
+        {/* Header / Logo nëse don me përdor imazhin */}
         <View style={styles.header}>
-          <Image
-            alt="App Logo"
-            resizeMode="contain"
-            style={styles.headerImg}
-            source={require('./../assets/images/login.png')}
-          />
-
-          <Text style={styles.title}>
-            Reset <Text style={{ color: '#075eec' }}>Password</Text>
-          </Text>
-
+          <Text style={styles.title}>Forgot Password</Text>
           <Text style={styles.subtitle}>
-            Enter your email and set a new password to continue.
+            Enter your email and we will send you a link to reset your password.
           </Text>
         </View>
 
+        {/* Forma */}
         <View style={styles.form}>
           <View style={styles.input}>
-            <Text style={styles.inputLabel}>Email address</Text>
+            <Text style={styles.inputLabel}>Email</Text>
             <TextInput
               autoCapitalize="none"
               autoCorrect={false}
@@ -59,120 +69,101 @@ export default function ForgotPasswordScreen() {
               placeholder="john@example.com"
               placeholderTextColor="#6b7280"
               style={styles.inputControl}
-              value={form.email}
-              onChangeText={(email) => setForm({ ...form, email })}
+              value={email}
+              onChangeText={setEmail}
             />
           </View>
 
-          <View style={styles.input}>
-            <Text style={styles.inputLabel}>New password</Text>
-            <TextInput
-              secureTextEntry={true}
-              placeholder="********"
-              placeholderTextColor="#6b7280"
-              style={styles.inputControl}
-              value={form.password}
-              onChangeText={(password) => setForm({ ...form, password })}
-            />
-          </View>
-
-          <View style={styles.input}>
-            <Text style={styles.inputLabel}>Confirm new password</Text>
-            <TextInput
-              secureTextEntry={true}
-              placeholder="********"
-              placeholderTextColor="#6b7280"
-              style={styles.inputControl}
-              value={form.confirmPassword}
-              onChangeText={(confirmPassword) =>
-                setForm({ ...form, confirmPassword })
-              }
-            />
-          </View>
           <View style={styles.formAction}>
-            <TouchableOpacity onPress={handleResetPassword}>
-              <View style={styles.btn}>
-                <Text style={styles.btnText}>Update Password</Text>
+            <TouchableOpacity
+              onPress={handleResetPassword}
+              disabled={loading}
+            >
+              <View
+                style={[
+                  styles.btn,
+                  loading ? { opacity: 0.7 } : null,
+                ]}
+              >
+                <Text style={styles.btnText}>
+                  {loading ? 'Sending...' : 'Send reset email'}
+                </Text>
               </View>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            onPress={() => {
-              router.push('/login');
-            }}>
-            <Text style={styles.formLink}>Back to Sign In</Text>
+
+          <TouchableOpacity onPress={() => router.replace('/login')}>
+            <Text style={styles.formLink}>Back to Login</Text>
           </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
+  },
   container: {
-    flexGrow: 1,
-    padding: 24,
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingVertical: 32,
   },
   header: {
-    alignItems: 'center',
+    marginBottom: 32,
     justifyContent: 'center',
-    marginVertical: 40,
-  },
-  headerImg: {
-    width: 80,
-    height: 80,
-    alignSelf: 'center',
-    marginBottom: 30,
+    alignItems: 'center',
   },
   title: {
-    fontSize: 30,
+    fontSize: 28,
+    lineHeight: 34,
     fontWeight: '700',
-    color: '#1D2A32',
-    marginBottom: 6,
+    color: '#111827',
+    marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#929292',
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#6b7280',
     textAlign: 'center',
-    marginHorizontal: 20,
   },
   form: {
-    flexGrow: 1,
-    justifyContent: 'center',
+    flex: 1,
   },
   input: {
     marginBottom: 16,
   },
   inputLabel: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#222',
-    marginBottom: 8,
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#374151',
+    marginBottom: 6,
   },
   inputControl: {
-    height: 50,
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#222',
     borderWidth: 1,
-    borderColor: '#C9D3DB',
+    borderColor: '#d1d5db',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: '#111827',
+    backgroundColor: '#fff',
   },
   formAction: {
-    marginTop: 10,
-    marginBottom: 16,
+    marginTop: 16,
+    marginBottom: 12,
   },
   btn: {
-    flexDirection: 'row',
+    borderRadius: 9999,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 30,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderWidth: 1,
     backgroundColor: '#075eec',
+    borderWidth: 1,
     borderColor: '#075eec',
   },
   btnText: {
@@ -186,5 +177,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#075eec',
     textAlign: 'center',
+    marginTop: 8,
   },
 });

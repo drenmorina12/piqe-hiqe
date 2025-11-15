@@ -1,8 +1,11 @@
 import { useRouter } from 'expo-router';
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Button from '../components/ui/Button';
+import { auth } from "../firebase"; // ndrysho path nëse e ke ndryshe
+
 export default function SignupScreen() {
   const [form, setForm] = useState({
     name: '',
@@ -12,18 +15,65 @@ export default function SignupScreen() {
     confirmPassword: '',
   });
   const router = useRouter();
-  const handleSignUp = () => {
-    if (!form.name || !form.lastname || !form.email || !form.password || !form.confirmPassword) {
-      alert('Please fill in all fields.');
-      return;
+  const handleSignUp = async () => {
+  // 1. Validimi bazik
+  if (
+    !form.name ||
+    !form.lastname ||
+    !form.email ||
+    !form.password ||
+    !form.confirmPassword
+  ) {
+    alert("Please fill in all fields.");
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(form.email)) {
+    alert("Please enter a valid email address.");
+    return;
+  }
+
+  if (form.password.length < 6) {
+    alert("Password must be at least 6 characters long.");
+    return;
+  }
+
+  if (form.password !== form.confirmPassword) {
+    alert("Passwords do not match.");
+    return;
+  }
+
+  try {
+    // 2. Krijo user-in në Firebase
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      form.email.trim(),
+      form.password
+    );
+
+    const user = userCredential.user;
+
+    // 3. (Optional, por e bukur) – ruaj emrin si displayName
+    await updateProfile(user, {
+      displayName: `${form.name} ${form.lastname}`,
+    });
+
+    alert("Account created successfully!");
+
+    // 4. Pas sign up – çoje te login (siç e ke pasur më herët)
+    router.replace("/login");
+  } catch (error) {
+    console.log("SIGNUP ERROR:", error.code, error.message);
+
+    if (error.code === "auth/email-already-in-use") {
+      alert("This email is already in use. Try logging in.");
+    } else {
+      alert("Sign up failed: " + error.code);
     }
-    if (form.password !== form.confirmPassword) {
-      alert('Passwords do not match.');
-      return;
-    }
-    alert('Account created successfully!');
-    router.replace('/login');
-  };
+  }
+};
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
       <View style={styles.container}>
