@@ -284,23 +284,20 @@ export default function HomeScreen() {
           columnWrapperStyle={{ justifyContent: 'space-between', paddingHorizontal: 10 }}
           contentContainerStyle={{ paddingVertical: 10, paddingBottom: 100 }}
           renderItem={({ item }) => (
-            <View style={{ marginBottom: 15, width: '48%' }}>
-              <Pressable onPress={() => handleSubjectPress(item)}>
-                <SubjectCard
-                  subjectName={item.name}
-                  icon={require('../assets/images/flashcard.png')}
-                  iconBackgroundColor={item.iconBackgroundColor || '#E0F2FE'}
-                  collectionCount={item.collectionCount ?? 0}
-                />
-              </Pressable>
-              <Pressable
-                onPress={() => handleRemoveSubject(item.id)}
-                style={{ marginTop: 4, alignSelf: 'flex-end' }}
-              >
-                <Ionicons name="trash" size={22} color="#EF4444" />
-              </Pressable>
-            </View>
-          )}
+  <View style={{ marginBottom: 15, width: '48%' }}>
+    <Pressable onPress={() => handleSubjectPress(item)}>
+      <SubjectCard
+        subjectId={item.id}
+        subjectName={item.name}
+        icon={require('../assets/images/flashcard.png')}
+        iconBackgroundColor={item.iconBackgroundColor || '#E0F2FE'}
+        collectionCount={item.collectionCount ?? 0}
+        onDelete={handleRemoveSubject}
+      />
+    </Pressable>
+  </View>
+)}
+
           ListEmptyComponent={
             !loading && (
               <Text style={{ color: '#777', marginTop: 20 }}>Asnjë lëndë e shtuar deri tani.</Text>
