@@ -1,42 +1,135 @@
+
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { Link, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { onAuthStateChanged } from 'firebase/auth';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import Header from '../components/layout/Header';
 import { StatsCard } from '../components/ui/StatsCard';
 import SubjectCard from '../components/ui/SubjectCard';
-import { MOCK_SUBJECTS } from '../constants/mockData';
+
+import { auth } from '../firebase';
+import {
+  addSubject as createSubject,
+  deleteSubject as deleteSubjectFromDb,
+  fetchSubjects,
+} from '../firebase/subjectService';
 
 export default function HomeScreen() {
-  const [subjects, setSubjects] = useState(MOCK_SUBJECTS);
+  const [subjects, setSubjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [authReady, setAuthReady] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [newSubject, setNewSubject] = useState('');
   const [showInput, setShowInput] = useState(false);
 
-  const addSubject = () => {
-    if (newSubject.trim() !== '') {
-      const newSubjectData = {
-        id: Date.now().toString(),
-        name: newSubject.trim(),
-        icon: 'book',
-        iconBackgroundColor: '#E0F2FE',
-        headerColor: '#3B82F6',
-        collections: [],
-      };
-      setSubjects([...subjects, newSubjectData]);
+ 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.replace('/login');
+      } else {
+        setAuthReady(true);
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
+  
+  const loadSubjects = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const data = await fetchSubjects();
+      setSubjects(data);
+    } catch (err) {
+      console.log('Error fetching subjects:', err);
+      setError(err.message ?? 'Nuk u ngarkuan lëndët. Provo përsëri.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  
+  useEffect(() => {
+    if (authReady) {
+      loadSubjects();
+    }
+  }, [authReady, loadSubjects]);
+
+  
+  useFocusEffect(
+    useCallback(() => {
+      if (!authReady) return;
+      loadSubjects();
+    }, [authReady, loadSubjects])
+  );
+
+  const handleAddSubject = async () => {
+    if (!newSubject.trim()) return;
+
+    try {
+      setLoading(true);
+      setError('');
+      const created = await createSubject(newSubject);
+      setSubjects((prev) => [...prev, created]);
       setNewSubject('');
       setShowInput(false);
+      setSuccess('Subject u shtua me sukses.');
+      setTimeout(() => setSuccess(''), 2000);
+    } catch (err) {
+      console.log('Error adding subject:', err);
+      setError(err.message ?? 'Nuk u shtua subject-i. Provo përsëri.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const removeSubject = (subjectId) => {
-    setSubjects(subjects.filter((s) => s.id !== subjectId));
+  const handleRemoveSubject = async (subjectId) => {
+    try {
+      setLoading(true);
+      setError('');
+      await deleteSubjectFromDb(subjectId);
+      setSubjects((prev) => prev.filter((s) => s.id !== subjectId));
+      setSuccess('Subject u fshi.');
+      setTimeout(() => setSuccess(''), 2000);
+    } catch (err) {
+      console.log('Error deleting subject:', err);
+      setError(err.message ?? 'Nuk u fshi subject-i.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubjectPress = (subject) => {
-    router.push(`/subjects/${subject.id}`);
+    router.push({
+      pathname: '/subjects/[id]',
+      params: { id: subject.id },
+    });
   };
+
+ 
+  if (!authReady) {
+    return (
+      <SafeAreaView style={styles.centered}>
+        <ActivityIndicator size="large" />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
@@ -58,6 +151,7 @@ export default function HomeScreen() {
           </View>
         }
       />
+
       <View style={styles.container}>
         <View style={styles.generalStatsContainer}>
           <StatsCard subject="12" easy={0} medium={0} hard={0} label="Day Streak" />
@@ -73,6 +167,22 @@ export default function HomeScreen() {
 
         <Text style={styles.title}>Your Subjects</Text>
 
+        {loading && (
+          <View style={{ marginBottom: 10 }}>
+            <ActivityIndicator />
+          </View>
+        )}
+
+        {!!error && (
+          <Text style={{ color: '#EF4444', marginBottom: 8, textAlign: 'center' }}>{error}</Text>
+        )}
+
+        {!!success && (
+          <Text style={{ color: '#16A34A', marginBottom: 8, textAlign: 'center' }}>
+            {success}
+          </Text>
+        )}
+
         {showInput && (
           <View style={styles.inputContainer}>
             <TextInput
@@ -81,7 +191,7 @@ export default function HomeScreen() {
               value={newSubject}
               onChangeText={setNewSubject}
             />
-            <Pressable style={styles.addButton} onPress={addSubject}>
+            <Pressable style={styles.addButton} onPress={handleAddSubject}>
               <Text style={styles.addButtonText}>Add</Text>
             </Pressable>
           </View>
@@ -94,17 +204,18 @@ export default function HomeScreen() {
           columnWrapperStyle={{ justifyContent: 'space-between', paddingHorizontal: 10 }}
           contentContainerStyle={{ paddingVertical: 10, paddingBottom: 100 }}
           renderItem={({ item }) => (
-            <View style={{ marginBottom: 15 }}>
+            <View style={{ marginBottom: 15, width: '48%' }}>
               <Pressable onPress={() => handleSubjectPress(item)}>
                 <SubjectCard
                   subjectName={item.name}
                   icon={require('../assets/images/flashcard.png')}
-                  iconBackgroundColor={item.iconBackgroundColor}
-                  collectionCount={item.collections.length}
+                  iconBackgroundColor={item.iconBackgroundColor || '#E0F2FE'}
+                  collectionCount={item.collectionCount ?? 0}
                 />
+
               </Pressable>
               <Pressable
-                onPress={() => removeSubject(item.id)}
+                onPress={() => handleRemoveSubject(item.id)}
                 style={{ marginTop: 4, alignSelf: 'flex-end' }}
               >
                 <Ionicons name="trash" size={22} color="#EF4444" />
@@ -112,12 +223,13 @@ export default function HomeScreen() {
             </View>
           )}
           ListEmptyComponent={
-            <Text style={{ color: '#777', marginTop: 20 }}>No subjects added yet.</Text>
+            !loading && (
+              <Text style={{ color: '#777', marginTop: 20 }}>No subjects added yet.</Text>
+            )
           }
         />
       </View>
 
-      {/* Sticky Bottom Buttons */}
       <View style={styles.bottomButtonsContainer}>
         <Pressable style={styles.bottomButton} disabled>
           <Ionicons name="home" size={24} color="#007AFF" />
@@ -134,6 +246,11 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
     flex: 1,
     alignItems: 'center',
@@ -146,12 +263,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 10,
     alignSelf: 'flex-start',
+    paddingHorizontal: 10,
   },
   inputContainer: {
     flexDirection: 'row',
     marginBottom: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 10,
   },
   input: {
     borderWidth: 1,
@@ -159,7 +278,6 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 6,
     flex: 1,
-    width: 200,
     marginRight: 10,
   },
   addButton: {
@@ -171,19 +289,6 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: '#fff',
     fontWeight: 'bold',
-  },
-  subjectItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    padding: 12,
-    marginVertical: 6,
-    borderRadius: 8,
-    width: 250,
-  },
-  subjectText: {
-    fontSize: 16,
   },
   generalStatsContainer: {
     flexDirection: 'row',
@@ -224,9 +329,5 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontSize: 16,
     fontWeight: '600',
-  },
-  list: {
-    width: '100%',
-    flexGrow: 1,
   },
 });

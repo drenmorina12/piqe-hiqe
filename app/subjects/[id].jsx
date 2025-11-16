@@ -1,20 +1,126 @@
+// app/subjects/[id].jsx
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
-import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import SubjectHeader from '../../components/layout/SubjectHeader';
 import CollectionCard from '../../components/ui/CollectionCard';
-import { getSubjectById } from '../../constants/mockData';
+
+import {
+  addCollection,
+  deleteCollection,
+  fetchCollections,
+} from '../../firebase/collectionService';
+import { getSubjectById, updateSubject } from '../../firebase/subjectService';
 
 export default function SubjectCollectionsScreen() {
-  const { id } = useLocalSearchParams();
-  const subject = getSubjectById(id);
+  const { id } = useLocalSearchParams(); // subjectId nga route
+  const subjectId = String(id);
 
-  // State for collections
-  const [collections, setCollections] = useState(subject?.collections || []);
+  const [subject, setSubject] = useState(null);
+  const [collections, setCollections] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [savingName, setSavingName] = useState(false);
+  const [error, setError] = useState('');
+
   const [modalVisible, setModalVisible] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState('');
+
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState('');
+
+  // Load subject + collections
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError('');
+
+        const subj = await getSubjectById(subjectId);
+        setSubject(subj);
+        setEditedName(subj.name);
+
+        const cols = await fetchCollections(subjectId);
+        setCollections(cols);
+      } catch (err) {
+        console.log('Error loading subject/collections:', err);
+        setError(err.message ?? 'Nuk u ngarkua lënda.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [subjectId]);
+
+  const handleUpdateSubjectName = async () => {
+    if (!editedName.trim()) return;
+
+    try {
+      setSavingName(true);
+      await updateSubject(subjectId, { name: editedName.trim() });
+      setSubject((prev) => (prev ? { ...prev, name: editedName.trim() } : prev));
+      setIsEditingName(false);
+    } catch (err) {
+      console.log('Error updating subject name:', err);
+      setError(err.message ?? 'Nuk u përditësua emri i lëndës.');
+    } finally {
+      setSavingName(false);
+    }
+  };
+
+  const handleAddCollection = async () => {
+    if (!newCollectionName.trim()) return;
+
+    try {
+      const created = await addCollection(subjectId, newCollectionName.trim());
+      setCollections((prev) => [...prev, created]);
+      setNewCollectionName('');
+      setModalVisible(false);
+    } catch (err) {
+      console.log('Error adding collection:', err);
+      setError(err.message ?? 'Nuk u shtua koleksioni.');
+    }
+  };
+
+  const handleDeleteCollection = async (collectionId) => {
+    try {
+      await deleteCollection(subjectId, collectionId);
+      setCollections((prev) => prev.filter((c) => c.id !== collectionId));
+    } catch (err) {
+      console.log('Error deleting collection:', err);
+      setError(err.message ?? 'Nuk u fshi koleksioni.');
+    }
+  };
+
+  const handleCollectionPress = (collection) => {
+    router.push({
+      pathname: '/subjects/[subjectId]/collections/[collectionId]',
+      params: {
+        subjectId,
+        collectionId: String(collection.id),
+      },
+    });
+  };
+
+  if (loading && !subject) {
+    return (
+      <SafeAreaView style={styles.centered}>
+        <ActivityIndicator size="large" />
+      </SafeAreaView>
+    );
+  }
 
   if (!subject) {
     return (
@@ -27,90 +133,105 @@ export default function SubjectCollectionsScreen() {
     );
   }
 
-  const handleAddCollection = () => {
-    if (newCollectionName.trim() !== '') {
-      const newCollection = {
-        id: Date.now().toString(), // Temporary ID
-        name: newCollectionName.trim(),
-        cards: 0,
-        completed: 0,
-      };
-      setCollections([...collections, newCollection]);
-      setNewCollectionName('');
-      setModalVisible(false);
-    }
-  };
-
-  const handleCollectionPress = (collection) => {
-    router.push({
-      pathname: `/subjects/[subjectId]/collections/[collectionId]`,
-      params: {
-        subjectId: String(id),
-        collectionId: String(collection.id),
-      },
-    });
-  };
-
   return (
-    <View style={styles.container}>
-      {/* Header */}
+    <SafeAreaView style={styles.screen}>
+      {/* Header me emrin dhe statistikat e subject-it */}
       <SubjectHeader subject={subject} collectionCount={collections.length} />
 
-      {/* Collections List */}
       <View style={styles.content}>
-        <View style={styles.listHeader}>
-          <Text style={styles.listTitle}>Collections</Text>
+        {!!error && <Text style={styles.errorMessage}>{error}</Text>}
+
+        {/* Buton i vogël për Rename subject */}
+        <View style={styles.renameQuick}>
+          <Pressable
+            style={styles.editNameButton}
+            onPress={() => {
+              setEditedName(subject.name);
+              setIsEditingName(true);
+            }}
+          >
+            <Ionicons name="create-outline" size={20} color="#4F46E5" />
+            <Text style={styles.editNameText}>Rename subject</Text>
+          </Pressable>
         </View>
 
+        {/* Header për Collections + Add button */}
+        <View style={styles.collectionsHeader}>
+          <Text style={styles.collectionsTitle}>Collections</Text>
+          <Pressable style={styles.addCollectionButton} onPress={() => setModalVisible(true)}>
+            <Ionicons name="add-circle-outline" size={24} color="#4F46E5" />
+            <Text style={styles.addCollectionText}>Add Collection</Text>
+          </Pressable>
+        </View>
+
+        {/* Lista e koleksioneve */}
         <FlatList
           data={collections}
           keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingBottom: 40 }}
           renderItem={({ item }) => (
-            <CollectionCard
-              collection={item}
-              onPress={() => handleCollectionPress(item)}
-              gradientColors={subject.gradientColors}
-            />
-          )}
-          contentContainerStyle={styles.listContent}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Ionicons name="folder-open-outline" size={64} color="#D1D5DB" />
-              <Text style={styles.emptyText}>No collections yet</Text>
-              <Text style={styles.emptySubtext}>Create your first collection to get started</Text>
-            </View>
-          }
-        />
-
-        {/* Add Collection Button */}
-        <Pressable style={styles.addButton} onPress={() => setModalVisible(true)}>
-          <Ionicons name="add" size={20} color="#4F46E5" />
-          <Text style={styles.addButtonText}>Add Collection</Text>
-        </Pressable>
-      </View>
-
-      {/* Add Collection Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>New Collection</Text>
-              <Pressable onPress={() => setModalVisible(false)}>
-                <Ionicons name="close" size={24} color="#6B7280" />
+            <View style={{ marginBottom: 12 }}>
+              <CollectionCard collection={item} onPress={() => handleCollectionPress(item)} />
+              <Pressable
+                style={styles.deleteCollection}
+                onPress={() => handleDeleteCollection(item.id)}
+              >
+                <Ionicons name="trash-outline" size={20} color="#EF4444" />
               </Pressable>
             </View>
+          )}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>Nuk ka ende collections për këtë lëndë.</Text>
+          }
+        />
+      </View>
 
+      {/* Modal për rename të subject-it */}
+      <Modal visible={isEditingName} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Rename Subject</Text>
             <TextInput
-              style={styles.input}
+              style={styles.modalInput}
+              placeholder="New subject name"
+              value={editedName}
+              onChangeText={setEditedName}
+            />
+
+            <View style={styles.modalButtons}>
+              <Pressable
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setIsEditingName(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </Pressable>
+
+              <Pressable
+                style={[styles.modalButton, styles.createButton]}
+                onPress={handleUpdateSubjectName}
+                disabled={savingName}
+              >
+                {savingName ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.createButtonText}>Save</Text>
+                )}
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal për krijimin e collection-it të ri */}
+      <Modal visible={modalVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Create New Collection</Text>
+            <TextInput
+              style={styles.modalInput}
               placeholder="Collection name"
               value={newCollectionName}
               onChangeText={setNewCollectionName}
-              autoFocus
             />
 
             <View style={styles.modalButtons}>
@@ -134,128 +255,137 @@ export default function SubjectCollectionsScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
     backgroundColor: '#F9FAFB',
   },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 24,
-  },
-  listHeader: {
-    marginBottom: 16,
-  },
-  listTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#111827',
-  },
-  listContent: {
-    paddingBottom: 100,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 60,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#6B7280',
-    marginTop: 16,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: '#9CA3AF',
-    marginTop: 8,
-  },
-  addButton: {
-    position: 'absolute',
-    bottom: 24,
-    left: 24,
-    right: 24,
-    backgroundColor: 'white',
-    borderWidth: 2,
-    borderColor: '#4F46E5',
-    borderRadius: 12,
-    paddingVertical: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  addButtonText: {
-    color: '#4F46E5',
-    fontSize: 16,
-    fontWeight: '600',
+    padding: 16,
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    padding: 24,
   },
   errorText: {
     fontSize: 18,
-    color: '#6B7280',
-    marginBottom: 20,
+    marginBottom: 16,
+    color: '#EF4444',
+    textAlign: 'center',
   },
-  // Modal styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
+  backButton: {
+    backgroundColor: '#3B82F6',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  backButtonText: {
+    color: 'white',
+    fontWeight: '600',
+  },
+  errorMessage: {
+    color: '#EF4444',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  renameQuick: {
+    paddingHorizontal: 4,
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  editNameButton: {
+    flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: '#E0E7FF',
   },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 24,
-    width: '85%',
-    maxWidth: 400,
+  editNameText: {
+    color: '#4F46E5',
+    fontWeight: '600',
   },
-  modalHeader: {
+  collectionsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 12,
   },
-  modalTitle: {
+  collectionsTitle: {
     fontSize: 20,
     fontWeight: '700',
     color: '#111827',
   },
-  input: {
+  addCollectionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  addCollectionText: {
+    color: '#4F46E5',
+    fontWeight: '600',
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#6B7280',
+    marginTop: 20,
+  },
+  deleteCollection: {
+    alignSelf: 'flex-end',
+    marginTop: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  modalContent: {
+    width: '100%',
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  modalInput: {
     borderWidth: 1,
     borderColor: '#D1D5DB',
     borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    marginBottom: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginBottom: 16,
   },
   modalButtons: {
     flexDirection: 'row',
-    gap: 12,
+    justifyContent: 'flex-end',
+    gap: 8,
   },
   modalButton: {
-    flex: 1,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 8,
-    alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#E5E7EB',
   },
   cancelButtonText: {
     color: '#6B7280',
