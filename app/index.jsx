@@ -1,4 +1,3 @@
-
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { Link, router } from 'expo-router';
@@ -21,6 +20,7 @@ import { StatsCard } from '../components/ui/StatsCard';
 import SubjectCard from '../components/ui/SubjectCard';
 
 import { auth } from '../firebase';
+import { fetchCollections } from '../firebase/collectionService';
 import {
   addSubject as createSubject,
   deleteSubject as deleteSubjectFromDb,
@@ -36,7 +36,6 @@ export default function HomeScreen() {
   const [newSubject, setNewSubject] = useState('');
   const [showInput, setShowInput] = useState(false);
 
- 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
@@ -54,8 +53,23 @@ export default function HomeScreen() {
     try {
       setLoading(true);
       setError('');
+
       const data = await fetchSubjects();
-      setSubjects(data);
+
+      
+      const subjectsWithCounts = await Promise.all(
+        data.map(async (s) => {
+          try {
+            const cols = await fetchCollections(s.id);
+            return { ...s, collectionCount: cols.length };
+          } catch (err) {
+            console.log('Error fetching collections for subject', s.id, err);
+            return { ...s, collectionCount: 0 };
+          }
+        })
+      );
+
+      setSubjects(subjectsWithCounts);
     } catch (err) {
       console.log('Error fetching subjects:', err);
       setError(err.message ?? 'Nuk u ngarkuan lëndët. Provo përsëri.');
@@ -86,7 +100,11 @@ export default function HomeScreen() {
       setLoading(true);
       setError('');
       const created = await createSubject(newSubject);
-      setSubjects((prev) => [...prev, created]);
+
+     
+      const createdWithCount = { ...created, collectionCount: 0 };
+
+      setSubjects((prev) => [...prev, createdWithCount]);
       setNewSubject('');
       setShowInput(false);
       setSuccess('Subject u shtua me sukses.');
@@ -122,7 +140,6 @@ export default function HomeScreen() {
     });
   };
 
- 
   if (!authReady) {
     return (
       <SafeAreaView style={styles.centered}>
@@ -212,7 +229,6 @@ export default function HomeScreen() {
                   iconBackgroundColor={item.iconBackgroundColor || '#E0F2FE'}
                   collectionCount={item.collectionCount ?? 0}
                 />
-
               </Pressable>
               <Pressable
                 onPress={() => handleRemoveSubject(item.id)}
