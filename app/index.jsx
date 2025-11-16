@@ -19,13 +19,15 @@ import Header from '../components/layout/Header';
 import { StatsCard } from '../components/ui/StatsCard';
 import SubjectCard from '../components/ui/SubjectCard';
 
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
 import { fetchCollections } from '../firebase/collectionService';
 import {
   addSubject as createSubject,
   deleteSubject as deleteSubjectFromDb,
   fetchSubjects,
 } from '../firebase/subjectService';
+
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export default function HomeScreen() {
   const [subjects, setSubjects] = useState([]);
@@ -35,7 +37,9 @@ export default function HomeScreen() {
   const [success, setSuccess] = useState('');
   const [newSubject, setNewSubject] = useState('');
   const [showInput, setShowInput] = useState(false);
+  const [dayStreak, setDayStreak] = useState(0);
 
+  
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
@@ -49,14 +53,67 @@ export default function HomeScreen() {
   }, []);
 
   
+  const updateStreak = useCallback(async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const userRef = doc(db, 'users', user.uid);
+    const snap = await getDoc(userRef);
+
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0, 10); // YYYY-MM-DD
+
+    let newStreak = 1;
+
+    if (snap.exists()) {
+      const data = snap.data();
+      const lastActiveDate = data.lastActiveDate;
+      const previousStreak = typeof data.streak === 'number' ? data.streak : 0;
+
+      if (lastActiveDate === todayStr) {
+        
+        newStreak = previousStreak || 1;
+      } else if (lastActiveDate) {
+        const lastDate = new Date(lastActiveDate);
+        const diffMs = today.getTime() - lastDate.getTime();
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) {
+          
+          newStreak = previousStreak + 1;
+        } else {
+          
+          newStreak = 1;
+        }
+      } else {
+        
+        newStreak = 1;
+      }
+    }
+
+    await setDoc(
+      userRef,
+      {
+        streak: newStreak,
+        lastActiveDate: todayStr,
+      },
+      { merge: true }
+    );
+
+    setDayStreak(newStreak);
+  }, []);
+
+  
   const loadSubjects = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
 
+      
+      await updateStreak();
+
       const data = await fetchSubjects();
 
-      
       const subjectsWithCounts = await Promise.all(
         data.map(async (s) => {
           try {
@@ -76,7 +133,7 @@ export default function HomeScreen() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [updateStreak]);
 
   
   useEffect(() => {
@@ -85,7 +142,7 @@ export default function HomeScreen() {
     }
   }, [authReady, loadSubjects]);
 
-  
+
   useFocusEffect(
     useCallback(() => {
       if (!authReady) return;
@@ -100,8 +157,6 @@ export default function HomeScreen() {
       setLoading(true);
       setError('');
       const created = await createSubject(newSubject);
-
-     
       const createdWithCount = { ...created, collectionCount: 0 };
 
       setSubjects((prev) => [...prev, createdWithCount]);
@@ -171,8 +226,16 @@ export default function HomeScreen() {
 
       <View style={styles.container}>
         <View style={styles.generalStatsContainer}>
-          <StatsCard subject="12" easy={0} medium={0} hard={0} label="Day Streak" />
-          <StatsCard subject="245" easy={0} medium={0} hard={0} label="Cards Done" />
+          {/* Day Streak – TANI dinamike */}
+          <StatsCard
+            subject={dayStreak.toString()}
+            easy={0}
+            medium={0}
+            hard={0}
+            label="Day Streak"
+          />
+
+          {/* Cards Done U HEQ – mbesin vetëm Day Streak + Subjects */}
           <StatsCard
             subject={subjects.length.toString()}
             easy={0}
