@@ -1,14 +1,14 @@
 
 import {
-    addDoc,
-    collection,
-    deleteDoc,
-    doc,
-    getDoc,
-    getDocs,
-    updateDoc,
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  updateDoc,
 } from 'firebase/firestore';
-import { auth, db } from '../firebase';
+import { auth, db } from './firebaseConfig';
 
 // Path: users/{uid}/subjects/{subjectId}/collections
 const getCollectionsRef = (subjectId) => {

@@ -19,8 +19,8 @@ import Header from '../components/layout/Header';
 import { StatsCard } from '../components/ui/StatsCard';
 import SubjectCard from '../components/ui/SubjectCard';
 
-import { auth, db } from '../firebase';
 import { fetchCollections } from '../firebase/collectionService';
+import { auth, db } from '../firebase/firebaseConfig';
 import {
   addSubject as createSubject,
   deleteSubject as deleteSubjectFromDb,

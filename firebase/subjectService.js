@@ -8,7 +8,7 @@ import {
   getDocs,
   updateDoc,
 } from 'firebase/firestore';
-import { auth, db } from '../firebase';
+import { auth, db } from './firebaseConfig';
 
 // Path: users/{uid}/subjects
 const getSubjectsCollectionRef = () => {
