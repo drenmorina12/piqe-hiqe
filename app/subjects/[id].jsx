@@ -20,6 +20,7 @@ import {
   deleteCollection,
   fetchCollections,
 } from '../../firebase/collectionService';
+
 import { getSubjectById } from '../../firebase/subjectService';
 
 export default function SubjectCollectionsScreen() {
@@ -130,33 +131,27 @@ export default function SubjectCollectionsScreen() {
           <Text style={styles.listTitle}>Collections</Text>
         </View>
 
-        <FlatList
-          data={collections}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={{ marginBottom: 12 }}>
-              <CollectionCard
-                collection={item}
-                onPress={() => handleCollectionPress(item)}
-                gradientColors={subject?.gradientColors}
-              />
-              <Pressable
-                style={{ alignSelf: 'flex-end', marginTop: 4 }}
-                onPress={() => handleDeleteCollection(item.id)}
-              >
-                <Ionicons name="trash-outline" size={20} color="#EF4444" />
-              </Pressable>
-            </View>
-          )}
-          contentContainerStyle={styles.listContent}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Ionicons name="folder-open-outline" size={64} color="#D1D5DB" />
-              <Text style={styles.emptyText}>No collections yet</Text>
-              <Text style={styles.emptySubtext}>Create your first collection to get started</Text>
-            </View>
-          }
-        />
+       <FlatList
+  data={collections}
+  keyExtractor={(item) => item.id}
+  contentContainerStyle={{ paddingVertical: 10 }}
+  renderItem={({ item }) => (
+    <View style={{ marginBottom: 12 }}>
+      <CollectionCard
+        collection={item}
+        onPress={() => handleCollectionPress(item)}
+        gradientColors={['#4F46E5', '#6366F1']}
+        onDelete={handleDeleteCollection}   // ⬅️ LIDHET ME FUNKSIONIN TËND
+      />
+    </View>
+  )}
+  ListEmptyComponent={
+    <Text style={{ color: '#6B7280', marginTop: 16, textAlign: 'center' }}>
+      No collections yet. Create your first one!
+    </Text>
+  }
+/>
+
 
         {/* Add Collection Button */}
         <Pressable style={styles.addButton} onPress={() => setModalVisible(true)}>
