@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -14,18 +15,60 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import SubjectHeader from '../../../../components/layout/SubjectHeader';
-import { getCollectionById, getSubjectById } from '../../../../constants/mockData';
+import { addCard, deleteCard, fetchCards } from '../../../../firebase/cardService';
+import { getCollectionById as fetchCollectionById } from '../../../../firebase/collectionService';
+import { getSubjectById as fetchSubjectById } from '../../../../firebase/subjectService';
 
 export default function CollectionDetailScreen() {
   const { subjectId, collectionId } = useLocalSearchParams();
-  const subject = getSubjectById(subjectId);
-  const collection = getCollectionById(subjectId, collectionId);
-
-  // State for flashcards
-  const [flashcards, setFlashcards] = useState(collection?.flashcards || []);
+  const [subject, setSubject] = useState(null);
+  const [collection, setCollection] = useState(null);
+  const [flashcards, setFlashcards] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [newQuestion, setNewQuestion] = useState('');
   const [newAnswer, setNewAnswer] = useState('');
+
+  const [formError, setFormError] = useState('');
+  const [savingCard, setSavingCard] = useState(false);
+
+  const [loading, setLoading] = useState(true);
+
+  // Load subject, collection and cards from Firestore
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        const subj = await fetchSubjectById(String(subjectId));
+        setSubject(subj);
+
+        const coll = await fetchCollectionById(String(subjectId), String(collectionId));
+        const cards = await fetchCards(String(subjectId), String(collectionId));
+        // Ensure collection metadata is present; fallback to counts derived from cards
+        const collWithCounts = {
+          ...coll,
+          cards: typeof coll?.cards === 'number' ? coll.cards : cards.length,
+          completed:
+            typeof coll?.completed === 'number' ? coll.completed : cards.filter((c) => !!c.completed).length,
+        };
+        setCollection(collWithCounts);
+        setFlashcards(cards);
+      } catch (err) {
+        console.log('Error loading collection or cards:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [subjectId, collectionId]);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.errorContainer}>
+        <ActivityIndicator />
+      </SafeAreaView>
+    );
+  }
 
   if (!subject || !collection) {
     return (
@@ -38,23 +81,54 @@ export default function CollectionDetailScreen() {
     );
   }
 
-  const handleAddFlashcard = () => {
-    if (newQuestion.trim() !== '' && newAnswer.trim() !== '') {
-      const newFlashcard = {
-        id: Date.now().toString(),
+  const handleAddFlashcard = async () => {
+    setFormError('');
+    if (savingCard) return; // prevent duplicate presses
+
+    if (newQuestion.trim() === '' || newAnswer.trim() === '') {
+      setFormError('Both question and answer are required.');
+      return;
+    }
+
+    setSavingCard(true);
+    try {
+      const created = await addCard(String(subjectId), String(collectionId), {
         question: newQuestion.trim(),
         answer: newAnswer.trim(),
-        difficulty: null,
-      };
-      setFlashcards([...flashcards, newFlashcard]);
+      });
+
+      setFlashcards((prev) => [...prev, created]);
+
+      // update local collection counts to reflect new card
+      setCollection((prev) => ({
+        ...prev,
+        cards: (prev?.cards ?? 0) + 1,
+      }));
+
       setNewQuestion('');
       setNewAnswer('');
       setShowForm(false);
+    } catch (err) {
+      console.log('Error adding card:', err);
+      setFormError(err.message ?? 'Failed to create card.');
+    } finally {
+      setSavingCard(false);
     }
   };
 
-  const handleDeleteFlashcard = (flashcardId) => {
-    setFlashcards(flashcards.filter((card) => card.id !== flashcardId));
+  const handleDeleteFlashcard = async (flashcardId) => {
+    try {
+      await deleteCard(String(subjectId), String(collectionId), flashcardId);
+      setFlashcards((prev) => prev.filter((card) => card.id !== flashcardId));
+
+      // decrement local collection cards count
+      setCollection((prev) => ({
+        ...prev,
+        cards: Math.max((prev?.cards ?? 1) - 1, 0),
+      }));
+    } catch (err) {
+      console.log('Error deleting card:', err);
+    }
   };
 
   const handleStartStudy = () => {
@@ -188,6 +262,10 @@ export default function CollectionDetailScreen() {
                 multiline
               />
 
+              {formError ? (
+                <Text style={{ color: '#EF4444', marginBottom: 8 }}>{formError}</Text>
+              ) : null}
+
               <View style={styles.formButtons}>
                 <Pressable
                   style={[styles.formButton, styles.cancelButton]}
@@ -201,10 +279,15 @@ export default function CollectionDetailScreen() {
                 </Pressable>
 
                 <Pressable
-                  style={[styles.formButton, styles.createButton]}
+                  style={[styles.formButton, styles.createButton, savingCard && { opacity: 0.7 }]}
                   onPress={handleAddFlashcard}
+                  disabled={savingCard}
                 >
-                  <Text style={styles.createButtonText}>Create</Text>
+                  {savingCard ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text style={styles.createButtonText}>Create</Text>
+                  )}
                 </Pressable>
               </View>
             </ScrollView>
