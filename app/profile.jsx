@@ -50,7 +50,8 @@ export default function ProfileScreen() {
   const displayName =
     user?.displayName || (user?.email ? user.email.split('@')[0] : 'User');
 
-  const email = user?.email || 'Nuk ka email';
+  
+
 
   const handleLogout = async () => {
     try {
@@ -59,6 +60,12 @@ export default function ProfileScreen() {
     } catch (err) {
       console.log('Error during logout:', err);
     }
+  };
+
+  const email = user?.email || 'Nuk ka email';
+
+    const handleChangePassword = () => {
+    router.push('/change-password'); // emri i route-it të ri
   };
 
   if (!authReady) {
@@ -87,6 +94,8 @@ export default function ProfileScreen() {
           <Text style={styles.infoValue}>{email}</Text>
         </View>
 
+        
+
         <View style={styles.infoBox}>
           <Text style={styles.infoLabel}>Lëndët e regjistruara:</Text>
           {loading ? (
@@ -96,7 +105,20 @@ export default function ProfileScreen() {
           )}
         </View>
 
-        <View style={styles.logoutContainer}>
+                <View style={styles.logoutContainer}>
+          <Button
+            style={{
+              backgroundColor: '#075eec',
+              borderRadius: 30,
+              paddingVertical: 12,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 12,
+            }}
+            title="Ndrysho fjalëkalimin"
+            onPress={handleChangePassword}
+          />
+
           <Button
             style={{
               backgroundColor: '#075eec',
@@ -109,6 +131,21 @@ export default function ProfileScreen() {
             onPress={handleLogout}
           />
         </View>
+
+
+        {/* <View style={styles.logoutContainer}>
+          <Button
+            style={{
+              backgroundColor: '#075eec',
+              borderRadius: 30,
+              paddingVertical: 12,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            title="Dil (Logout)"
+            onPress={handleLogout}
+          />
+        </View> */}
       </View>
     </SafeAreaView>
   );
