@@ -1,19 +1,42 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMemo, useRef, useState } from 'react';
-import { FlatList, StatusBar, StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, FlatList, StatusBar, StyleSheet, Text, View } from 'react-native';
 import SubjectHeader from '../../../../../components/layout/SubjectHeader';
 import Button from '../../../../../components/ui/Button';
 import FlashcardCard from '../../../../../components/ui/FlashcardCard';
 import ProgressBar from '../../../../../components/ui/ProgressBar';
-import { getCollectionById, getSubjectById } from '../../../../../constants/mockData';
+import { fetchCards, updateCard } from '../../../../../firebase/cardService';
+import { getCollectionById as fetchCollectionById } from '../../../../../firebase/collectionService';
+import { getSubjectById as fetchSubjectById } from '../../../../../firebase/subjectService';
 
 export default function StudyModeScreen() {
   const router = useRouter();
   const { subjectId, collectionId } = useLocalSearchParams();
 
-  const subject = getSubjectById(subjectId);
-  const collection = getCollectionById(subjectId, collectionId);
-  const flashcards = collection?.flashcards || [];
+  const [subject, setSubject] = useState(null);
+  const [collection, setCollection] = useState(null);
+  const [flashcards, setFlashcards] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        const subj = await fetchSubjectById(String(subjectId));
+        setSubject(subj);
+        const coll = await fetchCollectionById(String(subjectId), String(collectionId));
+        setCollection(coll);
+        const cards = await fetchCards(String(subjectId), String(collectionId));
+        setFlashcards(cards);
+      } catch (err) {
+        console.log('Error loading study data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [subjectId, collectionId]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState({});
@@ -35,6 +58,25 @@ export default function StudyModeScreen() {
 
   const handleReveal = (id) => setRevealed((r) => ({ ...r, [id]: true }));
 
+  const handleDifficulty = async (difficulty) => {
+    const currentCard = flashcards[currentIndex];
+    if (!currentCard) return;
+
+    try {
+      await updateCard(String(subjectId), String(collectionId), currentCard.id, {
+        difficulty,
+      });
+      // Update local state
+      setFlashcards((prev) =>
+        prev.map((card) => (card.id === currentCard.id ? { ...card, difficulty } : card))
+      );
+    } catch (err) {
+      console.log('Error updating card difficulty:', err);
+    }
+
+    handleNext();
+  };
+
   const handleNext = () => {
     if (currentIndex < total - 1) {
       flatRef.current?.scrollToIndex({ index: currentIndex + 1, animated: true });
@@ -43,6 +85,21 @@ export default function StudyModeScreen() {
       router.back();
     }
   };
+
+  if (loading) {
+    return (
+      <View style={styles.screen}>
+        <SubjectHeader
+          subject={{ name: 'Loading...', icon: 'book-outline', headerColor: '#4F46E5' }}
+          collectionCount={0}
+          onBackPress={() => router.back()}
+        />
+        <View style={styles.emptyContainer}>
+          <ActivityIndicator />
+        </View>
+      </View>
+    );
+  }
 
   if (!subject || !collection || flashcards.length === 0) {
     return (
@@ -96,12 +153,12 @@ export default function StudyModeScreen() {
         <View style={styles.row}>
           <Button
             title="Repeat"
-            onPress={handleNext}
+            onPress={() => handleDifficulty('repeat')}
             style={[styles.btn, { backgroundColor: '#dcbb26ff' }]}
           />
           <Button
             title="Hard"
-            onPress={handleNext}
+            onPress={() => handleDifficulty('hard')}
             style={[styles.btn, { backgroundColor: '#c81616ff' }]}
           />
         </View>
@@ -109,12 +166,12 @@ export default function StudyModeScreen() {
         <View style={styles.row}>
           <Button
             title="Medium"
-            onPress={handleNext}
+            onPress={() => handleDifficulty('medium')}
             style={[styles.btn, { backgroundColor: '#dbeb50ff' }]}
           />
           <Button
             title="Easy"
-            onPress={handleNext}
+            onPress={() => handleDifficulty('easy')}
             style={[styles.btn, { backgroundColor: 'rgba(124, 238, 85, 1)' }]}
           />
         </View>
