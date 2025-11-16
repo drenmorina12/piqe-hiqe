@@ -7,7 +7,7 @@ import {
   getDocs,
   updateDoc,
 } from 'firebase/firestore';
-import { auth, db } from '../firebase';
+import { auth, db } from './firebaseConfig';
 
 // Path: users/{uid}/subjects/{subjectId}/collections/{collectionId}/cards
 const getCardsRef = (subjectId, collectionId) => {
