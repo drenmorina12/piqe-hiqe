@@ -4,13 +4,13 @@ import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
-    EmailAuthProvider,
-    onAuthStateChanged,
-    reauthenticateWithCredential,
-    updatePassword,
+  EmailAuthProvider,
+  onAuthStateChanged,
+  reauthenticateWithCredential,
+  updatePassword,
 } from 'firebase/auth';
 import Button from '../components/ui/Button';
-import { auth } from '../firebase';
+import { auth } from '../firebase/firebaseConfig';
 
 export default function ChangePasswordScreen() {
   const [currentPassword, setCurrentPassword] = useState('');

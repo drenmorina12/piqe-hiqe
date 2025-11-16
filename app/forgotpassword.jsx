@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '../firebase'; // NDRYSHO rrugën nëse firebase.js është diku tjetër
+import { auth } from '../firebase/firebaseConfig'; // NDRYSHO rrugën nëse firebase.js është diku tjetër
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
