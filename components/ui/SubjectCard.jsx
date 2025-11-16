@@ -1,8 +1,47 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
+import {
+  Image,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
-const SubjectCard = ({ icon, subjectName, iconBackgroundColor, collectionCount }) => {
+const SubjectCard = ({
+  icon,
+  subjectName,
+  iconBackgroundColor,
+  collectionCount,
+  // për logjikë:
+  subjectId,
+  onDelete,
+}) => {
+  const [optionsVisible, setOptionsVisible] = useState(false);
+  const [confirmVisible, setConfirmVisible] = useState(false);
+
+  const openOptions = () => setOptionsVisible(true);
+  const closeOptions = () => setOptionsVisible(false);
+
+  const openConfirm = () => {
+    setOptionsVisible(false);
+    setConfirmVisible(true);
+  };
+
+  const closeConfirm = () => setConfirmVisible(false);
+
+  const handleConfirmDelete = () => {
+    setConfirmVisible(false);
+    if (onDelete && subjectId) {
+      onDelete(subjectId);
+    }
+  };
+
   return (
     <View style={styles.card}>
+      {/* UI JOTE EKZISTUESE – e paprekur */}
       <View style={[styles.iconWrapper, { backgroundColor: iconBackgroundColor }]}>
         <Image source={icon} style={styles.icon} resizeMode="cover" />
       </View>
@@ -12,6 +51,58 @@ const SubjectCard = ({ icon, subjectName, iconBackgroundColor, collectionCount }
           {collectionCount} {collectionCount === 1 ? 'collection' : 'collections'}
         </Text>
       )}
+
+      {/* 3 pikat – vetëm kjo pjesë e re SHFAQET në kartelë */}
+      <TouchableOpacity style={styles.menuButton} onPress={openOptions}>
+        <Ionicons name="ellipsis-vertical" size={18} color="#4B5563" />
+      </TouchableOpacity>
+
+      {/* Modal 1 – Options (Delete / Cancel) */}
+      <Modal
+        visible={optionsVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={closeOptions}
+      >
+        <Pressable style={styles.backdrop} onPress={closeOptions}>
+          <View style={styles.modal}>
+            <Text style={styles.modalTitle}>Options</Text>
+
+            <Pressable style={styles.modalButtonDanger} onPress={openConfirm}>
+              <Text style={styles.modalButtonTextDanger}>Delete subject</Text>
+            </Pressable>
+
+            <Pressable style={styles.modalButton} onPress={closeOptions}>
+              <Text style={styles.modalButtonText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
+
+      {/* Modal 2 – Confirm delete */}
+      <Modal
+        visible={confirmVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={closeConfirm}
+      >
+        <Pressable style={styles.backdrop} onPress={closeConfirm}>
+          <View style={styles.modal}>
+            <Text style={styles.modalTitle}>Confirm delete</Text>
+            <Text style={styles.modalText}>
+              Are you sure you want to delete this subject?
+            </Text>
+
+            <Pressable style={styles.modalButtonDanger} onPress={handleConfirmDelete}>
+              <Text style={styles.modalButtonTextDanger}>Yes, delete</Text>
+            </Pressable>
+
+            <Pressable style={styles.modalButton} onPress={closeConfirm}>
+              <Text style={styles.modalButtonText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 };
@@ -51,5 +142,59 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginTop: 2,
+  },
+
+  /* SHTESA PËR 3-PIKAT + MODALET – nuk prekin layout-in e vjetër */
+  menuButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    padding: 4,
+  },
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modal: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 8,
+    color: '#111827',
+  },
+  modalText: {
+    fontSize: 14,
+    color: '#4B5563',
+    marginBottom: 16,
+  },
+  modalButton: {
+    paddingVertical: 10,
+    borderRadius: 9999,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: '#111827',
+    fontWeight: '600',
+  },
+  modalButtonDanger: {
+    paddingVertical: 10,
+    borderRadius: 9999,
+    backgroundColor: '#EF4444',
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  modalButtonTextDanger: {
+    color: '#FFFFFF',
+    fontWeight: '700',
   },
 });
