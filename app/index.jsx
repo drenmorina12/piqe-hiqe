@@ -162,11 +162,11 @@ export default function HomeScreen() {
       setSubjects((prev) => [...prev, createdWithCount]);
       setNewSubject('');
       setShowInput(false);
-      setSuccess('Subject u shtua me sukses.');
+      setSuccess('Lënda u shtua me sukses.');
       setTimeout(() => setSuccess(''), 2000);
     } catch (err) {
       console.log('Error adding subject:', err);
-      setError(err.message ?? 'Nuk u shtua subject-i. Provo përsëri.');
+      setError(err.message ?? 'Nuk u shtua lënda. Provo përsëri.');
     } finally {
       setLoading(false);
     }
@@ -178,11 +178,11 @@ export default function HomeScreen() {
       setError('');
       await deleteSubjectFromDb(subjectId);
       setSubjects((prev) => prev.filter((s) => s.id !== subjectId));
-      setSuccess('Subject u fshi.');
+      setSuccess('Lënda u fshi.');
       setTimeout(() => setSuccess(''), 2000);
     } catch (err) {
       console.log('Error deleting subject:', err);
-      setError(err.message ?? 'Nuk u fshi subject-i.');
+      setError(err.message ?? 'Nuk u fshi lënda.');
     } finally {
       setLoading(false);
     }
@@ -208,7 +208,7 @@ export default function HomeScreen() {
       <StatusBar style="light" backgroundColor="#007AFF" />
       <Header
         title="Piqe-Hiqe"
-        subtitle="Your daily lessons"
+        subtitle="Mësimet e tua ditore"
         rightButton={
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}>
             <Link href="/profile" asChild>
@@ -241,11 +241,11 @@ export default function HomeScreen() {
             easy={0}
             medium={0}
             hard={0}
-            label="Subjects"
+            label="Lëndet"
           />
         </View>
 
-        <Text style={styles.title}>Your Subjects</Text>
+        <Text style={styles.title}>Lëndet e tua</Text>
 
         {loading && (
           <View style={{ marginBottom: 10 }}>
@@ -267,12 +267,12 @@ export default function HomeScreen() {
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
-              placeholder="Enter subject name"
+              placeholder="Vendos emrin e lëndës"
               value={newSubject}
               onChangeText={setNewSubject}
             />
             <Pressable style={styles.addButton} onPress={handleAddSubject}>
-              <Text style={styles.addButtonText}>Add</Text>
+              <Text style={styles.addButtonText}>Shto</Text>
             </Pressable>
           </View>
         )}
@@ -303,7 +303,7 @@ export default function HomeScreen() {
           )}
           ListEmptyComponent={
             !loading && (
-              <Text style={{ color: '#777', marginTop: 20 }}>No subjects added yet.</Text>
+              <Text style={{ color: '#777', marginTop: 20 }}>Asnjë lëndë e shtuar deri tani.</Text>
             )
           }
         />
@@ -312,12 +312,12 @@ export default function HomeScreen() {
       <View style={styles.bottomButtonsContainer}>
         <Pressable style={styles.bottomButton} disabled>
           <Ionicons name="home" size={24} color="#007AFF" />
-          <Text style={styles.bottomButtonText}>Home</Text>
+          <Text style={styles.bottomButtonText}>Shtëpia</Text>
         </Pressable>
 
         <Pressable style={styles.bottomButton} onPress={() => router.push('/progress')}>
           <Ionicons name="stats-chart" size={24} color="#007AFF" />
-          <Text style={styles.bottomButtonText}>Progress</Text>
+          <Text style={styles.bottomButtonText}>Progresi</Text>
         </Pressable>
       </View>
     </SafeAreaView>

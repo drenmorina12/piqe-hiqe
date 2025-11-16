@@ -18,7 +18,7 @@ const SubjectHeader = ({ subject, collectionCount, onBackPress }) => {
         {/* Back Button */}
         <Pressable onPress={handleBackPress} style={styles.backButton}>
           <Ionicons name="arrow-back" size={20} color="white" />
-          <Text style={styles.backButtonText}>Back to Home</Text>
+          <Text style={styles.backButtonText}>Kthehu në shtëpi</Text>
         </Pressable>
 
         {/* Subject Info */}

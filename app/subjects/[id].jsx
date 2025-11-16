@@ -1,4 +1,3 @@
-// app/subjects/[id].jsx
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -25,7 +24,7 @@ import {
 import { getSubjectById, updateSubject } from '../../firebase/subjectService';
 
 export default function SubjectCollectionsScreen() {
-  const { id } = useLocalSearchParams(); // subjectId nga route
+  const { id } = useLocalSearchParams(); 
   const subjectId = String(id);
 
   const [subject, setSubject] = useState(null);
@@ -40,7 +39,7 @@ export default function SubjectCollectionsScreen() {
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState('');
 
-  // Load subject + collections
+  
   useEffect(() => {
     const load = async () => {
       try {
@@ -125,9 +124,9 @@ export default function SubjectCollectionsScreen() {
   if (!subject) {
     return (
       <SafeAreaView style={styles.errorContainer}>
-        <Text style={styles.errorText}>Subject not found</Text>
+        <Text style={styles.errorText}>Lënda nuk u gjet</Text>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>Go Back</Text>
+          <Text style={styles.backButtonText}>Kthehu</Text>
         </Pressable>
       </SafeAreaView>
     );
@@ -151,16 +150,16 @@ export default function SubjectCollectionsScreen() {
             }}
           >
             <Ionicons name="create-outline" size={20} color="#4F46E5" />
-            <Text style={styles.editNameText}>Rename subject</Text>
+            <Text style={styles.editNameText}>Riemëro lëndën</Text>
           </Pressable>
         </View>
 
         {/* Header për Collections + Add button */}
         <View style={styles.collectionsHeader}>
-          <Text style={styles.collectionsTitle}>Collections</Text>
+          <Text style={styles.collectionsTitle}>Koleksionet</Text>
           <Pressable style={styles.addCollectionButton} onPress={() => setModalVisible(true)}>
             <Ionicons name="add-circle-outline" size={24} color="#4F46E5" />
-            <Text style={styles.addCollectionText}>Add Collection</Text>
+            <Text style={styles.addCollectionText}>Shto koleksionin</Text>
           </Pressable>
         </View>
 
@@ -181,7 +180,7 @@ export default function SubjectCollectionsScreen() {
             </View>
           )}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>Nuk ka ende collections për këtë lëndë.</Text>
+            <Text style={styles.emptyText}>Nuk ka ende koleksione për këtë lëndë.</Text>
           }
         />
       </View>
@@ -190,10 +189,10 @@ export default function SubjectCollectionsScreen() {
       <Modal visible={isEditingName} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Rename Subject</Text>
+            <Text style={styles.modalTitle}>Riemëro lëndën</Text>
             <TextInput
               style={styles.modalInput}
-              placeholder="New subject name"
+              placeholder="Emri i ri i lëndës"
               value={editedName}
               onChangeText={setEditedName}
             />
@@ -203,7 +202,7 @@ export default function SubjectCollectionsScreen() {
                 style={[styles.modalButton, styles.cancelButton]}
                 onPress={() => setIsEditingName(false)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>Anulo</Text>
               </Pressable>
 
               <Pressable
@@ -214,7 +213,7 @@ export default function SubjectCollectionsScreen() {
                 {savingName ? (
                   <ActivityIndicator size="small" color="#fff" />
                 ) : (
-                  <Text style={styles.createButtonText}>Save</Text>
+                  <Text style={styles.createButtonText}>Ruaj</Text>
                 )}
               </Pressable>
             </View>
@@ -226,10 +225,10 @@ export default function SubjectCollectionsScreen() {
       <Modal visible={modalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Create New Collection</Text>
+            <Text style={styles.modalTitle}>Krijo një koleksion të ri</Text>
             <TextInput
               style={styles.modalInput}
-              placeholder="Collection name"
+              placeholder="Emri i koleksionit"
               value={newCollectionName}
               onChangeText={setNewCollectionName}
             />
@@ -242,14 +241,14 @@ export default function SubjectCollectionsScreen() {
                   setNewCollectionName('');
                 }}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>Anulo</Text>
               </Pressable>
 
               <Pressable
                 style={[styles.modalButton, styles.createButton]}
                 onPress={handleAddCollection}
               >
-                <Text style={styles.createButtonText}>Create</Text>
+                <Text style={styles.createButtonText}>Krijo</Text>
               </Pressable>
             </View>
           </View>
