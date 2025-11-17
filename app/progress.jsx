@@ -1,6 +1,8 @@
-import { FlatList, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { FlatList, StatusBar, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import Header from '../components/layout/Header';
 import { StatsCard } from '../components/ui/StatsCard';
 
 const SUBJECT_PROGRESS_DATA = [
@@ -11,13 +13,22 @@ const SUBJECT_PROGRESS_DATA = [
 ];
 
 export default function ProgressScreen() {
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" />
+  const router = useRouter();
 
-      <View style={styles.container}>
-        <Text style={styles.title}>Progresi i Përdoruesit</Text>
-        
+  return (
+    <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+      <StatusBar barStyle="light-content" />
+
+      {/* Header */}
+      <Header
+        backgroundColor="#a2e361ff"
+        title="Progress"
+        subtitle="Your study performance"
+        icon="stats-chart"
+        showBack
+        onBackPress={() => router.back()}
+      />
+      <SafeAreaView style={styles.contentArea} edges={['bottom']}>
         <FlatList
           data={SUBJECT_PROGRESS_DATA}
           keyExtractor={(item) => item.id.toString()}
@@ -31,26 +42,15 @@ export default function ProgressScreen() {
           )}
           contentContainerStyle={styles.listContent}
         />
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#f5f5f5', 
-  },
-  container: {
+  contentArea: {
     flex: 1,
     paddingHorizontal: 16,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginVertical: 25,
-    color: '#1a1a1a',
   },
   listContent: {
     paddingBottom: 20,

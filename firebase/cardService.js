@@ -163,7 +163,21 @@ export const deleteCard = async (subjectId, collectionId, cardId) => {
   }
 };
 
-// NOTE: This implementation mirrors the simple read-modify-write style used
-// in the existing subject/collection services. For higher concurrency and
-// stronger consistency you may want to replace the read/update pairs with
-// Firestore transactions or use FieldValue.increment for atomic updates.
+
+// ➜ SHTESË: krijo një kartë nga API duke përdorur logjikën ekzistuese të addCard
+export const addCardFromApi = async (
+  subjectId,
+  collectionId,
+  { question, answer, source }
+) => {
+  // thjesht përdorim addCard që ke tashmë,
+  // në mënyrë që të punojnë automatikisht edhe counters (cards/completed)
+  return addCard(subjectId, collectionId, {
+    question,
+    answer,
+    hint: `Imported from ${source || 'API'}`,
+    difficulty: null,
+    completed: false,
+  });
+};
+

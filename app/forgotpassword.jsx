@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '../firebase/firebaseConfig'; // NDRYSHO rrugën nëse firebase.js është diku tjetër
+import { auth } from '../firebase/firebaseConfig';
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
@@ -19,28 +19,28 @@ export default function ForgotPasswordScreen() {
 
   const handleResetPassword = async () => {
     if (!email) {
-      alert('Please enter your email.');
+      alert('Ju lutem vendosni email-ën tuaj.');
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      alert('Please enter a valid email address.');
+      alert('Ju lutem vendosni një email adresë valide.');
       return;
     }
 
     try {
       setLoading(true);
       await sendPasswordResetEmail(auth, email.trim());
-      alert('Password reset email sent! Please check your inbox.');
+      alert('Kemi dërguar email për resetimin e passwordit! Ju lutem shikoni inbox-in tuaj.');
       router.replace('/login'); // ose router.back() nëse do veç me u kthy
     } catch (error) {
       console.log('RESET ERROR:', error.code, error.message);
 
       if (error.code === 'auth/user-not-found') {
-        alert('No user found with this email.');
+        alert('Nuk u gjet asnje user me këtë email.');
       } else {
-        alert('Failed to send reset email: ' + error.code);
+        alert('Dështoi dërgimi i resetimit të email-it: ' + error.code);
       }
     } finally {
       setLoading(false);
@@ -52,9 +52,9 @@ export default function ForgotPasswordScreen() {
       <View style={styles.container}>
         {/* Header / Logo nëse don me përdor imazhin */}
         <View style={styles.header}>
-          <Text style={styles.title}>Forgot Password</Text>
+          <Text style={styles.title}>Keni harruar passwordin?</Text>
           <Text style={styles.subtitle}>
-            Enter your email and we will send you a link to reset your password.
+            Shkruani email-in tuaj dhe ne do të ju dërgojmë një link për të resetuar passwordin!
           </Text>
         </View>
 
@@ -86,14 +86,14 @@ export default function ForgotPasswordScreen() {
                 ]}
               >
                 <Text style={styles.btnText}>
-                  {loading ? 'Sending...' : 'Send reset email'}
+                  {loading ? 'Duke e dërguar...' : 'Dërgo email për resetim'}
                 </Text>
               </View>
             </TouchableOpacity>
           </View>
 
           <TouchableOpacity onPress={() => router.replace('/login')}>
-            <Text style={styles.formLink}>Back to Login</Text>
+            <Text style={styles.formLink}>Kthehu në hyrje </Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import SubjectHeader from '../../components/layout/SubjectHeader';
+import Header from '../../components/layout/Header';
 import CollectionCard from '../../components/ui/CollectionCard';
 import { fetchCards } from '../../firebase/cardService';
 import {
@@ -20,6 +20,7 @@ import {
   deleteCollection,
   fetchCollections,
 } from '../../firebase/collectionService';
+
 import { getSubjectById } from '../../firebase/subjectService';
 
 export default function SubjectCollectionsScreen() {
@@ -122,7 +123,13 @@ export default function SubjectCollectionsScreen() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <SubjectHeader subject={subject} collectionCount={collections.length} />
+      <Header
+        backgroundColor={subject.headerColor}
+        title={subject.name}
+        subtitle={`${collections.length} ${collections.length === 1 ? 'collection' : 'collections'}`}
+        icon={subject.icon}
+        showBack={true}
+      />
 
       {/* Collections List */}
       <View style={styles.content}>
@@ -130,33 +137,27 @@ export default function SubjectCollectionsScreen() {
           <Text style={styles.listTitle}>Collections</Text>
         </View>
 
-        <FlatList
-          data={collections}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={{ marginBottom: 12 }}>
-              <CollectionCard
-                collection={item}
-                onPress={() => handleCollectionPress(item)}
-                gradientColors={subject?.gradientColors}
-              />
-              <Pressable
-                style={{ alignSelf: 'flex-end', marginTop: 4 }}
-                onPress={() => handleDeleteCollection(item.id)}
-              >
-                <Ionicons name="trash-outline" size={20} color="#EF4444" />
-              </Pressable>
-            </View>
-          )}
-          contentContainerStyle={styles.listContent}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Ionicons name="folder-open-outline" size={64} color="#D1D5DB" />
-              <Text style={styles.emptyText}>No collections yet</Text>
-              <Text style={styles.emptySubtext}>Create your first collection to get started</Text>
-            </View>
-          }
-        />
+       <FlatList
+  data={collections}
+  keyExtractor={(item) => item.id}
+  contentContainerStyle={{ paddingVertical: 10 }}
+  renderItem={({ item }) => (
+    <View style={{ marginBottom: 12 }}>
+      <CollectionCard
+        collection={item}
+        onPress={() => handleCollectionPress(item)}
+        gradientColors={['#4F46E5', '#6366F1']}
+        onDelete={handleDeleteCollection}   // ⬅️ LIDHET ME FUNKSIONIN TËND
+      />
+    </View>
+  )}
+  ListEmptyComponent={
+    <Text style={{ color: '#6B7280', marginTop: 16, textAlign: 'center' }}>
+      No collections yet. Create your first one!
+    </Text>
+  }
+/>
+
 
         {/* Add Collection Button */}
         <Pressable style={styles.addButton} onPress={() => setModalVisible(true)}>
@@ -197,14 +198,14 @@ export default function SubjectCollectionsScreen() {
                   setNewCollectionName('');
                 }}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>Anulo</Text>
               </Pressable>
 
               <Pressable
                 style={[styles.modalButton, styles.createButton]}
                 onPress={handleAddCollection}
               >
-                <Text style={styles.createButtonText}>Create</Text>
+                <Text style={styles.createButtonText}>Krijo</Text>
               </Pressable>
             </View>
           </View>

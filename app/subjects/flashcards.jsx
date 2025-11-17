@@ -1,10 +1,12 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FlatList, StatusBar, StyleSheet, View } from "react-native";
-import SubjectHeader from "../../components/layout/SubjectHeader";
+import Header from "../../components/layout/Header";
 import Button from "../../components/ui/Button";
 import FlashcardCard from "../../components/ui/FlashcardCard";
 import ProgressBar from "../../components/ui/ProgressBar";
+import { getCollectionById } from "../../firebase/collectionService";
+import { getSubjectById } from "../../firebase/subjectService";
 
 const flashcards = [
   {
@@ -29,6 +31,21 @@ const flashcards = [
 export default function FlashcardsScreen() {
   const router = useRouter();
   const { subjectId, collectionId } = useLocalSearchParams();
+
+  const [subject, setSubject] = useState(null);
+  const [collection, setCollection] = useState(null);
+
+  // Load subject + collection
+  useEffect(() => {
+    const load = async () => {
+      const subj = await getSubjectById(String(subjectId));
+      const coll = await getCollectionById(String(subjectId), String(collectionId));
+      setSubject(subj);
+      setCollection(coll);
+    };
+
+    load();
+  }, [subjectId, collectionId]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState({});
@@ -60,16 +77,15 @@ export default function FlashcardsScreen() {
 
   return (
     <View style={styles.screen}>
-          <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" />
 
-      {/* Subject header */}
-      <SubjectHeader
-        subject={{
-          name: "Mathematics",
-          icon: "book-outline",
-          headerColor: "#f090dbff",
-        }}
-        collectionCount={total}
+      {/* Header */}
+      <Header
+        backgroundColor={subject?.headerColor || "#888"}
+        title={collection?.name || "Flashcards"}
+        subtitle={`${total} flashcards`}
+        icon={subject?.icon || "book-outline"}
+        showBack={true}
         onBackPress={() => router.replace(`/subjects/${subjectId}`)}
       />
 
@@ -102,12 +118,12 @@ export default function FlashcardsScreen() {
       <View style={styles.buttonsContainer}>
         <View style={styles.row}>
           <Button
-            title="Repeat"
+            title="Përsërit"
             onPress={handleNext}
             style={[styles.btn, { backgroundColor: "#dcbb26ff" }]}
           />
           <Button
-            title="Hard"
+            title="Vështirë"
             onPress={handleNext}
             style={[styles.btn, { backgroundColor: "#c81616ff" }]}
           />
@@ -115,12 +131,12 @@ export default function FlashcardsScreen() {
 
         <View style={styles.row}>
           <Button
-            title="Medium"
+            title="Mesatare"
             onPress={handleNext}
             style={[styles.btn, { backgroundColor: "#dbeb50ff" }]}
           />
           <Button
-            title="Easy"
+            title="Lehtë"
             onPress={handleNext}
             style={[styles.btn, { backgroundColor: "rgba(124, 238, 85, 1)" }]}
           />

@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -14,7 +15,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import SubjectHeader from '../../../../components/layout/SubjectHeader';
+import Header from '../../../../components/layout/Header';
 import { addCard, deleteCard, fetchCards } from '../../../../firebase/cardService';
 import { getCollectionById as fetchCollectionById } from '../../../../firebase/collectionService';
 import { getSubjectById as fetchSubjectById } from '../../../../firebase/subjectService';
@@ -34,33 +35,38 @@ export default function CollectionDetailScreen() {
   const [loading, setLoading] = useState(true);
 
   // Load subject, collection and cards from Firestore
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        const subj = await fetchSubjectById(String(subjectId));
-        setSubject(subj);
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const subj = await fetchSubjectById(String(subjectId));
+      setSubject(subj);
 
-        const coll = await fetchCollectionById(String(subjectId), String(collectionId));
-        const cards = await fetchCards(String(subjectId), String(collectionId));
-        // Ensure collection metadata is present; fallback to counts derived from cards
-        const collWithCounts = {
-          ...coll,
-          cards: typeof coll?.cards === 'number' ? coll.cards : cards.length,
-          completed:
-            typeof coll?.completed === 'number' ? coll.completed : cards.filter((c) => !!c.completed).length,
-        };
-        setCollection(collWithCounts);
-        setFlashcards(cards);
-      } catch (err) {
-        console.log('Error loading collection or cards:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    load();
+      const coll = await fetchCollectionById(String(subjectId), String(collectionId));
+      const cards = await fetchCards(String(subjectId), String(collectionId));
+      // Ensure collection metadata is present; fallback to counts derived from cards
+      const collWithCounts = {
+        ...coll,
+        cards: typeof coll?.cards === 'number' ? coll.cards : cards.length,
+        completed:
+          typeof coll?.completed === 'number'
+            ? coll.completed
+            : cards.filter((c) => !!c.completed).length,
+      };
+      setCollection(collWithCounts);
+      setFlashcards(cards);
+    } catch (err) {
+      console.log('Error loading collection or cards:', err);
+    } finally {
+      setLoading(false);
+    }
   }, [subjectId, collectionId]);
+
+  // Reload data when screen comes into focus (after returning from study/edit/import)
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
 
   if (loading) {
     return (
@@ -143,19 +149,27 @@ export default function CollectionDetailScreen() {
     }
   };
 
+  const handleFlashcardPress = (cardId) => {
+    router.push({
+      pathname: `/subjects/[subjectId]/collections/[collectionId]/[cardId]`,
+      params: {
+        subjectId: String(subjectId),
+        collectionId: String(collectionId),
+        cardId: String(cardId),
+      },
+    });
+  };
+
   const renderFlashcardItem = ({ item }) => (
-    <View style={styles.flashcardItem}>
+    <Pressable
+      style={({ pressed }) => [styles.flashcardItem, pressed && styles.flashcardItemPressed]}
+      onPress={() => handleFlashcardPress(item.id)}
+    >
       <View style={styles.flashcardContent}>
         <View style={styles.flashcardHeader}>
           <Ionicons name="help-circle-outline" size={20} color="#4F46E5" />
           <Text style={styles.flashcardQuestion} numberOfLines={2}>
             {item.question}
-          </Text>
-        </View>
-        <View style={styles.flashcardBody}>
-          <Ionicons name="checkmark-circle-outline" size={16} color="#059669" />
-          <Text style={styles.flashcardAnswer} numberOfLines={2}>
-            {item.answer}
           </Text>
         </View>
         {item.difficulty && (
@@ -164,16 +178,20 @@ export default function CollectionDetailScreen() {
           </View>
         )}
       </View>
-      <Pressable onPress={() => handleDeleteFlashcard(item.id)} style={styles.deleteButton}>
-        <Ionicons name="trash-outline" size={20} color="#EF4444" />
-      </Pressable>
-    </View>
+      <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+    </Pressable>
   );
 
   return (
     <View style={styles.container}>
       {/* Header */}
-      <SubjectHeader subject={subject} collectionCount={flashcards.length} />
+      <Header
+        backgroundColor={subject.headerColor}
+        title={subject.name}
+        subtitle={`${flashcards.length} ${flashcards.length === 1 ? 'flashcard' : 'flashcards'}`}
+        icon={subject.icon}
+        showBack={true}
+      />
 
       {/* Content */}
       <View style={styles.content}>
@@ -187,6 +205,23 @@ export default function CollectionDetailScreen() {
         {/* Flashcards List */}
         {flashcards.length > 0 ? (
           <>
+      {/* Import from API button */}
+<Pressable
+  style={styles.apiButton}
+  onPress={() =>
+    router.push({
+      pathname: '/subjects/[subjectId]/collections/api-cards',
+      params: {
+        subjectId: String(subjectId),
+        collectionId: String(collectionId),
+      },
+    })
+  }
+>
+  <Ionicons name="cloud-download-outline" size={18} color="#2563EB" />
+  <Text style={styles.apiButtonText}>Import cards</Text>
+</Pressable>
+
             <FlatList
               data={flashcards}
               keyExtractor={(item) => item.id}
@@ -337,6 +372,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+  },
+  flashcardItemPressed: {
+    opacity: 0.7,
+    transform: [{ scale: 0.98 }],
   },
   flashcardContent: {
     flex: 1,
@@ -548,4 +587,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+    apiButton: {
+    alignSelf: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 9999,
+    borderWidth: 1,
+    borderColor: '#2563EB',
+    backgroundColor: '#EFF6FF',
+    marginBottom: 12,
+  },
+  apiButtonText: {
+    color: '#2563EB',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+
 });

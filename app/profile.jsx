@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import Header from '../components/layout/Header';
 import Button from '../components/ui/Button';
 import { auth } from '../firebase/firebaseConfig';
 import { fetchSubjects } from '../firebase/subjectService';
@@ -15,7 +16,6 @@ export default function ProfileScreen() {
 
   const [user, setUser] = useState(auth.currentUser ?? null);
 
-  
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       if (!firebaseUser) {
@@ -29,7 +29,6 @@ export default function ProfileScreen() {
     return unsub;
   }, []);
 
-  
   useEffect(() => {
     if (!authReady) return;
 
@@ -70,20 +69,35 @@ export default function ProfileScreen() {
 
   if (!authReady) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+      <View style={styles.safeArea}>
+        <Header
+          backgroundColor="#e4ca47ff"
+          title="Profili"
+          subtitle="Duke i ngarkuar të dhënat..."
+          icon="person-circle-outline"
+          showBack={true}
+          onBackPress={() => router.back()}
+        />
+
+        <View style={styles.center}>
           <ActivityIndicator size="large" />
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Profili i Përdoruesit</Text>
-        <Text style={styles.subtitle}>Detajet dhe Vendosjet</Text>
+    <View style={styles.safeArea}>
+      <Header
+        backgroundColor="#e4ca47ff"
+        title="Profili"
+        icon="person-circle-outline"
+        showBack={true}
+        onBackPress={() => router.back()}
+      />
 
+      <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+        <View style={styles.container}>
         <View style={styles.infoBox}>
           <Text style={styles.infoLabel}>Emri:</Text>
           <Text style={styles.infoValue}>{displayName}</Text>
@@ -94,8 +108,6 @@ export default function ProfileScreen() {
           <Text style={styles.infoValue}>{email}</Text>
         </View>
 
-        
-
         <View style={styles.infoBox}>
           <Text style={styles.infoLabel}>Lëndët e regjistruara:</Text>
           {loading ? (
@@ -104,7 +116,6 @@ export default function ProfileScreen() {
             <Text style={styles.infoValue}>{subjectsCount}</Text>
           )}
         </View>
-
                 <View style={styles.logoutContainer}>
           <Button
             style={{
@@ -114,6 +125,7 @@ export default function ProfileScreen() {
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: 12,
+              width: '90%',
             }}
             title="Ndrysho fjalëkalimin"
             onPress={handleChangePassword}
@@ -126,6 +138,7 @@ export default function ProfileScreen() {
               paddingVertical: 12,
               alignItems: 'center',
               justifyContent: 'center',
+              width: '90%',
             }}
             title="Dil (Logout)"
             onPress={handleLogout}
@@ -148,6 +161,7 @@ export default function ProfileScreen() {
         </View> */}
       </View>
     </SafeAreaView>
+    </View>
   );
 }
 
@@ -160,19 +174,10 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginTop: 20,
-    marginBottom: 10,
-    textAlign: 'center',
-    color: '#1a1a1a',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 30,
-    textAlign: 'center',
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   infoBox: {
     flexDirection: 'row',

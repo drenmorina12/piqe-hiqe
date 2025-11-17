@@ -4,12 +4,12 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 export default function SubjectsScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Subjects Screen</Text>
+      <Text style={styles.title}>Pamja e lëndëve</Text>
 
       <View style={styles.linksContainer}>
         <Link href="/subjects/flashcards" asChild>
           <Pressable style={styles.link}>
-            <Text style={styles.linkText}>View Flashcards</Text>
+            <Text style={styles.linkText}>Shiko kartat</Text>
           </Pressable>
         </Link>
       </View>
