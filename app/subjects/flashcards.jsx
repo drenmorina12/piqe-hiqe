@@ -102,12 +102,12 @@ export default function FlashcardsScreen() {
       <View style={styles.buttonsContainer}>
         <View style={styles.row}>
           <Button
-            title="Repeat"
+            title="Përsërit"
             onPress={handleNext}
             style={[styles.btn, { backgroundColor: "#dcbb26ff" }]}
           />
           <Button
-            title="Hard"
+            title="Vështirë"
             onPress={handleNext}
             style={[styles.btn, { backgroundColor: "#c81616ff" }]}
           />
@@ -115,12 +115,12 @@ export default function FlashcardsScreen() {
 
         <View style={styles.row}>
           <Button
-            title="Medium"
+            title="Mesatare"
             onPress={handleNext}
             style={[styles.btn, { backgroundColor: "#dbeb50ff" }]}
           />
           <Button
-            title="Easy"
+            title="Lehtë"
             onPress={handleNext}
             style={[styles.btn, { backgroundColor: "rgba(124, 238, 85, 1)" }]}
           />

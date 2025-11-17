@@ -192,14 +192,14 @@ export default function SubjectCollectionsScreen() {
                   setNewCollectionName('');
                 }}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>Anulo</Text>
               </Pressable>
 
               <Pressable
                 style={[styles.modalButton, styles.createButton]}
                 onPress={handleAddCollection}
               >
-                <Text style={styles.createButtonText}>Create</Text>
+                <Text style={styles.createButtonText}>Krijo</Text>
               </Pressable>
             </View>
           </View>
