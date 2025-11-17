@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -34,35 +35,38 @@ export default function CollectionDetailScreen() {
   const [loading, setLoading] = useState(true);
 
   // Load subject, collection and cards from Firestore
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        const subj = await fetchSubjectById(String(subjectId));
-        setSubject(subj);
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const subj = await fetchSubjectById(String(subjectId));
+      setSubject(subj);
 
-        const coll = await fetchCollectionById(String(subjectId), String(collectionId));
-        const cards = await fetchCards(String(subjectId), String(collectionId));
-        // Ensure collection metadata is present; fallback to counts derived from cards
-        const collWithCounts = {
-          ...coll,
-          cards: typeof coll?.cards === 'number' ? coll.cards : cards.length,
-          completed:
-            typeof coll?.completed === 'number'
-              ? coll.completed
-              : cards.filter((c) => !!c.completed).length,
-        };
-        setCollection(collWithCounts);
-        setFlashcards(cards);
-      } catch (err) {
-        console.log('Error loading collection or cards:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    load();
+      const coll = await fetchCollectionById(String(subjectId), String(collectionId));
+      const cards = await fetchCards(String(subjectId), String(collectionId));
+      // Ensure collection metadata is present; fallback to counts derived from cards
+      const collWithCounts = {
+        ...coll,
+        cards: typeof coll?.cards === 'number' ? coll.cards : cards.length,
+        completed:
+          typeof coll?.completed === 'number'
+            ? coll.completed
+            : cards.filter((c) => !!c.completed).length,
+      };
+      setCollection(collWithCounts);
+      setFlashcards(cards);
+    } catch (err) {
+      console.log('Error loading collection or cards:', err);
+    } finally {
+      setLoading(false);
+    }
   }, [subjectId, collectionId]);
+
+  // Reload data when screen comes into focus (after returning from study/edit/import)
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
 
   if (loading) {
     return (
