@@ -13,7 +13,6 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Header from '../components/layout/Header';
 import { StatsCard } from '../components/ui/StatsCard';
@@ -197,20 +196,22 @@ export default function HomeScreen() {
 
   if (!authReady) {
     return (
-      <SafeAreaView style={styles.centered}>
+      <View style={styles.centered}>
         <ActivityIndicator size="large" />
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+    <View style={{ flex: 1 }}>
       <StatusBar style="light" backgroundColor="#007AFF" />
+
+      {/* HEADER */}
       <Header
         title="Piqe-Hiqe"
         subtitle="Your daily lessons"
         rightButton={
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}>
+          <>
             <Link href="/profile" asChild>
               <Pressable>
                 <Ionicons name="person-circle-outline" size={28} color="white" />
@@ -220,7 +221,7 @@ export default function HomeScreen() {
             <Pressable onPress={() => setShowInput(!showInput)}>
               <Ionicons name="add" size={28} color="white" />
             </Pressable>
-          </View>
+          </>
         }
       />
 
@@ -317,7 +318,7 @@ export default function HomeScreen() {
           <Text style={styles.bottomButtonText}>Progress</Text>
         </Pressable>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 

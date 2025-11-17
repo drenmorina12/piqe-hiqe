@@ -14,7 +14,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import SubjectHeader from '../../../../components/layout/SubjectHeader';
+import Header from '../../../../components/layout/Header';
 import { addCard, deleteCard, fetchCards } from '../../../../firebase/cardService';
 import { getCollectionById as fetchCollectionById } from '../../../../firebase/collectionService';
 import { getSubjectById as fetchSubjectById } from '../../../../firebase/subjectService';
@@ -48,7 +48,9 @@ export default function CollectionDetailScreen() {
           ...coll,
           cards: typeof coll?.cards === 'number' ? coll.cards : cards.length,
           completed:
-            typeof coll?.completed === 'number' ? coll.completed : cards.filter((c) => !!c.completed).length,
+            typeof coll?.completed === 'number'
+              ? coll.completed
+              : cards.filter((c) => !!c.completed).length,
         };
         setCollection(collWithCounts);
         setFlashcards(cards);
@@ -173,7 +175,13 @@ export default function CollectionDetailScreen() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <SubjectHeader subject={subject} collectionCount={flashcards.length} />
+      <Header
+        backgroundColor={subject.headerColor}
+        title={subject.name}
+        subtitle={`${flashcards.length} ${flashcards.length === 1 ? 'flashcard' : 'flashcards'}`}
+        icon={subject.icon}
+        showBack={true}
+      />
 
       {/* Content */}
       <View style={styles.content}>

@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import SubjectHeader from '../../components/layout/SubjectHeader';
+import Header from '../../components/layout/Header';
 import CollectionCard from '../../components/ui/CollectionCard';
 import { fetchCards } from '../../firebase/cardService';
 import {
@@ -122,7 +122,13 @@ export default function SubjectCollectionsScreen() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <SubjectHeader subject={subject} collectionCount={collections.length} />
+      <Header
+        backgroundColor={subject.headerColor}
+        title={subject.name}
+        subtitle={`${collections.length} ${collections.length === 1 ? 'collection' : 'collections'}`}
+        icon={subject.icon}
+        showBack={true}
+      />
 
       {/* Collections List */}
       <View style={styles.content}>
