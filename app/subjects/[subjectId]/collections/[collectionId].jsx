@@ -154,12 +154,6 @@ export default function CollectionDetailScreen() {
             {item.question}
           </Text>
         </View>
-        <View style={styles.flashcardBody}>
-          <Ionicons name="checkmark-circle-outline" size={16} color="#059669" />
-          <Text style={styles.flashcardAnswer} numberOfLines={2}>
-            {item.answer}
-          </Text>
-        </View>
         {item.difficulty && (
           <View style={styles.difficultyBadge}>
             <Text style={styles.difficultyText}>{item.difficulty}</Text>
