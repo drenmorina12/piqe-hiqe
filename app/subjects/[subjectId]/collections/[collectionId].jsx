@@ -149,8 +149,22 @@ export default function CollectionDetailScreen() {
     }
   };
 
+  const handleFlashcardPress = (cardId) => {
+    router.push({
+      pathname: `/subjects/[subjectId]/collections/[collectionId]/[cardId]`,
+      params: {
+        subjectId: String(subjectId),
+        collectionId: String(collectionId),
+        cardId: String(cardId),
+      },
+    });
+  };
+
   const renderFlashcardItem = ({ item }) => (
-    <View style={styles.flashcardItem}>
+    <Pressable
+      style={({ pressed }) => [styles.flashcardItem, pressed && styles.flashcardItemPressed]}
+      onPress={() => handleFlashcardPress(item.id)}
+    >
       <View style={styles.flashcardContent}>
         <View style={styles.flashcardHeader}>
           <Ionicons name="help-circle-outline" size={20} color="#4F46E5" />
@@ -164,10 +178,8 @@ export default function CollectionDetailScreen() {
           </View>
         )}
       </View>
-      <Pressable onPress={() => handleDeleteFlashcard(item.id)} style={styles.deleteButton}>
-        <Ionicons name="trash-outline" size={20} color="#EF4444" />
-      </Pressable>
-    </View>
+      <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+    </Pressable>
   );
 
   return (
@@ -360,6 +372,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+  },
+  flashcardItemPressed: {
+    opacity: 0.7,
+    transform: [{ scale: 0.98 }],
   },
   flashcardContent: {
     flex: 1,
