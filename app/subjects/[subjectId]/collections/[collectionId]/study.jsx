@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, StatusBar, StyleSheet, Text, View } from 'react-native';
-import SubjectHeader from '../../../../../components/layout/SubjectHeader';
+import Header from '../../../../../components/layout/Header';
 import Button from '../../../../../components/ui/Button';
 import FlashcardCard from '../../../../../components/ui/FlashcardCard';
 import ProgressBar from '../../../../../components/ui/ProgressBar';
@@ -89,9 +89,12 @@ export default function StudyModeScreen() {
   if (loading) {
     return (
       <View style={styles.screen}>
-        <SubjectHeader
-          subject={{ name: 'Loading...', icon: 'book-outline', headerColor: '#4F46E5' }}
-          collectionCount={0}
+        <Header
+          backgroundColor={subject?.headerColor || '#e5c046ff'}
+          title="Loading..."
+          subtitle=""
+          icon="book-outline"
+          showBack
           onBackPress={() => router.back()}
         />
         <View style={styles.emptyContainer}>
@@ -104,9 +107,12 @@ export default function StudyModeScreen() {
   if (!subject || !collection || flashcards.length === 0) {
     return (
       <View style={styles.screen}>
-        <SubjectHeader
-          subject={subject || { name: 'Unknown', icon: 'book-outline', headerColor: '#4F46E5' }}
-          collectionCount={0}
+        <Header
+          backgroundColor={subject?.headerColor || '#e5c046ff'}
+          title={subject?.name || "Study"}
+          subtitle=""
+          icon={subject?.icon || "book-outline"}
+          showBack
           onBackPress={() => router.back()}
         />
         <View style={styles.emptyContainer}>
@@ -120,8 +126,15 @@ export default function StudyModeScreen() {
     <View style={styles.screen}>
       <StatusBar barStyle="light-content" />
 
-      {/* Subject header */}
-      <SubjectHeader subject={subject} collectionCount={total} onBackPress={() => router.back()} />
+      {/*  Header */}
+      <Header
+        backgroundColor={subject.headerColor}
+        title={collection.name}
+        subtitle={`${total} flashcard${total === 1 ? "" : "s"}`}
+        icon={subject.icon}
+        showBack
+        onBackPress={() => router.back()}
+      />
 
       {/* Progress bar */}
       <View style={styles.progressWrap}>
