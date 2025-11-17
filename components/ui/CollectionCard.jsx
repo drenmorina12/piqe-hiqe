@@ -1,10 +1,40 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import {
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import ProgressBar from './ProgressBar';
 
-const CollectionCard = ({ collection, onPress, gradientColors }) => {
-  const progress = collection.cards > 0 ? (collection.completed / collection.cards) * 100 : 0;
-  const isCompleted = collection.completed === collection.cards && collection.cards > 0;
+const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
+  const [optionsVisible, setOptionsVisible] = useState(false);
+  const [confirmVisible, setConfirmVisible] = useState(false);
+
+  const openOptions = () => setOptionsVisible(true);
+  const closeOptions = () => setOptionsVisible(false);
+
+  const openConfirm = () => {
+    setOptionsVisible(false);
+    setConfirmVisible(true);
+  };
+
+  const closeConfirm = () => setConfirmVisible(false);
+
+  const handleConfirmDelete = () => {
+    setConfirmVisible(false);
+    if (onDelete && collection?.id) {
+      onDelete(collection.id);
+    }
+  };
+
+  const progress =
+    collection.cards > 0 ? (collection.completed / collection.cards) * 100 : 0;
+  const isCompleted =
+    collection.completed === collection.cards && collection.cards > 0;
 
   return (
     <Pressable
@@ -13,8 +43,17 @@ const CollectionCard = ({ collection, onPress, gradientColors }) => {
     >
       <View style={styles.content}>
         {/* Icon */}
-        <View style={[styles.iconWrapper, isCompleted ? styles.iconCompleted : styles.iconDefault]}>
-          <Ionicons name="folder-open" size={24} color={isCompleted ? '#059669' : '#4F46E5'} />
+        <View
+          style={[
+            styles.iconWrapper,
+            isCompleted ? styles.iconCompleted : styles.iconDefault,
+          ]}
+        >
+          <Ionicons
+            name="folder-open"
+            size={24}
+            color={isCompleted ? '#059669' : '#4F46E5'}
+          />
         </View>
 
         {/* Collection Info */}
@@ -35,16 +74,67 @@ const CollectionCard = ({ collection, onPress, gradientColors }) => {
             {collection.completed} / {collection.cards} cards
           </Text>
 
-          {/* Progress Bar (extracted component) */}
           <ProgressBar
-            value={progress}                      
+            value={progress}
             height={8}
             trackColor="#E5E7EB"
-            fillColor={isCompleted ? '#10B981' : (gradientColors?.[1] ?? '#4F46E5')}
-            style={{}}                            
+            fillColor={isCompleted ? '#10B981' : gradientColors?.[1] ?? '#4F46E5'}
+            style={{}}
           />
         </View>
       </View>
+
+      {/* 3 pikat – nuk e prishin layout-in */}
+      <TouchableOpacity style={styles.menuButton} onPress={openOptions}>
+        <Ionicons name="ellipsis-vertical" size={18} color="#4B5563" />
+      </TouchableOpacity>
+
+      {/* Modal 1: Options */}
+      <Modal
+        visible={optionsVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={closeOptions}
+      >
+        <Pressable style={styles.backdrop} onPress={closeOptions}>
+          <View style={styles.modal}>
+            <Text style={styles.modalTitle}>Options</Text>
+
+            <Pressable style={styles.modalButtonDanger} onPress={openConfirm}>
+              <Text style={styles.modalButtonTextDanger}>Delete collection</Text>
+            </Pressable>
+
+            <Pressable style={styles.modalButton} onPress={closeOptions}>
+              <Text style={styles.modalButtonText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
+
+      {/* Modal 2: Confirm delete */}
+      <Modal
+        visible={confirmVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={closeConfirm}
+      >
+        <Pressable style={styles.backdrop} onPress={closeConfirm}>
+          <View style={styles.modal}>
+            <Text style={styles.modalTitle}>Confirm delete</Text>
+            <Text style={styles.modalText}>
+              Are you sure you want to delete this collection?
+            </Text>
+
+            <Pressable style={styles.modalButtonDanger} onPress={handleConfirmDelete}>
+              <Text style={styles.modalButtonTextDanger}>Yes, delete</Text>
+            </Pressable>
+
+            <Pressable style={styles.modalButton} onPress={closeConfirm}>
+              <Text style={styles.modalButtonText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
     </Pressable>
   );
 };
@@ -112,5 +202,58 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6B7280',
     marginBottom: 12,
+  },
+  // Shtesat për 3 pikat dhe modalet
+  menuButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    padding: 4,
+  },
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modal: {
+    width: '80%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 8,
+    color: '#111827',
+  },
+  modalText: {
+    fontSize: 14,
+    color: '#4B5563',
+    marginBottom: 16,
+  },
+  modalButton: {
+    paddingVertical: 10,
+    borderRadius: 9999,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: '#111827',
+    fontWeight: '600',
+  },
+  modalButtonDanger: {
+    paddingVertical: 10,
+    borderRadius: 9999,
+    backgroundColor: '#EF4444',
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  modalButtonTextDanger: {
+    color: '#FFFFFF',
+    fontWeight: '700',
   },
 });

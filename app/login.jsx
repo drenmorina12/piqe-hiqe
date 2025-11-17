@@ -17,13 +17,13 @@ export default function WelcomeScreen() {
   const handleSignIn = async () => {
   // 1. Validimi i inputeve PARA login-it
   if (!form.email || !form.password) {
-    alert('Please fill in both email and password.');
+    alert('Ju lutem shënoni email-in dhe passwordin.');
     return;
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(form.email)) {
-    alert('Please enter a valid email address.');
+    alert('Ju lutem vendosni një email valide.');
     return;
   }
 
@@ -38,13 +38,13 @@ export default function WelcomeScreen() {
     const user = userCredential.user; // user është këtu
 
     // 3. Nëse arriti këtu, login ka sukses
-    alert('Successfully signed in!');
+    alert('U identifikuat me sukses!');
     router.replace('/'); // shko në Home / root
 
   } catch (error) {
     // 4. Kapim gabimin (p.sh. auth/invalid-credential)
     console.log('LOGIN ERROR:', error.code, error.message);
-    alert('Signed in failed. Please check your credentials and try again.');
+    alert('Identifikimi dështoi. Ju lutem kontrolloni kredencialet dhe provoni përsëri.');
   }
 };
 
@@ -61,15 +61,15 @@ export default function WelcomeScreen() {
           />
 
           <Text style={styles.title}>
-            Welcome to<Text style={{ color: '#075eec' }}> Piqe-Hiqe</Text>
+            Mirë se erdhët në<Text style={{ color: '#075eec' }}> {'\n'}{'\t'}{'\t'} Piqe-Hiqe</Text>
           </Text>
 
-          <Text style={styles.subtitle}>Learn smarter, not harder</Text>
+          <Text style={styles.subtitle}>Mësoni më zgjuar, jo më vështirë</Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.input}>
-            <Text style={styles.inputLabel}>Email address</Text>
+            <Text style={styles.inputLabel}>Email adresa</Text>
 
             <TextInput
               autoCapitalize="none"
@@ -101,7 +101,7 @@ export default function WelcomeScreen() {
 
           <View style={styles.formAction}>
             <Button
-              title="Sign in"
+              title="Hyr"
               onPress={handleSignIn}
               style={styles.btn}
               textStyle={styles.btnText}
@@ -113,7 +113,7 @@ export default function WelcomeScreen() {
               router.push('/forgotpassword');
             }}
           >
-            <Text style={styles.formLink}>Forgot password?</Text>
+            <Text style={styles.formLink}>Keni harruar passwordin?</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -124,7 +124,7 @@ export default function WelcomeScreen() {
         }}
       >
         <Text style={styles.formFooter}>
-          Don't have an account? <Text style={{ textDecorationLine: 'underline' }}>Sign up</Text>
+          Nuk keni llogari? <Text style={{ textDecorationLine: 'underline' }}>Regjistrohu</Text>
         </Text>
       </TouchableOpacity>
     </SafeAreaView>

@@ -195,6 +195,23 @@ export default function CollectionDetailScreen() {
         {/* Flashcards List */}
         {flashcards.length > 0 ? (
           <>
+      {/* Import from API button */}
+<Pressable
+  style={styles.apiButton}
+  onPress={() =>
+    router.push({
+      pathname: '/subjects/[subjectId]/collections/api-cards',
+      params: {
+        subjectId: String(subjectId),
+        collectionId: String(collectionId),
+      },
+    })
+  }
+>
+  <Ionicons name="cloud-download-outline" size={18} color="#2563EB" />
+  <Text style={styles.apiButtonText}>Import cards</Text>
+</Pressable>
+
             <FlatList
               data={flashcards}
               keyExtractor={(item) => item.id}
@@ -556,4 +573,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+    apiButton: {
+    alignSelf: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 9999,
+    borderWidth: 1,
+    borderColor: '#2563EB',
+    backgroundColor: '#EFF6FF',
+    marginBottom: 12,
+  },
+  apiButtonText: {
+    color: '#2563EB',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+
 });

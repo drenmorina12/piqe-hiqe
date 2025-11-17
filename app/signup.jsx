@@ -24,23 +24,23 @@ export default function SignupScreen() {
     !form.password ||
     !form.confirmPassword
   ) {
-    alert("Please fill in all fields.");
+    alert("Ju lutem mbushini të gjitha fushat.");
     return;
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(form.email)) {
-    alert("Please enter a valid email address.");
+    alert("Ju lutem vendosni një email adresë valide.");
     return;
   }
 
   if (form.password.length < 6) {
-    alert("Password must be at least 6 characters long.");
+    alert("Passwordi duhet të jetë së paku me 6 karaktere.");
     return;
   }
 
   if (form.password !== form.confirmPassword) {
-    alert("Passwords do not match.");
+    alert("Passwordet nuk përputhen.");
     return;
   }
 
@@ -67,9 +67,9 @@ export default function SignupScreen() {
     console.log("SIGNUP ERROR:", error.code, error.message);
 
     if (error.code === "auth/email-already-in-use") {
-      alert("This email is already in use. Try logging in.");
+      alert("Kjo email është përdorur. Provo të logoheni.");
     } else {
-      alert("Sign up failed: " + error.code);
+      alert("Regjistrimi ka dështuar: " + error.code);
     }
   }
 };
@@ -86,16 +86,16 @@ export default function SignupScreen() {
           />
 
           <Text style={styles.title}>
-            Create your<Text style={{ color: '#075eec' }}> Account</Text>
+          Krijoni <Text style={{ color: '#075eec' }}> llogarinë tuaj</Text>
           </Text>
 
-          <Text style={styles.subtitle}>Join Piqe-Hiqe and start learning smarter</Text>
+          <Text style={styles.subtitle}>Bashkohu me Piqe-Hiqe dhe fillo të mësosh më zgjuar</Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.inputRow}>
             <View style={[styles.input, { flex: 1, marginRight: 8 }]}>
-              <Text style={styles.inputLabel}>First Name</Text>
+              <Text style={styles.inputLabel}>Emri</Text>
               <TextInput
                 autoCapitalize="words"
                 autoCorrect={false}
@@ -108,7 +108,7 @@ export default function SignupScreen() {
             </View>
 
             <View style={[styles.input, { flex: 1, marginLeft: 8 }]}>
-              <Text style={styles.inputLabel}>Last Name</Text>
+              <Text style={styles.inputLabel}>Mbiemri</Text>
               <TextInput
                 autoCapitalize="words"
                 autoCorrect={false}
@@ -122,7 +122,7 @@ export default function SignupScreen() {
           </View>
 
           <View style={styles.input}>
-            <Text style={styles.inputLabel}>Email address</Text>
+            <Text style={styles.inputLabel}>Email adresa</Text>
             <TextInput
               autoCapitalize="none"
               autoCorrect={false}
@@ -148,7 +148,7 @@ export default function SignupScreen() {
           </View>
 
           <View style={styles.input}>
-            <Text style={styles.inputLabel}>Confirm Password</Text>
+            <Text style={styles.inputLabel}>Konfirmo Passwordin</Text>
             <TextInput
               secureTextEntry={true}
               placeholder="********"
@@ -160,7 +160,7 @@ export default function SignupScreen() {
           </View>
 
           <Button
-            title="Sign Up"
+            title="Regjistrohu"
             onPress={handleSignUp}
             style={styles.btn}
             textStyle={styles.btnText}
@@ -171,7 +171,7 @@ export default function SignupScreen() {
               router.push('/');
             }}
           >
-            <Text style={styles.formLink}>Already have an account? Sign in</Text>
+            <Text style={styles.formLink}>Keni një llogari? Hyr</Text>
           </TouchableOpacity>
         </View>
       </View>
