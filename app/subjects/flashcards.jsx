@@ -85,6 +85,7 @@ export default function FlashcardsScreen() {
         title={collection?.name || "Flashcards"}
         subtitle={`${total} flashcards`}
         icon={subject?.icon || "book-outline"}
+        showHome
         showBack={true}
         onBackPress={() => router.replace(`/subjects/${subjectId}`)}
       />

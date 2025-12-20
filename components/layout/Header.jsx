@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function Header({
   backgroundColor = '#ffae00ff',
   showBack = false,
+  showHome = false,
   onBackPress,
   icon,
   iconColor = 'white',
@@ -33,7 +34,16 @@ export default function Header({
             <View style={{ width: 60 }} />
           )}
 
-          <View style={styles.rightButtonWrapper}>{rightButton}</View>
+          <View style={styles.rightButtonWrapper}>
+            {showHome && (
+            <Pressable onPress={() => router.replace('/')}>
+            <Ionicons name="home-outline" size={28} color="white" />
+            </Pressable>
+         )}
+
+  {rightButton}
+</View>
+
         </View>
 
         {/* MAIN CONTENT: Icon + Title + Subtitle */}

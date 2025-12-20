@@ -137,6 +137,7 @@ export default function FlashcardEditScreen() {
         subtitle="Edit Flashcard"
         icon={subject.icon}
         showBack={true}
+        showHome
       />
 
       <ScrollView

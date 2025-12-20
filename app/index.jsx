@@ -302,10 +302,6 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.bottomButtonsContainer}>
-        <Pressable style={styles.bottomButton} disabled>
-          <Ionicons name="home" size={24} color="#007AFF" />
-          <Text style={styles.bottomButtonText}>Shtëpia</Text>
-        </Pressable>
 
         <Pressable style={styles.bottomButton} onPress={() => router.push('/progress')}>
           <Ionicons name="stats-chart" size={24} color="#007AFF" />

@@ -191,6 +191,7 @@ export default function CollectionDetailScreen() {
         subtitle={`${flashcards.length} ${flashcards.length === 1 ? 'flashcard' : 'flashcards'}`}
         icon={subject.icon}
         showBack={true}
+        showHome
       />
 
       {/* Content */}

@@ -25,6 +25,7 @@ export default function ProgressScreen() {
         title="Progress"
         subtitle="Your study performance"
         icon="stats-chart"
+        showHome
         showBack
         onBackPress={() => router.back()}
       />
