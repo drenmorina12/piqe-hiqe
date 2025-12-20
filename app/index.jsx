@@ -13,10 +13,12 @@ import {
   View,
 } from 'react-native';
 
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/layout/Header';
 import { StatsCard } from '../components/ui/StatsCard';
 import SubjectCard from '../components/ui/SubjectCard';
 import { useAuth } from '../context/AuthContext';
+
 
 import { fetchCollections } from '../firebase/collectionService';
 import { auth, db } from '../firebase/firebaseConfig';
@@ -211,10 +213,6 @@ export default function HomeScreen() {
                 <Ionicons name="person-circle-outline" size={28} color="white" />
               </Pressable>
             </Link>
-
-            <Pressable onPress={() => setShowInput(!showInput)}>
-              <Ionicons name="add" size={28} color="white" />
-            </Pressable>
           </>
         }
       />
@@ -301,14 +299,31 @@ export default function HomeScreen() {
         />
       </View>
 
-      <View style={styles.bottomButtonsContainer}>
+<SafeAreaView edges={['bottom']} style={styles.footerSafe}>
+  <View style={styles.footer}>
 
-        <Pressable style={styles.bottomButton} onPress={() => router.push('/progress')}>
-          <Ionicons name="stats-chart" size={24} color="#007AFF" />
-          <Text style={styles.bottomButtonText}>Progresi</Text>
-        </Pressable>
-      </View>
-    </View>
+   
+    <Pressable
+      style={styles.footerButton}
+      onPress={() => setShowInput(!showInput)}
+    >
+      <Ionicons name="add" size={34} color="#2563EB" />
+    </Pressable>
+
+    <Pressable
+      style={styles.footerButton}
+      onPress={() => router.push('/progress')}
+    >
+
+    <Ionicons name="stats-chart" size={26} color="#2563EB" />
+    <Text style={styles.footerText}>Progresi</Text>
+
+    </Pressable>
+
+  </View>
+</SafeAreaView>
+
+</View> 
   );
 }
 
@@ -397,4 +412,46 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+footerSafe: {
+  backgroundColor: '#fff',
+},
+
+footer: {
+  flexDirection: 'row',
+  gap: 16,
+  paddingHorizontal: 16,
+  paddingVertical: 14,
+  borderTopWidth: 1,
+  borderTopColor: '#E5E7EB',
+  backgroundColor: '#fff',
+},
+
+footerButton: {
+  flex: 1,                 
+  height: 58,
+  borderRadius: 20,
+
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 10,
+
+  backgroundColor: '#fff', 
+  borderWidth: 2,
+  borderColor: '#2563EB',  
+
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 3,
+  elevation: 4,
+},
+
+footerText: {
+  color: '#2563EB',
+  fontSize: 16,
+  fontWeight: '600',
+},
+
+
 });
