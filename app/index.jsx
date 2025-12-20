@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { Link, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { onAuthStateChanged } from 'firebase/auth';
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -17,6 +16,7 @@ import {
 import Header from '../components/layout/Header';
 import { StatsCard } from '../components/ui/StatsCard';
 import SubjectCard from '../components/ui/SubjectCard';
+import { useAuth } from '../context/AuthContext';
 
 import { fetchCollections } from '../firebase/collectionService';
 import { auth, db } from '../firebase/firebaseConfig';
@@ -29,6 +29,7 @@ import {
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export default function HomeScreen() {
+  const { user, loading: authLoading } = useAuth();
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [authReady, setAuthReady] = useState(false);
@@ -40,16 +41,10 @@ export default function HomeScreen() {
 
   
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        router.replace('/login');
-      } else {
-        setAuthReady(true);
-      }
-    });
-
-    return unsubscribe;
-  }, []);
+    if (!authLoading && !user) {
+      router.replace('/login');
+    }
+  }, [authLoading, user]);
 
   
   const updateStreak = useCallback(async () => {
@@ -136,19 +131,18 @@ export default function HomeScreen() {
 
   
   useEffect(() => {
-    if (authReady) {
+    if (user) {
       loadSubjects();
     }
-  }, [authReady, loadSubjects]);
-
+  }, [user, loadSubjects]);
 
   useFocusEffect(
     useCallback(() => {
-      if (!authReady) return;
-      loadSubjects();
-    }, [authReady, loadSubjects])
+      if (user) {
+        loadSubjects();
+      }
+    }, [user, loadSubjects])
   );
-
   const handleAddSubject = async () => {
     if (!newSubject.trim()) return;
 
@@ -194,7 +188,7 @@ export default function HomeScreen() {
     });
   };
 
-  if (!authReady) {
+  if (authLoading) {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" />
