@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { Link, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from 'react';
@@ -15,8 +16,10 @@ import {
 import Header from '../components/layout/Header';
 import { StatsCard } from '../components/ui/StatsCard';
 import SubjectCard from '../components/ui/SubjectCard';
+import { useAuth } from '../context/AuthContext';
 
 import { fetchCollections } from '../firebase/collectionService';
+import { auth, db } from '../firebase/firebaseConfig';
 import {
   addSubject as createSubject,
   deleteSubject as deleteSubjectFromDb,
@@ -24,63 +27,83 @@ import {
 } from '../firebase/subjectService';
 
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { useAuth } from '../context/AuthContext';
-import { db } from '../firebase/firebaseConfig';
 
 export default function HomeScreen() {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [subjects, setSubjects] = useState([]);
-  const [dataLoading, setDataLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [authReady, setAuthReady] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [newSubject, setNewSubject] = useState('');
   const [showInput, setShowInput] = useState(false);
   const [dayStreak, setDayStreak] = useState(0);
 
+  
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       router.replace('/login');
     }
-  }, [loading, user]);
+  }, [authLoading, user]);
 
-
+  
   const updateStreak = useCallback(async () => {
+    const user = auth.currentUser;
     if (!user) return;
 
     const userRef = doc(db, 'users', user.uid);
     const snap = await getDoc(userRef);
 
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0, 10); // YYYY-MM-DD
+
     let newStreak = 1;
 
     if (snap.exists()) {
-      const { lastActiveDate, streak = 0 } = snap.data();
+      const data = snap.data();
+      const lastActiveDate = data.lastActiveDate;
+      const previousStreak = typeof data.streak === 'number' ? data.streak : 0;
 
       if (lastActiveDate === todayStr) {
-        newStreak = streak || 1;
+        
+        newStreak = previousStreak || 1;
       } else if (lastActiveDate) {
-        const diffDays =
-          (new Date(todayStr) - new Date(lastActiveDate)) /
-          (1000 * 60 * 60 * 24);
+        const lastDate = new Date(lastActiveDate);
+        const diffMs = today.getTime() - lastDate.getTime();
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-        newStreak = diffDays === 1 ? streak + 1 : 1;
+        if (diffDays === 1) {
+          
+          newStreak = previousStreak + 1;
+        } else {
+          
+          newStreak = 1;
+        }
+      } else {
+        
+        newStreak = 1;
       }
     }
 
     await setDoc(
       userRef,
-      { streak: newStreak, lastActiveDate: todayStr },
+      {
+        streak: newStreak,
+        lastActiveDate: todayStr,
+      },
       { merge: true }
     );
 
     setDayStreak(newStreak);
-  }, [user]);
+  }, []);
 
+  
   const loadSubjects = useCallback(async () => {
     try {
-      setDataLoading(true);
+      setLoading(true);
       setError('');
 
+      
       await updateStreak();
 
       const data = await fetchSubjects();
@@ -90,57 +113,82 @@ export default function HomeScreen() {
           try {
             const cols = await fetchCollections(s.id);
             return { ...s, collectionCount: cols.length };
-          } catch {
+          } catch (err) {
+            console.log('Error fetching collections for subject', s.id, err);
             return { ...s, collectionCount: 0 };
           }
         })
       );
 
       setSubjects(subjectsWithCounts);
-    } catch {
-      setError('Nuk u ngarkuan lëndët.');
+    } catch (err) {
+      console.log('Error fetching subjects:', err);
+      setError(err.message ?? 'Nuk u ngarkuan lëndët. Provo përsëri.');
     } finally {
-      setDataLoading(false);
+      setLoading(false);
     }
   }, [updateStreak]);
 
+  
   useEffect(() => {
     if (user) {
       loadSubjects();
     }
   }, [user, loadSubjects]);
 
-  
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        loadSubjects();
+      }
+    }, [user, loadSubjects])
+  );
   const handleAddSubject = async () => {
     if (!newSubject.trim()) return;
 
     try {
-      setDataLoading(true);
+      setLoading(true);
+      setError('');
       const created = await createSubject(newSubject);
-      setSubjects((prev) => [...prev, { ...created, collectionCount: 0 }]);
+      const createdWithCount = { ...created, collectionCount: 0 };
+
+      setSubjects((prev) => [...prev, createdWithCount]);
       setNewSubject('');
       setShowInput(false);
-      setSuccess('Lënda u shtua.');
+      setSuccess('Lënda u shtua me sukses.');
       setTimeout(() => setSuccess(''), 2000);
-    } catch {
-      setError('Nuk u shtua lënda.');
+    } catch (err) {
+      console.log('Error adding subject:', err);
+      setError(err.message ?? 'Nuk u shtua lënda. Provo përsëri.');
     } finally {
-      setDataLoading(false);
+      setLoading(false);
     }
   };
-
 
   const handleRemoveSubject = async (subjectId) => {
     try {
+      setLoading(true);
+      setError('');
       await deleteSubjectFromDb(subjectId);
       setSubjects((prev) => prev.filter((s) => s.id !== subjectId));
-    } catch {
-      setError('Nuk u fshi lënda.');
+      setSuccess('Lënda u fshi.');
+      setTimeout(() => setSuccess(''), 2000);
+    } catch (err) {
+      console.log('Error deleting subject:', err);
+      setError(err.message ?? 'Nuk u fshi lënda.');
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleSubjectPress = (subject) => {
+    router.push({
+      pathname: '/subjects/[id]',
+      params: { id: subject.id },
+    });
+  };
 
-  if (loading) {
+  if (authLoading) {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" />
@@ -148,15 +196,11 @@ export default function HomeScreen() {
     );
   }
 
-  if (!user) {
-    return null; 
-  }
-
-
   return (
     <View style={{ flex: 1 }}>
-      <StatusBar style="light" />
+      <StatusBar style="light" backgroundColor="#007AFF" />
 
+      {/* HEADER */}
       <Header
         title="Piqe-Hiqe"
         subtitle="Mësimet e tua ditore"
@@ -168,7 +212,7 @@ export default function HomeScreen() {
               </Pressable>
             </Link>
 
-            <Pressable onPress={() => setShowInput((v) => !v)}>
+            <Pressable onPress={() => setShowInput(!showInput)}>
               <Ionicons name="add" size={28} color="white" />
             </Pressable>
           </>
@@ -177,22 +221,48 @@ export default function HomeScreen() {
 
       <View style={styles.container}>
         <View style={styles.generalStatsContainer}>
-          <StatsCard subject={dayStreak.toString()} label="Day Streak" />
-          <StatsCard subject={subjects.length.toString()} label="Lëndët" />
+          {/* Day Streak – TANI dinamike */}
+          <StatsCard
+            subject={dayStreak.toString()}
+            easy={0}
+            medium={0}
+            hard={0}
+            label="Day Streak"
+          />
+
+          {/* Cards Done U HEQ – mbesin vetëm Day Streak + Subjects */}
+          <StatsCard
+            subject={subjects.length.toString()}
+            easy={0}
+            medium={0}
+            hard={0}
+            label="Lëndet"
+          />
         </View>
 
         <Text style={styles.title}>Lëndet e tua</Text>
 
-        {dataLoading && <ActivityIndicator />}
+        {loading && (
+          <View style={{ marginBottom: 10 }}>
+            <ActivityIndicator />
+          </View>
+        )}
 
-        {!!error && <Text style={styles.error}>{error}</Text>}
-        {!!success && <Text style={styles.success}>{success}</Text>}
+        {!!error && (
+          <Text style={{ color: '#EF4444', marginBottom: 8, textAlign: 'center' }}>{error}</Text>
+        )}
+
+        {!!success && (
+          <Text style={{ color: '#16A34A', marginBottom: 8, textAlign: 'center' }}>
+            {success}
+          </Text>
+        )}
 
         {showInput && (
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
-              placeholder="Emri i lëndës"
+              placeholder="Vendos emrin e lëndës"
               value={newSubject}
               onChangeText={setNewSubject}
             />
@@ -206,23 +276,45 @@ export default function HomeScreen() {
           data={subjects}
           keyExtractor={(item) => item.id}
           numColumns={2}
-          columnWrapperStyle={{ justifyContent: 'space-between' }}
+          columnWrapperStyle={{ justifyContent: 'space-between', paddingHorizontal: 10 }}
+          contentContainerStyle={{ paddingVertical: 10, paddingBottom: 100 }}
           renderItem={({ item }) => (
-            <View style={{ width: '48%', marginBottom: 15 }}>
-              <SubjectCard
-                subjectId={item.id}
-                subjectName={item.name}
-                collectionCount={item.collectionCount ?? 0}
-                onDelete={handleRemoveSubject}
-              />
-            </View>
-          )}
+  <View style={{ marginBottom: 15, width: '48%' }}>
+    <Pressable onPress={() => handleSubjectPress(item)}>
+      <SubjectCard
+        subjectId={item.id}
+        subjectName={item.name}
+        icon={require('../assets/images/flashcard.png')}
+        iconBackgroundColor={item.iconBackgroundColor || '#E0F2FE'}
+        collectionCount={item.collectionCount ?? 0}
+        onDelete={handleRemoveSubject}
+      />
+    </Pressable>
+  </View>
+)}
+
+          ListEmptyComponent={
+            !loading && (
+              <Text style={{ color: '#777', marginTop: 20 }}>Asnjë lëndë e shtuar deri tani.</Text>
+            )
+          }
         />
+      </View>
+
+      <View style={styles.bottomButtonsContainer}>
+        <Pressable style={styles.bottomButton} disabled>
+          <Ionicons name="home" size={24} color="#007AFF" />
+          <Text style={styles.bottomButtonText}>Shtëpia</Text>
+        </Pressable>
+
+        <Pressable style={styles.bottomButton} onPress={() => router.push('/progress')}>
+          <Ionicons name="stats-chart" size={24} color="#007AFF" />
+          <Text style={styles.bottomButtonText}>Progresi</Text>
+        </Pressable>
       </View>
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   centered: {
@@ -232,47 +324,81 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: 10,
+    alignItems: 'center',
     backgroundColor: '#fff',
+    paddingTop: 20,
   },
   title: {
     fontSize: 24,
-    fontWeight: '700',
-    marginVertical: 10,
-  },
-  generalStatsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 10,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    marginTop: 10,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
   },
   inputContainer: {
     flexDirection: 'row',
     marginBottom: 20,
-    gap: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
   },
   input: {
-    flex: 1,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 6,
     padding: 8,
+    borderRadius: 6,
+    flex: 1,
+    marginRight: 10,
   },
   addButton: {
     backgroundColor: '#007AFF',
+    paddingVertical: 10,
     paddingHorizontal: 16,
-    justifyContent: 'center',
     borderRadius: 6,
   },
   addButtonText: {
     color: '#fff',
+    fontWeight: 'bold',
+  },
+  generalStatsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 5,
+    width: '100%',
+    marginBottom: 20,
+  },
+  bottomButtonsContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5EA',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  bottomButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F9FAFB',
+    paddingVertical: 12,
+    borderRadius: 8,
+    gap: 8,
+  },
+  bottomButtonText: {
+    color: '#007AFF',
+    fontSize: 16,
     fontWeight: '600',
-  },
-  error: {
-    color: '#EF4444',
-    textAlign: 'center',
-  },
-  success: {
-    color: '#16A34A',
-    textAlign: 'center',
   },
 });
