@@ -95,6 +95,7 @@ export default function StudyModeScreen() {
           subtitle=""
           icon="book-outline"
           showBack
+          showHome
           onBackPress={() => router.back()}
         />
         <View style={styles.emptyContainer}>
@@ -113,6 +114,7 @@ export default function StudyModeScreen() {
           subtitle=""
           icon={subject?.icon || "book-outline"}
           showBack
+          showHome
           onBackPress={() => router.back()}
         />
         <View style={styles.emptyContainer}>
@@ -133,6 +135,7 @@ export default function StudyModeScreen() {
         subtitle={`${total} flashcard${total === 1 ? "" : "s"}`}
         icon={subject.icon}
         showBack
+        showHome
         onBackPress={() => router.back()}
       />
 

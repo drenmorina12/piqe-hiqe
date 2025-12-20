@@ -75,6 +75,7 @@ export default function ProfileScreen() {
           title="Profili"
           subtitle="Duke i ngarkuar të dhënat..."
           icon="person-circle-outline"
+          showHome
           showBack={true}
           onBackPress={() => router.back()}
         />
@@ -92,6 +93,7 @@ export default function ProfileScreen() {
         backgroundColor="#e4ca47ff"
         title="Profili"
         icon="person-circle-outline"
+        showHome
         showBack={true}
         onBackPress={() => router.back()}
       />

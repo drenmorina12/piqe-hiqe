@@ -128,6 +128,7 @@ export default function SubjectCollectionsScreen() {
         title={subject.name}
         subtitle={`${collections.length} ${collections.length === 1 ? 'collection' : 'collections'}`}
         icon={subject.icon}
+        showHome
         showBack={true}
       />
 
