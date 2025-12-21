@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import CollectionProgressPie from '../../../../components/charts/CollectionProgressPie';
 import Header from '../../../../components/layout/Header';
 import AnimatedModal from '../../../../components/ui/AnimatedModal';
+import Toast from '../../../../components/ui/Toast';
 import {
   addCard,
   deleteCard,
@@ -31,7 +32,8 @@ import {
 import { getSubjectById as fetchSubjectById } from '../../../../firebase/subjectService';
 
 export default function CollectionDetailScreen() {
-  const { subjectId, collectionId } = useLocalSearchParams();
+  const params = useLocalSearchParams();
+  const { subjectId, collectionId, deletedFlashcard } = params;
   const [subject, setSubject] = useState(null);
   const [collection, setCollection] = useState(null);
   const [flashcards, setFlashcards] = useState([]);
@@ -41,6 +43,9 @@ export default function CollectionDetailScreen() {
 
   const [formError, setFormError] = useState('');
   const [savingCard, setSavingCard] = useState(false);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+  const [errorType, setErrorType] = useState('error');
 
   const [loading, setLoading] = useState(true);
 
@@ -77,7 +82,20 @@ export default function CollectionDetailScreen() {
   useFocusEffect(
     useCallback(() => {
       loadData();
-    }, [loadData])
+
+      // Check if we returned from deleting a flashcard
+      if (deletedFlashcard === 'true') {
+        setSuccess('Flashcard deleted successfully');
+        // Clear the param by replacing the route without it
+        router.replace({
+          pathname: '/subjects/[subjectId]/collections/[collectionId]',
+          params: {
+            subjectId: String(subjectId),
+            collectionId: String(collectionId),
+          },
+        });
+      }
+    }, [loadData, deletedFlashcard])
   );
   const derivedProgress = {
     easy: flashcards.filter((c) => c.difficulty === 'easy').length,
@@ -133,9 +151,12 @@ export default function CollectionDetailScreen() {
       setNewQuestion('');
       setNewAnswer('');
       setShowForm(false);
+      setSuccess('Flashcard created successfully');
     } catch (err) {
       console.log('Error adding card:', err);
-      setFormError(err.message ?? 'Failed to create card.');
+      setFormError(err.message ?? 'Failed to create flashcard.');
+      setError(err.message ?? 'Failed to create flashcard. Please try again.');
+      setErrorType('error');
     } finally {
       setSavingCard(false);
     }
@@ -151,8 +172,11 @@ export default function CollectionDetailScreen() {
         ...prev,
         cards: Math.max((prev?.cards ?? 1) - 1, 0),
       }));
+      setSuccess('Flashcard deleted successfully');
     } catch (err) {
       console.log('Error deleting card:', err);
+      setError(err.message ?? 'Failed to delete flashcard. Please try again.');
+      setErrorType('error');
     }
   };
 
@@ -372,6 +396,10 @@ export default function CollectionDetailScreen() {
           </View>
         </KeyboardAvoidingView>
       </AnimatedModal>
+
+      <Toast message={success} type="success" visible={!!success} onHide={() => setSuccess('')} />
+
+      <Toast message={error} type={errorType} visible={!!error} onHide={() => setError('')} />
     </View>
   );
 }

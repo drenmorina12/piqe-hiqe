@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../../components/layout/Header';
 import CollectionCard from '../../components/ui/CollectionCard';
+import Toast from '../../components/ui/Toast';
 import { fetchCards } from '../../firebase/cardService';
 import {
   addCollection,
@@ -23,7 +24,6 @@ import {
 import AnimatedModal from '../../components/ui/AnimatedModal';
 import { getSubjectById } from '../../firebase/subjectService';
 
-
 export default function SubjectCollectionsScreen() {
   const { id } = useLocalSearchParams();
   const subjectId = String(id);
@@ -33,6 +33,9 @@ export default function SubjectCollectionsScreen() {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState('');
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+  const [errorType, setErrorType] = useState('error');
 
   // Load subject + collections
   useEffect(() => {
@@ -97,8 +100,11 @@ export default function SubjectCollectionsScreen() {
       setCollections((prev) => [...prev, created]);
       setNewCollectionName('');
       setModalVisible(false);
+      setSuccess('Collection created successfully');
     } catch (err) {
       console.log('Error adding collection:', err);
+      setError(err.message ?? 'Failed to create collection. Please try again.');
+      setErrorType('error');
     }
   };
 
@@ -106,8 +112,11 @@ export default function SubjectCollectionsScreen() {
     try {
       await deleteCollection(subjectId, collectionId);
       setCollections((prev) => prev.filter((c) => c.id !== collectionId));
+      setSuccess('Collection deleted successfully');
     } catch (err) {
       console.log('Error deleting collection:', err);
+      setError(err.message ?? 'Failed to delete collection. Please try again.');
+      setErrorType('error');
     }
   };
 
@@ -139,27 +148,26 @@ export default function SubjectCollectionsScreen() {
           <Text style={styles.listTitle}>Koleksionet</Text>
         </View>
 
-       <FlatList
-  data={collections}
-  keyExtractor={(item) => item.id}
-  contentContainerStyle={{ paddingVertical: 10 }}
-  renderItem={({ item }) => (
-    <View style={{ marginBottom: 12 }}>
-      <CollectionCard
-        collection={item}
-        onPress={() => handleCollectionPress(item)}
-        gradientColors={['#4F46E5', '#6366F1']}
-        onDelete={handleDeleteCollection}   // ⬅️ LIDHET ME FUNKSIONIN TËND
-      />
-    </View>
-  )}
-  ListEmptyComponent={
-    <Text style={{ color: '#6B7280', marginTop: 16, textAlign: 'center' }}>
-      Nuk ka koleksione. Krijo koleksionin tënd të parë!
-    </Text>
-  }
-/>
-
+        <FlatList
+          data={collections}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingVertical: 10 }}
+          renderItem={({ item }) => (
+            <View style={{ marginBottom: 12 }}>
+              <CollectionCard
+                collection={item}
+                onPress={() => handleCollectionPress(item)}
+                gradientColors={['#4F46E5', '#6366F1']}
+                onDelete={handleDeleteCollection} // ⬅️ LIDHET ME FUNKSIONIN TËND
+              />
+            </View>
+          )}
+          ListEmptyComponent={
+            <Text style={{ color: '#6B7280', marginTop: 16, textAlign: 'center' }}>
+              Nuk ka koleksione. Krijo koleksionin tënd të parë!
+            </Text>
+          }
+        />
 
         {/* Add Collection Button */}
         <Pressable style={styles.addButton} onPress={() => setModalVisible(true)}>
@@ -169,55 +177,58 @@ export default function SubjectCollectionsScreen() {
       </View>
 
       {/* Add Collection Modal */}
-<AnimatedModal
-  visible={modalVisible}
-  onClose={() => {
-    setModalVisible(false);
-    setNewCollectionName('');
-  }}
->
-  <View>
-    <View style={styles.modalHeader}>
-      <Text style={styles.modalTitle}>Koleksioni i ri</Text>
-      <Pressable
-        onPress={() => {
+      <AnimatedModal
+        visible={modalVisible}
+        onClose={() => {
           setModalVisible(false);
           setNewCollectionName('');
         }}
       >
-        <Ionicons name="close" size={24} color="#6B7280" />
-      </Pressable>
-    </View>
+        <View>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Koleksioni i ri</Text>
+            <Pressable
+              onPress={() => {
+                setModalVisible(false);
+                setNewCollectionName('');
+              }}
+            >
+              <Ionicons name="close" size={24} color="#6B7280" />
+            </Pressable>
+          </View>
 
-    <TextInput
-      style={styles.input}
-      placeholder="Collection name"
-      value={newCollectionName}
-      onChangeText={setNewCollectionName}
-      autoFocus
-    />
+          <TextInput
+            style={styles.input}
+            placeholder="Collection name"
+            value={newCollectionName}
+            onChangeText={setNewCollectionName}
+            autoFocus
+          />
 
-    <View style={styles.modalButtons}>
-      <Pressable
-        style={[styles.modalButton, styles.cancelButton]}
-        onPress={() => {
-          setModalVisible(false);
-          setNewCollectionName('');
-        }}
-      >
-        <Text style={styles.cancelButtonText}>Anulo</Text>
-      </Pressable>
+          <View style={styles.modalButtons}>
+            <Pressable
+              style={[styles.modalButton, styles.cancelButton]}
+              onPress={() => {
+                setModalVisible(false);
+                setNewCollectionName('');
+              }}
+            >
+              <Text style={styles.cancelButtonText}>Anulo</Text>
+            </Pressable>
 
-      <Pressable
-        style={[styles.modalButton, styles.createButton]}
-        onPress={handleAddCollection}
-      >
-        <Text style={styles.createButtonText}>Krijo</Text>
-      </Pressable>
-    </View>
-  </View>
-</AnimatedModal>
+            <Pressable
+              style={[styles.modalButton, styles.createButton]}
+              onPress={handleAddCollection}
+            >
+              <Text style={styles.createButtonText}>Krijo</Text>
+            </Pressable>
+          </View>
+        </View>
+      </AnimatedModal>
 
+      <Toast message={success} type="success" visible={!!success} onHide={() => setSuccess('')} />
+
+      <Toast message={error} type={errorType} visible={!!error} onHide={() => setError('')} />
     </View>
   );
 }
