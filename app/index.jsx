@@ -315,8 +315,8 @@ export default function HomeScreen() {
       onPress={() => router.push('/progress')}
     >
 
-    <Ionicons name="stats-chart" size={26} color="#2563EB" />
-    <Text style={styles.footerText}>Progresi</Text>
+    <Ionicons name="stopwatch-outline" size={26} color="#2563EB" />
+<Text style={styles.footerText}>Timer</Text>
 
     </Pressable>
 
