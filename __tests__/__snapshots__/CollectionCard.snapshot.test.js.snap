@@ -1,0 +1,182 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CollectionCard snapshot (not completed) 1`] = `
+<View
+  accessibilityState={
+    {
+      "busy": undefined,
+      "checked": undefined,
+      "disabled": undefined,
+      "expanded": undefined,
+      "selected": undefined,
+    }
+  }
+  accessibilityValue={
+    {
+      "max": undefined,
+      "min": undefined,
+      "now": undefined,
+      "text": undefined,
+    }
+  }
+  accessible={true}
+  collapsable={false}
+  focusable={true}
+  onBlur={[Function]}
+  onClick={[Function]}
+  onFocus={[Function]}
+  onResponderGrant={[Function]}
+  onResponderMove={[Function]}
+  onResponderRelease={[Function]}
+  onResponderTerminate={[Function]}
+  onResponderTerminationRequest={[Function]}
+  onStartShouldSetResponder={[Function]}
+  style={
+    [
+      {
+        "backgroundColor": "#FFFFFF",
+        "borderRadius": 16,
+        "elevation": 2,
+        "marginBottom": 12,
+        "padding": 16,
+        "shadowColor": "#000",
+        "shadowOffset": {
+          "height": 1,
+          "width": 0,
+        },
+        "shadowOpacity": 0.1,
+        "shadowRadius": 2,
+      },
+      false,
+    ]
+  }
+>
+  <View
+    style={
+      {
+        "flexDirection": "row",
+        "gap": 16,
+      }
+    }
+  >
+    <View
+      style={
+        [
+          {
+            "alignItems": "center",
+            "borderRadius": 12,
+            "height": 48,
+            "justifyContent": "center",
+            "width": 48,
+          },
+          {
+            "backgroundColor": "#F9FAFB",
+          },
+        ]
+      }
+    >
+      <Text>
+        folder-open
+      </Text>
+    </View>
+    <View
+      style={
+        {
+          "flex": 1,
+        }
+      }
+    >
+      <View
+        style={
+          {
+            "alignItems": "flex-start",
+            "flexDirection": "row",
+            "gap": 8,
+            "justifyContent": "space-between",
+            "marginBottom": 8,
+            "marginRight": 28,
+          }
+        }
+      >
+        <Text
+          numberOfLines={1}
+          style={
+            {
+              "color": "#111827",
+              "flex": 1,
+              "fontSize": 16,
+              "fontWeight": "600",
+            }
+          }
+        >
+          Algorithms
+        </Text>
+      </View>
+      <Text
+        style={
+          {
+            "color": "#6B7280",
+            "fontSize": 14,
+            "marginBottom": 12,
+          }
+        }
+      >
+        2
+         / 
+        10
+         cards
+      </Text>
+      <View
+        fillColor="#222"
+        height={8}
+        style={{}}
+        testID="progressbar"
+        trackColor="#E5E7EB"
+        value={20}
+      />
+    </View>
+  </View>
+  <View
+    accessibilityState={
+      {
+        "busy": undefined,
+        "checked": undefined,
+        "disabled": undefined,
+        "expanded": undefined,
+        "selected": undefined,
+      }
+    }
+    accessibilityValue={
+      {
+        "max": undefined,
+        "min": undefined,
+        "now": undefined,
+        "text": undefined,
+      }
+    }
+    accessible={true}
+    collapsable={false}
+    focusable={true}
+    onClick={[Function]}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      {
+        "opacity": 1,
+        "padding": 4,
+        "position": "absolute",
+        "right": 10,
+        "top": 10,
+      }
+    }
+  >
+    <Text>
+      ellipsis-vertical
+    </Text>
+  </View>
+</View>
+`;
