@@ -40,7 +40,7 @@ const SubjectCard = ({
   };
 
   return (
-    <View style={styles.card}>
+    <View testID="subject-card" style={styles.card}>
       {/* UI JOTE EKZISTUESE – e paprekur */}
       <View style={[styles.iconWrapper, { backgroundColor: iconBackgroundColor }]}>
         <Image source={icon} style={styles.icon} resizeMode="cover" />
@@ -53,7 +53,7 @@ const SubjectCard = ({
       )}
 
       {/* 3 pikat – vetëm kjo pjesë e re SHFAQET në kartelë */}
-      <TouchableOpacity style={styles.menuButton} onPress={openOptions}>
+      <TouchableOpacity testID="subject-menu" style={styles.menuButton} onPress={openOptions}>
         <Ionicons name="ellipsis-vertical" size={18} color="#4B5563" />
       </TouchableOpacity>
 
@@ -68,11 +68,11 @@ const SubjectCard = ({
           <View style={styles.modal}>
             <Text style={styles.modalTitle}>Options</Text>
 
-            <Pressable style={styles.modalButtonDanger} onPress={openConfirm}>
+            <Pressable testID="subject-delete" style={styles.modalButtonDanger} onPress={openConfirm}>
               <Text style={styles.modalButtonTextDanger}>Delete subject</Text>
             </Pressable>
 
-            <Pressable style={styles.modalButton} onPress={closeOptions}>
+            <Pressable testID="subject-cancel-options" style={styles.modalButton} onPress={closeOptions}>
               <Text style={styles.modalButtonText}>Cancel</Text>
             </Pressable>
           </View>
@@ -93,11 +93,11 @@ const SubjectCard = ({
               Are you sure you want to delete this subject?
             </Text>
 
-            <Pressable style={styles.modalButtonDanger} onPress={handleConfirmDelete}>
+            <Pressable testID="subject-confirm-delete"  style={styles.modalButtonDanger} onPress={handleConfirmDelete}>
               <Text style={styles.modalButtonTextDanger}>Yes, delete</Text>
             </Pressable>
 
-            <Pressable style={styles.modalButton} onPress={closeConfirm}>
+            <Pressable testID="subject-cancel-options" style={styles.modalButton} onPress={closeConfirm}>
               <Text style={styles.modalButtonText}>Cancel</Text>
             </Pressable>
           </View>

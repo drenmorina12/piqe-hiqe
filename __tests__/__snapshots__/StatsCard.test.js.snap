@@ -1,0 +1,237 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`StatsCard snapshot 1`] = `
+<View
+  style={
+    [
+      {
+        "backgroundColor": "#fff",
+        "borderColor": "#eee",
+        "borderRadius": 12,
+        "borderWidth": 1,
+        "elevation": 3,
+        "marginVertical": 8,
+        "padding": 16,
+        "shadowColor": "#000",
+        "shadowOffset": {
+          "height": 2,
+          "width": 0,
+        },
+        "shadowOpacity": 0.1,
+        "shadowRadius": 4,
+      },
+      false,
+    ]
+  }
+>
+  <Text
+    style={
+      [
+        {
+          "color": "#333",
+          "fontSize": 18,
+          "fontWeight": "bold",
+          "marginBottom": 15,
+        },
+        false,
+      ]
+    }
+  />
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "alignItems": "center",
+          "flex": 1,
+          "marginHorizontal": 5,
+        }
+      }
+    >
+      <View
+        style={
+          [
+            {
+              "alignItems": "center",
+              "borderRadius": 30,
+              "height": 60,
+              "justifyContent": "center",
+              "marginBottom": 8,
+              "width": 60,
+            },
+            {
+              "backgroundColor": "#87d068",
+            },
+          ]
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#fff",
+              "fontSize": 12,
+              "fontWeight": "bold",
+            }
+          }
+        >
+          %
+        </Text>
+      </View>
+      <Text
+        style={
+          {
+            "color": "#666",
+            "fontSize": 14,
+            "textAlign": "center",
+          }
+        }
+      >
+        Lehtë
+      </Text>
+      <Text
+        style={
+          {
+            "color": "#333",
+            "fontSize": 16,
+            "fontWeight": "bold",
+            "marginTop": 2,
+          }
+        }
+      >
+        NaN
+      </Text>
+    </View>
+    <View
+      style={
+        {
+          "alignItems": "center",
+          "flex": 1,
+          "marginHorizontal": 5,
+        }
+      }
+    >
+      <View
+        style={
+          [
+            {
+              "alignItems": "center",
+              "borderRadius": 30,
+              "height": 60,
+              "justifyContent": "center",
+              "marginBottom": 8,
+              "width": 60,
+            },
+            {
+              "backgroundColor": "#ffc107",
+            },
+          ]
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#fff",
+              "fontSize": 12,
+              "fontWeight": "bold",
+            }
+          }
+        >
+          %
+        </Text>
+      </View>
+      <Text
+        style={
+          {
+            "color": "#666",
+            "fontSize": 14,
+            "textAlign": "center",
+          }
+        }
+      >
+        Mesatare
+      </Text>
+      <Text
+        style={
+          {
+            "color": "#333",
+            "fontSize": 16,
+            "fontWeight": "bold",
+            "marginTop": 2,
+          }
+        }
+      >
+        NaN
+      </Text>
+    </View>
+    <View
+      style={
+        {
+          "alignItems": "center",
+          "flex": 1,
+          "marginHorizontal": 5,
+        }
+      }
+    >
+      <View
+        style={
+          [
+            {
+              "alignItems": "center",
+              "borderRadius": 30,
+              "height": 60,
+              "justifyContent": "center",
+              "marginBottom": 8,
+              "width": 60,
+            },
+            {
+              "backgroundColor": "#f55d5d",
+            },
+          ]
+        }
+      >
+        <Text
+          style={
+            {
+              "color": "#fff",
+              "fontSize": 12,
+              "fontWeight": "bold",
+            }
+          }
+        >
+          %
+        </Text>
+      </View>
+      <Text
+        style={
+          {
+            "color": "#666",
+            "fontSize": 14,
+            "textAlign": "center",
+          }
+        }
+      >
+        Vështirë
+      </Text>
+      <Text
+        style={
+          {
+            "color": "#333",
+            "fontSize": 16,
+            "fontWeight": "bold",
+            "marginTop": 2,
+          }
+        }
+      >
+        NaN
+      </Text>
+    </View>
+  </View>
+</View>
+`;
