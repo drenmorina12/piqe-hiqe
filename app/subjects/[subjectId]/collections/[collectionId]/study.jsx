@@ -16,12 +16,14 @@ import Button from '../../../../../components/ui/Button';
 import FlashcardCard from '../../../../../components/ui/FlashcardCard';
 import ProgressBar from '../../../../../components/ui/ProgressBar';
 
+import StudyCompleteModal from '../../../../../components/ui/StudyCompleteModal';
 import { fetchCards, updateCard } from '../../../../../firebase/cardService';
 import {
   getCollectionById as fetchCollectionById,
   updateCollectionProgress,
 } from '../../../../../firebase/collectionService';
 import { getSubjectById as fetchSubjectById } from '../../../../../firebase/subjectService';
+
 
 const CARD_WIDTH = Dimensions.get('window').width;
 
@@ -33,6 +35,8 @@ export default function StudyModeScreen() {
   const [collection, setCollection] = useState(null);
   const [flashcards, setFlashcards] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [studyCompleted, setStudyCompleted] = useState(false);
+
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState({});
@@ -115,8 +119,9 @@ export default function StudyModeScreen() {
       isNavigatingRef.current = false;
     });
   } else {
-    router.replace(`/subjects/${subjectId}/collections/${collectionId}`);
-  }
+  setStudyCompleted(true);
+}
+
 };
 
 
@@ -223,6 +228,16 @@ export default function StudyModeScreen() {
       <View style={styles.progressWrap}>
         <ProgressBar value={progress / total} />
       </View>
+      <StudyCompleteModal
+  visible={studyCompleted}
+  onClose={() => {
+    setStudyCompleted(false);
+    router.replace(
+      `/subjects/${subjectId}/collections/${collectionId}`
+    );
+  }}
+/>
+
 
       <FlatList
         ref={flatRef}
@@ -275,6 +290,7 @@ export default function StudyModeScreen() {
         </View>
       </View>
     </View>
+    
   );
 }
 
