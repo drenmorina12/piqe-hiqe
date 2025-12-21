@@ -92,7 +92,7 @@ export default function ForgotPasswordScreen() {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity onPress={() => router.replace('/login')}>
+          <TouchableOpacity activeOpacity={0.6} onPress={() => router.replace('/login')}>
             <Text style={styles.formLink}>Kthehu në hyrje </Text>
           </TouchableOpacity>
         </View>

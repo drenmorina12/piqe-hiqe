@@ -8,6 +8,10 @@
     "scheme": "piqehiqe",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "test": "jest --watchAll",
+    "jest": {
+    "preset": "jest-expo"
+  },
     "ios": {
       "supportsTablet": true
     },

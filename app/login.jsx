@@ -3,6 +3,8 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { signInWithGitHub } from '../auth/githubAuth';
+import AnimatedButton from '../components/ui/AnimatedButton';
 import Button from '../components/ui/Button';
 import { auth } from '../firebase/firebaseConfig';
 
@@ -100,7 +102,7 @@ export default function WelcomeScreen() {
           </View>
 
           <View style={styles.formAction}>
-            <Button
+            <AnimatedButton
               title="Hyr"
               onPress={handleSignIn}
               style={styles.btn}
@@ -108,6 +110,17 @@ export default function WelcomeScreen() {
             />
           </View>
 
+          <View style={{ marginTop: 16 }}>
+           <Button
+              title="Kyçu me GitHub!"
+              onPress={() => signInWithGitHub(router)}
+              style={{ backgroundColor: '#24292e',
+                marginBottom: 25,
+               }}
+              textStyle={{ color: '#fff' }}
+          />
+          </View>
+          
           <TouchableOpacity
             onPress={() => {
               router.push('/forgotpassword');
@@ -178,7 +191,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   formFooter: {
-    paddingVertical: 24,
+    paddingVertical: 20,
     fontSize: 15,
     fontWeight: '600',
     color: '#222',
