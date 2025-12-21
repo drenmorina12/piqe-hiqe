@@ -1,11 +1,4 @@
-import {
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  updateDoc
-} from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, updateDoc } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig';
 
 /* ===============================
@@ -16,14 +9,7 @@ const getCollectionsRef = (subjectId) => {
   const user = auth.currentUser;
   if (!user) throw new Error('User not authenticated');
 
-  return collection(
-    db,
-    'users',
-    user.uid,
-    'subjects',
-    subjectId,
-    'collections'
-  );
+  return collection(db, 'users', user.uid, 'subjects', subjectId, 'collections');
 };
 
 const getSubjectDocRef = (subjectId) => {
@@ -37,15 +23,7 @@ const getCollectionDocRef = (subjectId, collectionId) => {
   const user = auth.currentUser;
   if (!user) throw new Error('User not authenticated');
 
-  return doc(
-    db,
-    'users',
-    user.uid,
-    'subjects',
-    subjectId,
-    'collections',
-    collectionId
-  );
+  return doc(db, 'users', user.uid, 'subjects', subjectId, 'collections', collectionId);
 };
 
 /* ===============================
@@ -56,15 +34,7 @@ export const resetCollectionProgress = async (subjectId, collectionId) => {
   const user = auth.currentUser;
   if (!user) throw new Error('User not authenticated');
 
-  const ref = doc(
-    db,
-    'users',
-    user.uid,
-    'subjects',
-    subjectId,
-    'collections',
-    collectionId
-  );
+  const ref = doc(db, 'users', user.uid, 'subjects', subjectId, 'collections', collectionId);
 
   await updateDoc(ref, {
     progress: {
@@ -76,7 +46,6 @@ export const resetCollectionProgress = async (subjectId, collectionId) => {
     updatedAt: new Date(),
   });
 };
-
 
 /* ===============================
    Create
@@ -125,11 +94,7 @@ export const getCollectionById = async (subjectId, collectionId) => {
    Update Progress (SAFE)
 ================================ */
 
-export const updateCollectionProgress = async (
-  subjectId,
-  collectionId,
-  difficulty
-) => {
+export const updateCollectionProgress = async (subjectId, collectionId, difficulty) => {
   if (!['easy', 'medium', 'hard'].includes(difficulty)) return;
 
   const ref = getCollectionDocRef(subjectId, collectionId);
@@ -151,4 +116,23 @@ export const updateCollectionProgress = async (
     completed: (data.completed ?? 0) + 1,
     updatedAt: new Date(),
   });
+};
+
+/* ===============================
+   Delete
+================================ */
+
+export const deleteCollection = async (subjectId, collectionId) => {
+  const collectionRef = getCollectionDocRef(subjectId, collectionId);
+  await deleteDoc(collectionRef);
+
+  // Decrement subject's collectionCount
+  const subjectRef = getSubjectDocRef(subjectId);
+  const snap = await getDoc(subjectRef);
+  if (snap.exists()) {
+    const count = snap.data().collectionCount || 0;
+    await updateDoc(subjectRef, {
+      collectionCount: Math.max(count - 1, 0),
+    });
+  }
 };
