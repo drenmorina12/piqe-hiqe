@@ -15,10 +15,15 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import CollectionProgressPie from '../../../../components/charts/CollectionProgressPie';
 import Header from '../../../../components/layout/Header';
-import { addCard, deleteCard, fetchCards } from '../../../../firebase/cardService';
-import { getCollectionById as fetchCollectionById } from '../../../../firebase/collectionService';
+import { addCard, deleteCard, fetchCards, resetCardsDifficulty } from '../../../../firebase/cardService';
+import { getCollectionById as fetchCollectionById, resetCollectionProgress } from '../../../../firebase/collectionService';
 import { getSubjectById as fetchSubjectById } from '../../../../firebase/subjectService';
+
+
+
+
 
 export default function CollectionDetailScreen() {
   const { subjectId, collectionId } = useLocalSearchParams();
@@ -45,13 +50,15 @@ export default function CollectionDetailScreen() {
       const cards = await fetchCards(String(subjectId), String(collectionId));
       // Ensure collection metadata is present; fallback to counts derived from cards
       const collWithCounts = {
-        ...coll,
-        cards: typeof coll?.cards === 'number' ? coll.cards : cards.length,
-        completed:
-          typeof coll?.completed === 'number'
-            ? coll.completed
-            : cards.filter((c) => !!c.completed).length,
-      };
+  ...coll,
+  cards: typeof coll?.cards === 'number' ? coll.cards : cards.length,
+  completed:
+    typeof coll?.completed === 'number'
+      ? coll.completed
+      : cards.filter((c) => !!c.completed).length,
+  progress: coll.progress ?? { easy: 0, medium: 0, hard: 0 },
+};
+
       setCollection(collWithCounts);
       setFlashcards(cards);
     } catch (err) {
@@ -67,6 +74,17 @@ export default function CollectionDetailScreen() {
       loadData();
     }, [loadData])
   );
+const derivedProgress = {
+  easy: flashcards.filter(c => c.difficulty === 'easy').length,
+  medium: flashcards.filter(c => c.difficulty === 'medium').length,
+  hard: flashcards.filter(c => c.difficulty === 'hard').length,
+};
+
+const totalProgress =
+  derivedProgress.easy +
+  derivedProgress.medium +
+  derivedProgress.hard;
+
 
   if (loading) {
     return (
@@ -148,6 +166,28 @@ export default function CollectionDetailScreen() {
       });
     }
   };
+  const handleResetProgress = async () => {
+  try {
+    // 1️⃣ reset collection progress
+    await resetCollectionProgress(
+      String(subjectId),
+      String(collectionId)
+    );
+
+    // 2️⃣ reset cards në DB
+    await resetCardsDifficulty(
+      String(subjectId),
+      String(collectionId)
+    );
+
+    // 3️⃣ refresh EVERYTHING from source of truth
+    await loadData();
+  } catch (err) {
+    console.log('Error resetting progress:', err);
+  }
+};
+
+
 
   const handleFlashcardPress = (cardId) => {
     router.push({
@@ -206,30 +246,71 @@ export default function CollectionDetailScreen() {
         {/* Flashcards List */}
         {flashcards.length > 0 ? (
           <>
-      {/* Import from API button */}
-<Pressable
-  style={styles.apiButton}
-  onPress={() =>
-    router.push({
-      pathname: '/subjects/[subjectId]/collections/api-cards',
-      params: {
-        subjectId: String(subjectId),
-        collectionId: String(collectionId),
-      },
-    })
-  }
->
-  <Ionicons name="cloud-download-outline" size={18} color="#2563EB" />
-  <Text style={styles.apiButtonText}>Import cards</Text>
-</Pressable>
 
-            <FlatList
-              data={flashcards}
-              keyExtractor={(item) => item.id}
-              renderItem={renderFlashcardItem}
-              contentContainerStyle={styles.listContent}
-              showsVerticalScrollIndicator={false}
-            />
+        <FlatList
+  data={flashcards}
+  keyExtractor={(item) => item.id}
+  renderItem={renderFlashcardItem}
+  showsVerticalScrollIndicator={false}
+  contentContainerStyle={styles.listContent}
+  ListHeaderComponent={
+    totalProgress > 0 ? (
+      <>
+        <CollectionProgressPie progress={derivedProgress} />
+
+        <Pressable
+          onPress={handleResetProgress}
+          style={{
+            alignSelf: 'center',
+            marginBottom: 16,
+            paddingVertical: 6,
+            paddingHorizontal: 14,
+            borderRadius: 8,
+            backgroundColor: '#F3F4F6',
+          }}
+        >
+          <Text style={{ color: '#6B7280', fontWeight: '600' }}>
+            Reset progress
+          </Text>
+        </Pressable>
+
+        {/* Import from API – identik si më herët */}
+        <Pressable
+          style={styles.apiButton}
+          onPress={() =>
+            router.push({
+              pathname: '/subjects/[subjectId]/collections/api-cards',
+              params: {
+                subjectId: String(subjectId),
+                collectionId: String(collectionId),
+              },
+            })
+          }
+        >
+          <Ionicons name="cloud-download-outline" size={18} color="#2563EB" />
+          <Text style={styles.apiButtonText}>Import cards</Text>
+        </Pressable>
+      </>
+    ) : (
+      <Pressable
+        style={styles.apiButton}
+        onPress={() =>
+          router.push({
+            pathname: '/subjects/[subjectId]/collections/api-cards',
+            params: {
+              subjectId: String(subjectId),
+              collectionId: String(collectionId),
+            },
+          })
+        }
+      >
+        <Ionicons name="cloud-download-outline" size={18} color="#2563EB" />
+        <Text style={styles.apiButtonText}>Import cards</Text>
+      </Pressable>
+    )
+  }
+/>
+
 
             {/* Start Study Button */}
             {!showForm && (
@@ -358,8 +439,9 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   listContent: {
-    paddingBottom: 180,
-  },
+  paddingBottom: 320,
+},
+
   flashcardItem: {
     backgroundColor: 'white',
     borderRadius: 12,

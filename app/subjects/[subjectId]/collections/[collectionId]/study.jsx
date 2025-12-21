@@ -1,13 +1,29 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, StatusBar, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Dimensions,
+  FlatList,
+  Platform,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+
 import Header from '../../../../../components/layout/Header';
 import Button from '../../../../../components/ui/Button';
 import FlashcardCard from '../../../../../components/ui/FlashcardCard';
 import ProgressBar from '../../../../../components/ui/ProgressBar';
+
 import { fetchCards, updateCard } from '../../../../../firebase/cardService';
-import { getCollectionById as fetchCollectionById } from '../../../../../firebase/collectionService';
+import {
+  getCollectionById as fetchCollectionById,
+  updateCollectionProgress,
+} from '../../../../../firebase/collectionService';
 import { getSubjectById as fetchSubjectById } from '../../../../../firebase/subjectService';
+
+const CARD_WIDTH = Dimensions.get('window').width;
 
 export default function StudyModeScreen() {
   const router = useRouter();
@@ -18,15 +34,55 @@ export default function StudyModeScreen() {
   const [flashcards, setFlashcards] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [revealed, setRevealed] = useState({});
+  const [sessionProgress, setSessionProgress] = useState({
+    easy: 0,
+    medium: 0,
+    hard: 0,
+  });
+
+  const flatRef = useRef(null);
+  const isNavigatingRef = useRef(false);
+
+  const scrollTo = (index) => {
+  if (!flatRef.current) return;
+
+  if (Platform.OS === 'web') {
+    flatRef.current.scrollToOffset({
+      offset: index * CARD_WIDTH,
+      animated: true,
+    });
+  } else {
+    flatRef.current.scrollToIndex({
+      index,
+      animated: true,
+    });
+  }
+};
+
+  /* ================= LOAD DATA ================= */
+
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
+        setCurrentIndex(0);
+        setRevealed({});
+        setSessionProgress({ easy: 0, medium: 0, hard: 0 });
+
         const subj = await fetchSubjectById(String(subjectId));
+        const coll = await fetchCollectionById(
+          String(subjectId),
+          String(collectionId)
+        );
+        const cards = await fetchCards(
+          String(subjectId),
+          String(collectionId)
+        );
+
         setSubject(subj);
-        const coll = await fetchCollectionById(String(subjectId), String(collectionId));
         setCollection(coll);
-        const cards = await fetchCards(String(subjectId), String(collectionId));
         setFlashcards(cards);
       } catch (err) {
         console.log('Error loading study data:', err);
@@ -38,67 +94,96 @@ export default function StudyModeScreen() {
     load();
   }, [subjectId, collectionId]);
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [revealed, setRevealed] = useState({});
-  const flatRef = useRef(null);
-
   const total = flashcards.length;
   const progress = useMemo(() => currentIndex + 1, [currentIndex]);
 
-  const onViewableItemsChanged = useRef(({ viewableItems }) => {
-    if (viewableItems?.length) {
-      const next = viewableItems[0].index ?? 0;
-      setCurrentIndex(next);
-    }
-  }).current;
+  /* ================= HELPERS ================= */
 
-  const viewabilityConfig = useRef({
-    viewAreaCoveragePercentThreshold: 80,
-  }).current;
+  const handleReveal = (id) => {
+    setRevealed((prev) => ({ ...prev, [id]: true }));
+  };
 
-  const handleReveal = (id) => setRevealed((r) => ({ ...r, [id]: true }));
+  const goNext = () => {
+  if (currentIndex < total - 1) {
+    const nextIndex = currentIndex + 1;
+
+    isNavigatingRef.current = true;
+    setCurrentIndex(nextIndex);
+
+    requestAnimationFrame(() => {
+      scrollTo(nextIndex);
+      isNavigatingRef.current = false;
+    });
+  } else {
+    router.replace(`/subjects/${subjectId}/collections/${collectionId}`);
+  }
+};
+
 
   const handleDifficulty = async (difficulty) => {
-    const currentCard = flashcards[currentIndex];
-    if (!currentCard) return;
+  if (isNavigatingRef.current) return;
 
-    try {
-      await updateCard(String(subjectId), String(collectionId), currentCard.id, {
-        difficulty,
-      });
-      // Update local state
-      setFlashcards((prev) =>
-        prev.map((card) => (card.id === currentCard.id ? { ...card, difficulty } : card))
+  const currentCard = flashcards[currentIndex];
+  if (!currentCard) return;
+
+  if (difficulty === 'repeat') {
+  setRevealed((prev) => ({
+    ...prev,
+    [currentCard.id]: false,
+  }));
+  return; 
+}
+
+
+  const hadDifficultyBefore = !!currentCard.difficulty;
+
+  try {
+    await updateCard(
+      String(subjectId),
+      String(collectionId),
+      currentCard.id,
+      { difficulty }
+    );
+
+    if (!hadDifficultyBefore) {
+      await updateCollectionProgress(
+        String(subjectId),
+        String(collectionId),
+        difficulty
       );
-    } catch (err) {
-      console.log('Error updating card difficulty:', err);
     }
 
-    handleNext();
-  };
+    setSessionProgress((prev) => ({
+      ...prev,
+      [difficulty]: prev[difficulty] + 1,
+    }));
 
-  const handleNext = () => {
-    if (currentIndex < total - 1) {
-      flatRef.current?.scrollToIndex({ index: currentIndex + 1, animated: true });
-    } else {
-      // Study session complete - go back to collection
-      router.back();
-    }
-  };
+    setFlashcards((prev) =>
+      prev.map((card) =>
+        card.id === currentCard.id ? { ...card, difficulty } : card
+      )
+    );
+  } catch (err) {
+    console.log('Error updating difficulty:', err);
+  }
+
+  goNext();
+};
+
+
+  /* ================= RENDER ================= */
 
   if (loading) {
     return (
       <View style={styles.screen}>
         <Header
-          backgroundColor={subject?.headerColor || '#e5c046ff'}
+          backgroundColor={subject?.headerColor || '#4F46E5'}
           title="Loading..."
-          subtitle=""
           icon="book-outline"
           showBack
           showHome
-          onBackPress={() => router.back()}
         />
-        <View style={styles.emptyContainer}>
+        <View style={styles.center}>
           <ActivityIndicator />
         </View>
       </View>
@@ -109,15 +194,13 @@ export default function StudyModeScreen() {
     return (
       <View style={styles.screen}>
         <Header
-          backgroundColor={subject?.headerColor || '#e5c046ff'}
-          title={subject?.name || "Study"}
-          subtitle=""
-          icon={subject?.icon || "book-outline"}
+          backgroundColor={subject?.headerColor || '#4F46E5'}
+          title={subject?.name || 'Study'}
+          icon={subject?.icon || 'book-outline'}
           showBack
           showHome
-          onBackPress={() => router.back()}
         />
-        <View style={styles.emptyContainer}>
+        <View style={styles.center}>
           <Text style={styles.emptyText}>No flashcards to study</Text>
         </View>
       </View>
@@ -128,27 +211,31 @@ export default function StudyModeScreen() {
     <View style={styles.screen}>
       <StatusBar barStyle="light-content" />
 
-      {/*  Header */}
       <Header
         backgroundColor={subject.headerColor}
         title={collection.name}
-        subtitle={`${total} flashcard${total === 1 ? "" : "s"}`}
+        subtitle={`${total} flashcard${total === 1 ? '' : 's'}`}
         icon={subject.icon}
         showBack
         showHome
-        onBackPress={() => router.back()}
       />
 
-      {/* Progress bar */}
       <View style={styles.progressWrap}>
         <ProgressBar value={progress / total} />
       </View>
 
-      {/* Flashcards */}
       <FlatList
         ref={flatRef}
         data={flashcards}
         keyExtractor={(item) => String(item.id)}
+        horizontal
+        pagingEnabled={Platform.OS !== 'web'}
+        showsHorizontalScrollIndicator={false}
+        getItemLayout={(_, index) => ({
+          length: CARD_WIDTH,
+          offset: CARD_WIDTH * index,
+          index,
+        })}
         renderItem={({ item }) => (
           <FlashcardCard
             question={item.question}
@@ -157,25 +244,20 @@ export default function StudyModeScreen() {
             onReveal={() => handleReveal(item.id)}
           />
         )}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
+        style={{ flexGrow: 0 }}
       />
 
-      {/* Action buttons */}
       <View style={styles.buttonsContainer}>
         <View style={styles.row}>
           <Button
             title="Repeat"
             onPress={() => handleDifficulty('repeat')}
-            style={[styles.btn, { backgroundColor: '#dcbb26ff' }]}
+            style={[styles.btn, { backgroundColor: '#5094e7ff' }]}
           />
           <Button
             title="Hard"
             onPress={() => handleDifficulty('hard')}
-            style={[styles.btn, { backgroundColor: '#c81616ff' }]}
+            style={[styles.btn, { backgroundColor: '#EF4444' }]}
           />
         </View>
 
@@ -183,12 +265,12 @@ export default function StudyModeScreen() {
           <Button
             title="Medium"
             onPress={() => handleDifficulty('medium')}
-            style={[styles.btn, { backgroundColor: '#dbeb50ff' }]}
+            style={[styles.btn, { backgroundColor: '#FACC15' }]}
           />
           <Button
             title="Easy"
             onPress={() => handleDifficulty('easy')}
-            style={[styles.btn, { backgroundColor: 'rgba(124, 238, 85, 1)' }]}
+            style={[styles.btn, { backgroundColor: '#22C55E' }]}
           />
         </View>
       </View>
@@ -196,11 +278,26 @@ export default function StudyModeScreen() {
   );
 }
 
+/* ================= STYLES (UNCHANGED) ================= */
+
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F9FAFB' },
-  progressWrap: { marginTop: 8, marginHorizontal: 16 },
-  buttonsContainer: { paddingHorizontal: 16, paddingBottom: 16, marginBottom: 20 },
-  row: { flexDirection: 'row', gap: 12, marginTop: 8 },
+  screen: {
+    flex: 1,
+    backgroundColor: '#F9FAFB',
+  },
+  progressWrap: {
+    marginHorizontal: 16,
+    marginTop: 8,
+  },
+  buttonsContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: Platform.OS === 'web' ? 24 : 16,
+  },
+  row: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
   btn: {
     height: 56,
     flex: 1,
@@ -208,7 +305,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  emptyContainer: {
+  center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',

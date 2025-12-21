@@ -181,6 +181,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 8,
     gap: 8,
+    marginRight: 28,
   },
   name: {
     fontSize: 16,

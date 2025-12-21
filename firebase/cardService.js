@@ -121,10 +121,16 @@ export const updateCard = async (subjectId, collectionId, cardId, updates) => {
     prevCompleted = !!prevSnap.data().completed;
   }
 
-  await updateDoc(cardDocRef, {
-    ...updates,
-    updatedAt: new Date(),
-  });
+  const cleanUpdates = { ...updates };
+if (cleanUpdates.difficulty === 'repeat') {
+  delete cleanUpdates.difficulty;
+}
+
+await updateDoc(cardDocRef, {
+  ...cleanUpdates,
+  updatedAt: new Date(),
+});
+
 
   if (prevCompleted !== null) {
     const newCompleted = !!updates.completed;
@@ -162,6 +168,34 @@ export const deleteCard = async (subjectId, collectionId, cardId) => {
     await updateDoc(collectionRef, { completed: nextCompleted });
   }
 };
+
+export const resetCardsDifficulty = async (subjectId, collectionId) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error('User not authenticated');
+
+  const cardsRef = collection(
+    db,
+    'users',
+    user.uid,
+    'subjects',
+    subjectId,
+    'collections',
+    collectionId,
+    'cards'
+  );
+
+  const snap = await getDocs(cardsRef);
+
+  const updates = snap.docs.map((d) =>
+    updateDoc(d.ref, {
+      difficulty: null,
+      completed: false,
+    })
+  );
+
+  await Promise.all(updates);
+};
+
 
 
 // ➜ SHTESË: krijo një kartë nga API duke përdorur logjikën ekzistuese të addCard

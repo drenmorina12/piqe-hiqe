@@ -1,46 +1,87 @@
-
 import {
   addDoc,
   collection,
-  deleteDoc,
   doc,
   getDoc,
   getDocs,
-  updateDoc,
+  updateDoc
 } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig';
 
-// Path: users/{uid}/subjects/{subjectId}/collections
+/* ===============================
+   Helpers
+================================ */
+
 const getCollectionsRef = (subjectId) => {
   const user = auth.currentUser;
-  if (!user) {
-    throw new Error('User not authenticated');
-  }
+  if (!user) throw new Error('User not authenticated');
 
-  return collection(db, 'users', user.uid, 'subjects', subjectId, 'collections');
+  return collection(
+    db,
+    'users',
+    user.uid,
+    'subjects',
+    subjectId,
+    'collections'
+  );
 };
 
 const getSubjectDocRef = (subjectId) => {
   const user = auth.currentUser;
-  if (!user) {
-    throw new Error('User not authenticated');
-  }
+  if (!user) throw new Error('User not authenticated');
 
   return doc(db, 'users', user.uid, 'subjects', subjectId);
 };
 
+const getCollectionDocRef = (subjectId, collectionId) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error('User not authenticated');
 
-const getCurrentCollectionCount = async (subjectId) => {
-  const subjectRef = getSubjectDocRef(subjectId);
-  const snap = await getDoc(subjectRef);
-
-  if (!snap.exists()) return 0;
-
-  const data = snap.data();
-  return typeof data.collectionCount === 'number' ? data.collectionCount : 0;
+  return doc(
+    db,
+    'users',
+    user.uid,
+    'subjects',
+    subjectId,
+    'collections',
+    collectionId
+  );
 };
 
-// CREATE
+/* ===============================
+   Reset Progress (FIXED)
+================================ */
+
+export const resetCollectionProgress = async (subjectId, collectionId) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error('User not authenticated');
+
+  const ref = doc(
+    db,
+    'users',
+    user.uid,
+    'subjects',
+    subjectId,
+    'collections',
+    collectionId
+  );
+
+  await updateDoc(ref, {
+    progress: {
+      easy: 0,
+      medium: 0,
+      hard: 0,
+    },
+    completed: 0,
+    updatedAt: new Date(),
+  });
+};
+
+
+/* ===============================
+   Create
+================================ */
+
 export const addCollection = async (subjectId, name) => {
   const collectionsRef = getCollectionsRef(subjectId);
 
@@ -48,68 +89,66 @@ export const addCollection = async (subjectId, name) => {
     name: name.trim(),
     cards: 0,
     completed: 0,
+    progress: { easy: 0, medium: 0, hard: 0 },
     createdAt: new Date(),
   };
 
   const docRef = await addDoc(collectionsRef, newCollection);
 
   const subjectRef = getSubjectDocRef(subjectId);
-  const current = await getCurrentCollectionCount(subjectId);
-  const next = current + 1;
+  const snap = await getDoc(subjectRef);
+  const count = snap.exists() ? snap.data().collectionCount || 0 : 0;
+
   await updateDoc(subjectRef, {
-    collectionCount: next,
+    collectionCount: count + 1,
   });
 
   return { id: docRef.id, ...newCollection };
 };
 
-// READ ALL
+/* ===============================
+   Read
+================================ */
+
 export const fetchCollections = async (subjectId) => {
-  const collectionsRef = getCollectionsRef(subjectId);
-  const snapshot = await getDocs(collectionsRef);
-
-  return snapshot.docs.map((d) => ({
-    id: d.id,
-    ...d.data(),
-  }));
+  const snapshot = await getDocs(getCollectionsRef(subjectId));
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 };
 
-// READ ONE (nëse të duhet)
 export const getCollectionById = async (subjectId, collectionId) => {
-  const collectionsRef = getCollectionsRef(subjectId);
-  const docSnap = await getDoc(doc(collectionsRef, collectionId));
-
-  if (!docSnap.exists()) {
-    throw new Error('Collection not found');
-  }
-
-  return { id: docSnap.id, ...docSnap.data() };
+  const snap = await getDoc(getCollectionDocRef(subjectId, collectionId));
+  if (!snap.exists()) throw new Error('Collection not found');
+  return { id: snap.id, ...snap.data() };
 };
 
-// UPDATE (p.sh. emri i koleksionit)
-export const updateCollection = async (subjectId, collectionId, updates) => {
-  const collectionsRef = getCollectionsRef(subjectId);
-  const collectionDoc = doc(collectionsRef, collectionId);
+/* ===============================
+   Update Progress (SAFE)
+================================ */
 
-  await updateDoc(collectionDoc, {
-    ...updates,
+export const updateCollectionProgress = async (
+  subjectId,
+  collectionId,
+  difficulty
+) => {
+  if (!['easy', 'medium', 'hard'].includes(difficulty)) return;
+
+  const ref = getCollectionDocRef(subjectId, collectionId);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return;
+
+  const data = snap.data();
+
+  const progress = {
+    easy: Number(data.progress?.easy ?? 0),
+    medium: Number(data.progress?.medium ?? 0),
+    hard: Number(data.progress?.hard ?? 0),
+  };
+
+  progress[difficulty] += 1;
+
+  await updateDoc(ref, {
+    progress,
+    completed: (data.completed ?? 0) + 1,
     updatedAt: new Date(),
-  });
-};
-
-// DELETE
-export const deleteCollection = async (subjectId, collectionId) => {
-  const collectionsRef = getCollectionsRef(subjectId);
-  const collectionDoc = doc(collectionsRef, collectionId);
-
-  await deleteDoc(collectionDoc);
-
-  // ➜ zvogëlo collectionCount në subject doc, por kurrë nën 0
-  const subjectRef = getSubjectDocRef(subjectId);
-  const current = await getCurrentCollectionCount(subjectId);
-  const next = current > 0 ? current - 1 : 0;
-
-  await updateDoc(subjectRef, {
-    collectionCount: next,
   });
 };
