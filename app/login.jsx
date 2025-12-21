@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { signInWithGitHub } from '../auth/githubAuth';
+import AnimatedButton from '../components/ui/AnimatedButton';
 import Button from '../components/ui/Button';
 import { auth } from '../firebase/firebaseConfig';
 

@@ -274,39 +274,9 @@ const totalProgress =
           </Text>
         </Pressable>
 
-        {/* Import from API – identik si më herët */}
-        <Pressable
-          style={styles.apiButton}
-          onPress={() =>
-            router.push({
-              pathname: '/subjects/[subjectId]/collections/api-cards',
-              params: {
-                subjectId: String(subjectId),
-                collectionId: String(collectionId),
-              },
-            })
-          }
-        >
-          <Ionicons name="cloud-download-outline" size={18} color="#2563EB" />
-          <Text style={styles.apiButtonText}>Import cards</Text>
-        </Pressable>
       </>
     ) : (
-      <Pressable
-        style={styles.apiButton}
-        onPress={() =>
-          router.push({
-            pathname: '/subjects/[subjectId]/collections/api-cards',
-            params: {
-              subjectId: String(subjectId),
-              collectionId: String(collectionId),
-            },
-          })
-        }
-      >
-        <Ionicons name="cloud-download-outline" size={18} color="#2563EB" />
-        <Text style={styles.apiButtonText}>Import cards</Text>
-      </Pressable>
+      null
     )
   }
 />
@@ -670,23 +640,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-    apiButton: {
-    alignSelf: 'flex-end',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 9999,
-    borderWidth: 1,
-    borderColor: '#2563EB',
-    backgroundColor: '#EFF6FF',
-    marginBottom: 12,
-  },
-  apiButtonText: {
-    color: '#2563EB',
-    fontWeight: '600',
-    fontSize: 14,
-  },
-
 });
