@@ -17,11 +17,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CollectionProgressPie from '../../../../components/charts/CollectionProgressPie';
 import Header from '../../../../components/layout/Header';
+import AnimatedModal from '../../../../components/ui/AnimatedModal';
 import { addCard, deleteCard, fetchCards, resetCardsDifficulty } from '../../../../firebase/cardService';
 import { getCollectionById as fetchCollectionById, resetCollectionProgress } from '../../../../firebase/collectionService';
 import { getSubjectById as fetchSubjectById } from '../../../../firebase/subjectService';
-
-
 
 
 
@@ -308,79 +307,90 @@ const totalProgress =
           </Pressable>
         )}
       </View>
+      <AnimatedModal
+  visible={showForm}
+  variant="bottom"
+  onClose={() => {
+    setShowForm(false);
+    setNewQuestion('');
+    setNewAnswer('');
+    setFormError('');
+  }}
+>
+  <KeyboardAvoidingView
+  behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+  style={{ width: '100%' }}
+>
+  <View style={[styles.formContainer, { maxWidth: 600, width: '90%' }]}>
+    {/* Header */}
+    <View style={styles.formHeader}>
+      <Text style={styles.formTitle}>New Flashcard</Text>
+      <Pressable onPress={() => setShowForm(false)}>
+        <Ionicons name="close" size={24} color="#6B7280" />
+      </Pressable>
+    </View>
 
-      {/* Add Flashcard Form - Outside main content, as overlay */}
-      {showForm && (
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.keyboardAvoidingView}
-        >
-          <View style={styles.formContainer}>
-            <View style={styles.formHeader}>
-              <Text style={styles.formTitle}>New Flashcard</Text>
-              <Pressable
-                onPress={() => {
-                  setShowForm(false);
-                  setNewQuestion('');
-                  setNewAnswer('');
-                }}
-              >
-                <Ionicons name="close" size={24} color="#6B7280" />
-              </Pressable>
-            </View>
+    {/* Scrollable content */}
+    <ScrollView
+      style={{ flexGrow: 0 }}
+      contentContainerStyle={{ paddingBottom: 16 }}
+      showsVerticalScrollIndicator={false}
+    >
+      <Text style={styles.inputLabel}>Question</Text>
+      <TextInput
+        style={[styles.input, styles.questionInput]}
+        placeholder="Enter your question..."
+        value={newQuestion}
+        onChangeText={setNewQuestion}
+        multiline
+      />
 
-            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-              <Text style={styles.inputLabel}>Question</Text>
-              <TextInput
-                style={[styles.input, styles.questionInput]}
-                placeholder="Enter your question..."
-                value={newQuestion}
-                onChangeText={setNewQuestion}
-                multiline
-                autoFocus
-              />
+      <Text style={styles.inputLabel}>Answer</Text>
+      <TextInput
+        style={[styles.input, styles.answerInput]}
+        placeholder="Enter the answer..."
+        value={newAnswer}
+        onChangeText={setNewAnswer}
+        multiline
+      />
 
-              <Text style={styles.inputLabel}>Answer</Text>
-              <TextInput
-                style={[styles.input, styles.answerInput]}
-                placeholder="Enter the answer..."
-                value={newAnswer}
-                onChangeText={setNewAnswer}
-                multiline
-              />
+      {formError ? (
+        <Text style={{ color: '#EF4444', marginBottom: 8 }}>
+          {formError}
+        </Text>
+      ) : null}
+    </ScrollView>
 
-              {formError ? (
-                <Text style={{ color: '#EF4444', marginBottom: 8 }}>{formError}</Text>
-              ) : null}
+    {/* FIXED BUTTONS */}
+    <View style={styles.formButtons}>
+      <Pressable
+        style={[styles.formButton, styles.cancelButton]}
+        onPress={() => setShowForm(false)}
+      >
+        <Text style={styles.cancelButtonText}>Cancel</Text>
+      </Pressable>
 
-              <View style={styles.formButtons}>
-                <Pressable
-                  style={[styles.formButton, styles.cancelButton]}
-                  onPress={() => {
-                    setShowForm(false);
-                    setNewQuestion('');
-                    setNewAnswer('');
-                  }}
-                >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
-                </Pressable>
+      <Pressable
+        style={[
+          styles.formButton,
+          styles.createButton,
+          savingCard && { opacity: 0.7 },
+        ]}
+        onPress={handleAddFlashcard}
+        disabled={savingCard}
+      >
+        {savingCard ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.createButtonText}>Create</Text>
+        )}
+      </Pressable>
+    </View>
+  </View>
+</KeyboardAvoidingView>
 
-                <Pressable
-                  style={[styles.formButton, styles.createButton, savingCard && { opacity: 0.7 }]}
-                  onPress={handleAddFlashcard}
-                  disabled={savingCard}
-                >
-                  {savingCard ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <Text style={styles.createButtonText}>Create</Text>
-                  )}
-                </Pressable>
-              </View>
-            </ScrollView>
-          </View>
-        </KeyboardAvoidingView>
-      )}
+</AnimatedModal>
+
     </View>
   );
 }
@@ -546,17 +556,10 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   formContainer: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 24,
-    maxHeight: '80%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-  },
+  backgroundColor: 'white',
+  borderRadius: 24,
+  padding: 24,
+},
   formHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -640,4 +643,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+    apiButton: {
+    alignSelf: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 9999,
+    borderWidth: 1,
+    borderColor: '#2563EB',
+    backgroundColor: '#EFF6FF',
+    marginBottom: 12,
+  },
+  apiButtonText: {
+    color: '#2563EB',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+
 });
