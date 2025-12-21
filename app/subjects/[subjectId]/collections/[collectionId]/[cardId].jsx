@@ -46,7 +46,7 @@ export default function FlashcardEditScreen() {
         setQuestion(flashcard.question || '');
         setAnswer(flashcard.answer || '');
       } catch (err) {
-        console.log('Error loading flashcard:', err);
+        console.log('Gabim gjatë ngarkimit të kartës:', err);
         setError('Failed to load flashcard');
       } finally {
         setLoading(false);

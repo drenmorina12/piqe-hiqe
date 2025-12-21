@@ -65,13 +65,13 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
             {isCompleted && (
               <View style={styles.completeBadge}>
                 <Ionicons name="checkmark-circle" size={16} color="#059669" />
-                <Text style={styles.completeText}>Complete</Text>
+                <Text style={styles.completeText}>Të kompletuara</Text>
               </View>
             )}
           </View>
 
           <Text style={styles.cardCount}>
-            {collection.completed} / {collection.cards} cards
+            {collection.completed} / {collection.cards} karta
           </Text>
 
           <ProgressBar
@@ -98,14 +98,14 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
       >
         <Pressable style={styles.backdrop} onPress={closeOptions}>
           <View style={styles.modal}>
-            <Text style={styles.modalTitle}>Options</Text>
+            <Text style={styles.modalTitle}>Opsionet</Text>
 
             <Pressable style={styles.modalButtonDanger} onPress={openConfirm}>
-              <Text style={styles.modalButtonTextDanger}>Delete collection</Text>
+              <Text style={styles.modalButtonTextDanger}>Fshije koleksionin</Text>
             </Pressable>
 
             <Pressable style={styles.modalButton} onPress={closeOptions}>
-              <Text style={styles.modalButtonText}>Cancel</Text>
+              <Text style={styles.modalButtonText}>Anulo</Text>
             </Pressable>
           </View>
         </Pressable>
@@ -120,17 +120,17 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
       >
         <Pressable style={styles.backdrop} onPress={closeConfirm}>
           <View style={styles.modal}>
-            <Text style={styles.modalTitle}>Confirm delete</Text>
+            <Text style={styles.modalTitle}>Konfirmo fshirjen</Text>
             <Text style={styles.modalText}>
-              Are you sure you want to delete this collection?
+              Jeni i sigurt që dëshironi ta fshini këtë koleksion?
             </Text>
 
             <Pressable style={styles.modalButtonDanger} onPress={handleConfirmDelete}>
-              <Text style={styles.modalButtonTextDanger}>Yes, delete</Text>
+              <Text style={styles.modalButtonTextDanger}>Po, fshije</Text>
             </Pressable>
 
             <Pressable style={styles.modalButton} onPress={closeConfirm}>
-              <Text style={styles.modalButtonText}>Cancel</Text>
+              <Text style={styles.modalButtonText}>Anulo</Text>
             </Pressable>
           </View>
         </Pressable>

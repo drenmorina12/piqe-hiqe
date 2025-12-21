@@ -48,7 +48,7 @@ const SubjectCard = ({
       <Text style={styles.subjectText}>{subjectName}</Text>
       {collectionCount !== undefined && (
         <Text style={styles.collectionText}>
-          {collectionCount} {collectionCount === 1 ? 'collection' : 'collections'}
+          {collectionCount} {collectionCount === 1 ? 'koleksion' : 'koleksione'}
         </Text>
       )}
 
@@ -66,14 +66,14 @@ const SubjectCard = ({
       >
         <Pressable style={styles.backdrop} onPress={closeOptions}>
           <View style={styles.modal}>
-            <Text style={styles.modalTitle}>Options</Text>
+            <Text style={styles.modalTitle}>Opsionet</Text>
 
             <Pressable testID="subject-delete" style={styles.modalButtonDanger} onPress={openConfirm}>
-              <Text style={styles.modalButtonTextDanger}>Delete subject</Text>
+              <Text style={styles.modalButtonTextDanger}>Fshije lëndën</Text>
             </Pressable>
 
             <Pressable testID="subject-cancel-options" style={styles.modalButton} onPress={closeOptions}>
-              <Text style={styles.modalButtonText}>Cancel</Text>
+              <Text style={styles.modalButtonText}>Anulo </Text>
             </Pressable>
           </View>
         </Pressable>
@@ -88,17 +88,17 @@ const SubjectCard = ({
       >
         <Pressable style={styles.backdrop} onPress={closeConfirm}>
           <View style={styles.modal}>
-            <Text style={styles.modalTitle}>Confirm delete</Text>
+            <Text style={styles.modalTitle}>Konfirmo fshirjen</Text>
             <Text style={styles.modalText}>
-              Are you sure you want to delete this subject?
+              Jeni i sigurt që dëshironi ta fshini këtë lëndë?
             </Text>
 
             <Pressable testID="subject-confirm-delete"  style={styles.modalButtonDanger} onPress={handleConfirmDelete}>
-              <Text style={styles.modalButtonTextDanger}>Yes, delete</Text>
+              <Text style={styles.modalButtonTextDanger}>Po, fshije</Text>
             </Pressable>
 
             <Pressable testID="subject-cancel-options" style={styles.modalButton} onPress={closeConfirm}>
-              <Text style={styles.modalButtonText}>Cancel</Text>
+              <Text style={styles.modalButtonText}>Anulo</Text>
             </Pressable>
           </View>
         </Pressable>

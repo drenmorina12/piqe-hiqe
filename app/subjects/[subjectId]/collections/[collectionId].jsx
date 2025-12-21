@@ -97,9 +97,9 @@ const totalProgress =
   if (!subject || !collection) {
     return (
       <SafeAreaView style={styles.errorContainer}>
-        <Text style={styles.errorText}>Collection not found</Text>
+        <Text style={styles.errorText}>Koleksioni nuk u gjet</Text>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>Go Back</Text>
+          <Text style={styles.backButtonText}>Kthehu</Text>
         </Pressable>
       </SafeAreaView>
     );
@@ -110,7 +110,7 @@ const totalProgress =
     if (savingCard) return; // prevent duplicate presses
 
     if (newQuestion.trim() === '' || newAnswer.trim() === '') {
-      setFormError('Both question and answer are required.');
+      setFormError('Kërkohen pyetja dhe përgjigjia.');
       return;
     }
 
@@ -228,7 +228,7 @@ const totalProgress =
       <Header
         backgroundColor={subject.headerColor}
         title={subject.name}
-        subtitle={`${flashcards.length} ${flashcards.length === 1 ? 'flashcard' : 'flashcards'}`}
+        subtitle={`${flashcards.length} ${flashcards.length === 1 ? 'kartë' : 'karta'}`}
         icon={subject.icon}
         showBack={true}
         showHome
@@ -239,7 +239,7 @@ const totalProgress =
         <View style={styles.collectionInfo}>
           <Text style={styles.collectionName}>{collection.name}</Text>
           <Text style={styles.cardCount}>
-            {flashcards.length} {flashcards.length === 1 ? 'card' : 'cards'}
+            {flashcards.length} {flashcards.length === 1 ? 'kartë' : 'karta'}
           </Text>
         </View>
 
@@ -270,7 +270,7 @@ const totalProgress =
           }}
         >
           <Text style={{ color: '#6B7280', fontWeight: '600' }}>
-            Reset progress
+            Rinis progresin
           </Text>
         </Pressable>
 
@@ -286,7 +286,7 @@ const totalProgress =
             {!showForm && (
               <Pressable style={styles.studyButton} onPress={handleStartStudy}>
                 <Ionicons name="school" size={20} color="white" />
-                <Text style={styles.studyButtonText}>Start Study Session</Text>
+                <Text style={styles.studyButtonText}>Filloni seancën e studimit</Text>
               </Pressable>
             )}
           </>
@@ -294,8 +294,8 @@ const totalProgress =
           !showForm && (
             <View style={styles.emptyContainer}>
               <Ionicons name="document-text-outline" size={64} color="#D1D5DB" />
-              <Text style={styles.emptyText}>No flashcards yet</Text>
-              <Text style={styles.emptySubtext}>Create your first flashcard to get started</Text>
+              <Text style={styles.emptyText}>Nuk kani karta</Text>
+              <Text style={styles.emptySubtext}>Krijo kartën e parë për të filluar</Text>
             </View>
           )
         )}
@@ -304,7 +304,7 @@ const totalProgress =
         {!showForm && (
           <Pressable style={styles.addButton} onPress={() => setShowForm(true)}>
             <Ionicons name="add" size={20} color="#4F46E5" />
-            <Text style={styles.addButtonText}>Add Flashcard</Text>
+            <Text style={styles.addButtonText}>Shto karta </Text>
           </Pressable>
         )}
       </View>
@@ -317,7 +317,7 @@ const totalProgress =
         >
           <View style={styles.formContainer}>
             <View style={styles.formHeader}>
-              <Text style={styles.formTitle}>New Flashcard</Text>
+              <Text style={styles.formTitle}>Karta e re</Text>
               <Pressable
                 onPress={() => {
                   setShowForm(false);
@@ -330,20 +330,20 @@ const totalProgress =
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-              <Text style={styles.inputLabel}>Question</Text>
+              <Text style={styles.inputLabel}>Pyetja</Text>
               <TextInput
                 style={[styles.input, styles.questionInput]}
-                placeholder="Enter your question..."
+                placeholder="Vendosni pyetjen..."
                 value={newQuestion}
                 onChangeText={setNewQuestion}
                 multiline
                 autoFocus
               />
 
-              <Text style={styles.inputLabel}>Answer</Text>
+              <Text style={styles.inputLabel}>Përgjigja</Text>
               <TextInput
                 style={[styles.input, styles.answerInput]}
-                placeholder="Enter the answer..."
+                placeholder="Vendosni përgjigjen..."
                 value={newAnswer}
                 onChangeText={setNewAnswer}
                 multiline
@@ -362,7 +362,7 @@ const totalProgress =
                     setNewAnswer('');
                   }}
                 >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                  <Text style={styles.cancelButtonText}>Anulo</Text>
                 </Pressable>
 
                 <Pressable
@@ -373,7 +373,7 @@ const totalProgress =
                   {savingCard ? (
                     <ActivityIndicator color="#fff" />
                   ) : (
-                    <Text style={styles.createButtonText}>Create</Text>
+                    <Text style={styles.createButtonText}>Krijo</Text>
                   )}
                 </Pressable>
               </View>

@@ -201,7 +201,7 @@ export default function StudyModeScreen() {
           showHome
         />
         <View style={styles.center}>
-          <Text style={styles.emptyText}>No flashcards to study</Text>
+          <Text style={styles.emptyText}>Nuk ka karta për të studiuar</Text>
         </View>
       </View>
     );
@@ -250,12 +250,12 @@ export default function StudyModeScreen() {
       <View style={styles.buttonsContainer}>
         <View style={styles.row}>
           <Button
-            title="Repeat"
+            title="Përsërit"
             onPress={() => handleDifficulty('repeat')}
             style={[styles.btn, { backgroundColor: '#5094e7ff' }]}
           />
           <Button
-            title="Hard"
+            title="Vështirë"
             onPress={() => handleDifficulty('hard')}
             style={[styles.btn, { backgroundColor: '#EF4444' }]}
           />
@@ -263,12 +263,12 @@ export default function StudyModeScreen() {
 
         <View style={styles.row}>
           <Button
-            title="Medium"
+            title="Mesatare"
             onPress={() => handleDifficulty('medium')}
             style={[styles.btn, { backgroundColor: '#FACC15' }]}
           />
           <Button
-            title="Easy"
+            title="Lehtë"
             onPress={() => handleDifficulty('easy')}
             style={[styles.btn, { backgroundColor: '#22C55E' }]}
           />

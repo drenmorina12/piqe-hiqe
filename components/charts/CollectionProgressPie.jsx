@@ -85,9 +85,9 @@ export default function CollectionProgressPie({ progress }) {
 
       {/* Legend */}
       <View style={styles.legend}>
-        <Legend color="#22C55E" label={`Easy (${easy})`} />
-        <Legend color="#FACC15" label={`Medium (${medium})`} />
-        <Legend color="#EF4444" label={`Hard (${hard})`} />
+        <Legend color="#22C55E" label={`Lehtë (${easy})`} />
+        <Legend color="#FACC15" label={`Mesatare (${medium})`} />
+        <Legend color="#EF4444" label={`Vështirë (${hard})`} />
       </View>
     </View>
   );

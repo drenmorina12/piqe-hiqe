@@ -221,7 +221,7 @@ export default function HomeScreen() {
             easy={0}
             medium={0}
             hard={0}
-            label="Day Streak"
+            label="Ditët"
           />
 
           {/* Cards Done U HEQ – mbesin vetëm Day Streak + Subjects */}
@@ -322,7 +322,7 @@ export default function HomeScreen() {
   onPress={() => router.push('/timer')}
 >
   <Ionicons name="stopwatch-outline" size={26} color="#2563EB" />
-  <Text style={styles.footerText}>Timer</Text>
+  <Text style={styles.footerText}>Kohëmatësi</Text>
 </TouchableOpacity>
 
 

@@ -9,7 +9,7 @@ export default function SubjectsScreen() {
       <View style={styles.linksContainer}>
         <Link href="/subjects/flashcards" asChild>
           <Pressable style={styles.link}>
-            <Text style={styles.linkText}>Shiko kartat</Text>
+            <Text style={styles.linkText}>Shiko Flashkartat</Text>
           </Pressable>
         </Link>
       </View>

@@ -80,9 +80,9 @@ export default function SubjectCollectionsScreen() {
   if (!subject) {
     return (
       <SafeAreaView style={styles.errorContainer}>
-        <Text style={styles.errorText}>Subject not found</Text>
+        <Text style={styles.errorText}>Lënda nuk u gjet</Text>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>Go Back</Text>
+          <Text style={styles.backButtonText}>Kthehu</Text>
         </Pressable>
       </SafeAreaView>
     );
@@ -126,7 +126,7 @@ export default function SubjectCollectionsScreen() {
       <Header
         backgroundColor={subject.headerColor}
         title={subject.name}
-        subtitle={`${collections.length} ${collections.length === 1 ? 'collection' : 'collections'}`}
+        subtitle={`${collections.length} ${collections.length === 1 ? 'koleksion' : 'koleksione'}`}
         icon={subject.icon}
         showHome
         showBack={true}
@@ -135,7 +135,7 @@ export default function SubjectCollectionsScreen() {
       {/* Collections List */}
       <View style={styles.content}>
         <View style={styles.listHeader}>
-          <Text style={styles.listTitle}>Collections</Text>
+          <Text style={styles.listTitle}>Koleksionet</Text>
         </View>
 
        <FlatList
@@ -154,8 +154,7 @@ export default function SubjectCollectionsScreen() {
   )}
   ListEmptyComponent={
     <Text style={{ color: '#6B7280', marginTop: 16, textAlign: 'center' }}>
-      No collections yet. Create your first one!
-    </Text>
+    Ende nuk kani koleksione. Krijo të parën!    </Text>
   }
 />
 
@@ -163,7 +162,7 @@ export default function SubjectCollectionsScreen() {
         {/* Add Collection Button */}
         <Pressable style={styles.addButton} onPress={() => setModalVisible(true)}>
           <Ionicons name="add" size={20} color="#4F46E5" />
-          <Text style={styles.addButtonText}>Add Collection</Text>
+          <Text style={styles.addButtonText}>Shto Koleksion</Text>
         </Pressable>
       </View>
 
@@ -177,7 +176,7 @@ export default function SubjectCollectionsScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>New Collection</Text>
+              <Text style={styles.modalTitle}>Koleksion i ri</Text>
               <Pressable onPress={() => setModalVisible(false)}>
                 <Ionicons name="close" size={24} color="#6B7280" />
               </Pressable>
@@ -185,7 +184,7 @@ export default function SubjectCollectionsScreen() {
 
             <TextInput
               style={styles.input}
-              placeholder="Collection name"
+              placeholder="Emri i koleksionit"
               value={newCollectionName}
               onChangeText={setNewCollectionName}
               autoFocus

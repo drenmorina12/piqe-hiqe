@@ -7,19 +7,19 @@ export default function FlashcardCard({ question, answer, revealed, onReveal }) 
   return (
     <View style={styles.wrapper}>
       <View style={styles.card}>
-        <Text style={[styles.label, { color: "#4F46E5" }]}>Question</Text>
+        <Text style={[styles.label, { color: "#4F46E5" }]}>Pyetje</Text>
         <Text style={styles.question}>{question}</Text>
 
         {revealed ? (
           <>
             <View style={styles.divider} />
-            <Text style={[styles.label, { color: "#06B6D4" }]}>Answer</Text>
+            <Text style={[styles.label, { color: "#06B6D4" }]}>Përgjigje</Text>
             <Text style={styles.answer}>{answer}</Text>
           </>
         ) : (
           <View style={{ marginTop: 32 }}>
             <Button
-              title="Show Answer"
+              title="Trego përgjigjen"
               onPress={onReveal}
               style={styles.showButton}
               textStyle={styles.showButtonText}
