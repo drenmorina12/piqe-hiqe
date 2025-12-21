@@ -18,11 +18,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import CollectionProgressPie from '../../../../components/charts/CollectionProgressPie';
 import Header from '../../../../components/layout/Header';
 import AnimatedModal from '../../../../components/ui/AnimatedModal';
-import { addCard, deleteCard, fetchCards, resetCardsDifficulty } from '../../../../firebase/cardService';
-import { getCollectionById as fetchCollectionById, resetCollectionProgress } from '../../../../firebase/collectionService';
+import {
+  addCard,
+  deleteCard,
+  fetchCards,
+  resetCardsDifficulty,
+} from '../../../../firebase/cardService';
+import {
+  getCollectionById as fetchCollectionById,
+  resetCollectionProgress,
+} from '../../../../firebase/collectionService';
 import { getSubjectById as fetchSubjectById } from '../../../../firebase/subjectService';
-
-
 
 export default function CollectionDetailScreen() {
   const { subjectId, collectionId } = useLocalSearchParams();
@@ -49,14 +55,14 @@ export default function CollectionDetailScreen() {
       const cards = await fetchCards(String(subjectId), String(collectionId));
       // Ensure collection metadata is present; fallback to counts derived from cards
       const collWithCounts = {
-  ...coll,
-  cards: typeof coll?.cards === 'number' ? coll.cards : cards.length,
-  completed:
-    typeof coll?.completed === 'number'
-      ? coll.completed
-      : cards.filter((c) => !!c.completed).length,
-  progress: coll.progress ?? { easy: 0, medium: 0, hard: 0 },
-};
+        ...coll,
+        cards: typeof coll?.cards === 'number' ? coll.cards : cards.length,
+        completed:
+          typeof coll?.completed === 'number'
+            ? coll.completed
+            : cards.filter((c) => !!c.completed).length,
+        progress: coll.progress ?? { easy: 0, medium: 0, hard: 0 },
+      };
 
       setCollection(collWithCounts);
       setFlashcards(cards);
@@ -73,17 +79,13 @@ export default function CollectionDetailScreen() {
       loadData();
     }, [loadData])
   );
-const derivedProgress = {
-  easy: flashcards.filter(c => c.difficulty === 'easy').length,
-  medium: flashcards.filter(c => c.difficulty === 'medium').length,
-  hard: flashcards.filter(c => c.difficulty === 'hard').length,
-};
+  const derivedProgress = {
+    easy: flashcards.filter((c) => c.difficulty === 'easy').length,
+    medium: flashcards.filter((c) => c.difficulty === 'medium').length,
+    hard: flashcards.filter((c) => c.difficulty === 'hard').length,
+  };
 
-const totalProgress =
-  derivedProgress.easy +
-  derivedProgress.medium +
-  derivedProgress.hard;
-
+  const totalProgress = derivedProgress.easy + derivedProgress.medium + derivedProgress.hard;
 
   if (loading) {
     return (
@@ -166,27 +168,19 @@ const totalProgress =
     }
   };
   const handleResetProgress = async () => {
-  try {
-    // 1️⃣ reset collection progress
-    await resetCollectionProgress(
-      String(subjectId),
-      String(collectionId)
-    );
+    try {
+      // 1️⃣ reset collection progress
+      await resetCollectionProgress(String(subjectId), String(collectionId));
 
-    // 2️⃣ reset cards në DB
-    await resetCardsDifficulty(
-      String(subjectId),
-      String(collectionId)
-    );
+      // 2️⃣ reset cards në DB
+      await resetCardsDifficulty(String(subjectId), String(collectionId));
 
-    // 3️⃣ refresh EVERYTHING from source of truth
-    await loadData();
-  } catch (err) {
-    console.log('Error resetting progress:', err);
-  }
-};
-
-
+      // 3️⃣ refresh EVERYTHING from source of truth
+      await loadData();
+    } catch (err) {
+      console.log('Error resetting progress:', err);
+    }
+  };
 
   const handleFlashcardPress = (cardId) => {
     router.push({
@@ -245,41 +239,34 @@ const totalProgress =
         {/* Flashcards List */}
         {flashcards.length > 0 ? (
           <>
+            <FlatList
+              data={flashcards}
+              keyExtractor={(item) => item.id}
+              renderItem={renderFlashcardItem}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.listContent}
+              ListHeaderComponent={
+                totalProgress > 0 ? (
+                  <>
+                    <CollectionProgressPie progress={derivedProgress} />
 
-        <FlatList
-  data={flashcards}
-  keyExtractor={(item) => item.id}
-  renderItem={renderFlashcardItem}
-  showsVerticalScrollIndicator={false}
-  contentContainerStyle={styles.listContent}
-  ListHeaderComponent={
-    totalProgress > 0 ? (
-      <>
-        <CollectionProgressPie progress={derivedProgress} />
-
-        <Pressable
-          onPress={handleResetProgress}
-          style={{
-            alignSelf: 'center',
-            marginBottom: 16,
-            paddingVertical: 6,
-            paddingHorizontal: 14,
-            borderRadius: 8,
-            backgroundColor: '#F3F4F6',
-          }}
-        >
-          <Text style={{ color: '#6B7280', fontWeight: '600' }}>
-            Reset progress
-          </Text>
-        </Pressable>
-
-      </>
-    ) : (
-      null
-    )
-  }
-/>
-
+                    <Pressable
+                      onPress={handleResetProgress}
+                      style={{
+                        alignSelf: 'center',
+                        marginBottom: 16,
+                        paddingVertical: 6,
+                        paddingHorizontal: 14,
+                        borderRadius: 8,
+                        backgroundColor: '#F3F4F6',
+                      }}
+                    >
+                      <Text style={{ color: '#6B7280', fontWeight: '600' }}>Reset progress</Text>
+                    </Pressable>
+                  </>
+                ) : null
+              }
+            />
 
             {/* Start Study Button */}
             {!showForm && (
@@ -308,89 +295,83 @@ const totalProgress =
         )}
       </View>
       <AnimatedModal
-  visible={showForm}
-  variant="bottom"
-  onClose={() => {
-    setShowForm(false);
-    setNewQuestion('');
-    setNewAnswer('');
-    setFormError('');
-  }}
->
-  <KeyboardAvoidingView
-  behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-  style={{ width: '100%' }}
->
-  <View style={[styles.formContainer, { maxWidth: 600, width: '90%' }]}>
-    {/* Header */}
-    <View style={styles.formHeader}>
-      <Text style={styles.formTitle}>New Flashcard</Text>
-      <Pressable onPress={() => setShowForm(false)}>
-        <Ionicons name="close" size={24} color="#6B7280" />
-      </Pressable>
-    </View>
-
-    {/* Scrollable content */}
-    <ScrollView
-      style={{ flexGrow: 0 }}
-      contentContainerStyle={{ paddingBottom: 16 }}
-      showsVerticalScrollIndicator={false}
-    >
-      <Text style={styles.inputLabel}>Question</Text>
-      <TextInput
-        style={[styles.input, styles.questionInput]}
-        placeholder="Enter your question..."
-        value={newQuestion}
-        onChangeText={setNewQuestion}
-        multiline
-      />
-
-      <Text style={styles.inputLabel}>Answer</Text>
-      <TextInput
-        style={[styles.input, styles.answerInput]}
-        placeholder="Enter the answer..."
-        value={newAnswer}
-        onChangeText={setNewAnswer}
-        multiline
-      />
-
-      {formError ? (
-        <Text style={{ color: '#EF4444', marginBottom: 8 }}>
-          {formError}
-        </Text>
-      ) : null}
-    </ScrollView>
-
-    {/* FIXED BUTTONS */}
-    <View style={styles.formButtons}>
-      <Pressable
-        style={[styles.formButton, styles.cancelButton]}
-        onPress={() => setShowForm(false)}
+        visible={showForm}
+        variant="bottom"
+        onClose={() => {
+          setShowForm(false);
+          setNewQuestion('');
+          setNewAnswer('');
+          setFormError('');
+        }}
       >
-        <Text style={styles.cancelButtonText}>Cancel</Text>
-      </Pressable>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ width: '100%' }}
+        >
+          <View
+            style={[styles.formContainer, { maxWidth: 650, width: '95%', alignSelf: 'center' }]}
+          >
+            {/* Header */}
+            <View style={styles.formHeader}>
+              <Text style={styles.formTitle}>New Flashcard</Text>
+              <Pressable onPress={() => setShowForm(false)}>
+                <Ionicons name="close" size={24} color="#6B7280" />
+              </Pressable>
+            </View>
 
-      <Pressable
-        style={[
-          styles.formButton,
-          styles.createButton,
-          savingCard && { opacity: 0.7 },
-        ]}
-        onPress={handleAddFlashcard}
-        disabled={savingCard}
-      >
-        {savingCard ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.createButtonText}>Create</Text>
-        )}
-      </Pressable>
-    </View>
-  </View>
-</KeyboardAvoidingView>
+            {/* Scrollable content */}
+            <ScrollView
+              style={{ flexGrow: 0 }}
+              contentContainerStyle={{ paddingBottom: 16 }}
+              showsVerticalScrollIndicator={false}
+            >
+              <Text style={styles.inputLabel}>Question</Text>
+              <TextInput
+                style={[styles.input, styles.questionInput]}
+                placeholder="Enter your question..."
+                value={newQuestion}
+                onChangeText={setNewQuestion}
+                multiline
+              />
 
-</AnimatedModal>
+              <Text style={styles.inputLabel}>Answer</Text>
+              <TextInput
+                style={[styles.input, styles.answerInput]}
+                placeholder="Enter the answer..."
+                value={newAnswer}
+                onChangeText={setNewAnswer}
+                multiline
+              />
 
+              {formError ? (
+                <Text style={{ color: '#EF4444', marginBottom: 8 }}>{formError}</Text>
+              ) : null}
+            </ScrollView>
+
+            {/* FIXED BUTTONS */}
+            <View style={styles.formButtons}>
+              <Pressable
+                style={[styles.formButton, styles.cancelButton]}
+                onPress={() => setShowForm(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </Pressable>
+
+              <Pressable
+                style={[styles.formButton, styles.createButton, savingCard && { opacity: 0.7 }]}
+                onPress={handleAddFlashcard}
+                disabled={savingCard}
+              >
+                {savingCard ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.createButtonText}>Create</Text>
+                )}
+              </Pressable>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </AnimatedModal>
     </View>
   );
 }
@@ -419,8 +400,8 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   listContent: {
-  paddingBottom: 320,
-},
+    paddingBottom: 320,
+  },
 
   flashcardItem: {
     backgroundColor: 'white',
@@ -556,10 +537,10 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   formContainer: {
-  backgroundColor: 'white',
-  borderRadius: 24,
-  padding: 24,
-},
+    backgroundColor: 'white',
+    borderRadius: 24,
+    padding: 16,
+  },
   formHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -643,7 +624,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-    apiButton: {
+  apiButton: {
     alignSelf: 'flex-end',
     flexDirection: 'row',
     alignItems: 'center',
@@ -661,5 +642,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 14,
   },
-
 });
