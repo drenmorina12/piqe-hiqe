@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../../components/layout/Header';
 import CollectionCard from '../../components/ui/CollectionCard';
+import Toast from '../../components/ui/Toast';
 import { fetchCards } from '../../firebase/cardService';
 import {
   addCollection,
@@ -32,6 +33,9 @@ export default function SubjectCollectionsScreen() {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState('');
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+  const [errorType, setErrorType] = useState('error');
 
   // Load subject + collections
   useEffect(() => {
@@ -96,8 +100,11 @@ export default function SubjectCollectionsScreen() {
       setCollections((prev) => [...prev, created]);
       setNewCollectionName('');
       setModalVisible(false);
+      setSuccess('Collection created successfully');
     } catch (err) {
       console.log('Error adding collection:', err);
+      setError(err.message ?? 'Failed to create collection. Please try again.');
+      setErrorType('error');
     }
   };
 
@@ -105,8 +112,11 @@ export default function SubjectCollectionsScreen() {
     try {
       await deleteCollection(subjectId, collectionId);
       setCollections((prev) => prev.filter((c) => c.id !== collectionId));
+      setSuccess('Collection deleted successfully');
     } catch (err) {
       console.log('Error deleting collection:', err);
+      setError(err.message ?? 'Failed to delete collection. Please try again.');
+      setErrorType('error');
     }
   };
 
@@ -175,7 +185,7 @@ export default function SubjectCollectionsScreen() {
       >
         <View>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Koleksion i ri</Text>
+            <Text style={styles.modalTitle}>Koleksioni i ri</Text>
             <Pressable
               onPress={() => {
                 setModalVisible(false);

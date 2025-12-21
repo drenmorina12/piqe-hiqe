@@ -19,11 +19,8 @@ import Header from '../components/layout/Header';
 import AnimatedModal from '../components/ui/AnimatedModal';
 import { StatsCard } from '../components/ui/StatsCard';
 import SubjectCard from '../components/ui/SubjectCard';
+import Toast from '../components/ui/Toast';
 import { useAuth } from '../context/AuthContext';
-
-
-
-
 
 import { fetchCollections } from '../firebase/collectionService';
 import { auth, db } from '../firebase/firebaseConfig';
@@ -41,6 +38,7 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [authReady, setAuthReady] = useState(false);
   const [error, setError] = useState('');
+  const [errorType, setErrorType] = useState('error');
   const [success, setSuccess] = useState('');
   const [newSubject, setNewSubject] = useState('');
   const [showInput, setShowInput] = useState(false);
@@ -153,11 +151,11 @@ export default function HomeScreen() {
       setSubjects((prev) => [...prev, createdWithCount]);
       setNewSubject('');
       setShowInput(false);
-      setSuccess('Lënda u shtua me sukses.');
-      setTimeout(() => setSuccess(''), 2000);
+      setSuccess('Subject created successfully');
     } catch (err) {
       console.log('Error adding subject:', err);
-      setError(err.message ?? 'Nuk u shtua lënda. Provo përsëri.');
+      setError(err.message ?? 'Failed to create subject. Please try again.');
+      setErrorType('error');
     } finally {
       setLoading(false);
     }
@@ -169,11 +167,11 @@ export default function HomeScreen() {
       setError('');
       await deleteSubjectFromDb(subjectId);
       setSubjects((prev) => prev.filter((s) => s.id !== subjectId));
-      setSuccess('Lënda u fshi.');
-      setTimeout(() => setSuccess(''), 2000);
+      setSuccess('Subject deleted successfully');
     } catch (err) {
       console.log('Error deleting subject:', err);
-      setError(err.message ?? 'Nuk u fshi lënda.');
+      setError(err.message ?? 'Failed to delete subject. Please try again.');
+      setErrorType('error');
     } finally {
       setLoading(false);
     }
@@ -216,13 +214,7 @@ export default function HomeScreen() {
       <View style={styles.container}>
         <View style={styles.generalStatsContainer}>
           {/* Day Streak – TANI dinamike */}
-          <StatsCard
-            subject={dayStreak.toString()}
-            easy={0}
-            medium={0}
-            hard={0}
-            label="Ditët"
-          />
+          <StatsCard subject={dayStreak.toString()} easy={0} medium={0} hard={0} label="Ditët" />
 
           {/* Cards Done U HEQ – mbesin vetëm Day Streak + Subjects */}
           <StatsCard
@@ -278,58 +270,49 @@ export default function HomeScreen() {
         />
       </View>
 
-    <AnimatedModal
-  visible={showInput}
-  onClose={() => setShowInput(false)}
->
-  <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 12 }}>
-    Shto lëndë të re
-  </Text>
+      <AnimatedModal visible={showInput} onClose={() => setShowInput(false)}>
+        <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 12 }}>Shto lëndë të re</Text>
 
-  <TextInput
-    style={styles.input}
-    placeholder="Vendos emrin e lëndës"
-    value={newSubject}
-    onChangeText={setNewSubject}
-  />
+        <TextInput
+          style={styles.input}
+          placeholder="Vendos emrin e lëndës"
+          value={newSubject}
+          onChangeText={setNewSubject}
+        />
 
-  <TouchableOpacity
-  style={[styles.addButton, { marginTop: 16, marginBottom: 8 }]}
-  activeOpacity={0.6}
-  onPress={handleAddSubject}
->
-    <Text style={styles.addButtonText}>Shto</Text>
-  </TouchableOpacity>
-</AnimatedModal>
+        <TouchableOpacity
+          style={[styles.addButton, { marginTop: 16, marginBottom: 8 }]}
+          activeOpacity={0.6}
+          onPress={handleAddSubject}
+        >
+          <Text style={styles.addButtonText}>Shto</Text>
+        </TouchableOpacity>
+      </AnimatedModal>
 
+      <SafeAreaView edges={['bottom']} style={styles.footerSafe}>
+        <View style={styles.footer}>
+          <TouchableOpacity
+            style={styles.footerButton}
+            activeOpacity={0.6}
+            onPress={() => setShowInput(!showInput)}
+          >
+            <Ionicons name="add" size={34} color="#2563EB" />
+          </TouchableOpacity>
 
-<SafeAreaView edges={['bottom']} style={styles.footerSafe}>
-  <View style={styles.footer}>
+          <TouchableOpacity
+            style={styles.footerButton}
+            activeOpacity={0.6}
+            onPress={() => router.push('/progress')}
+          >
+            <Ionicons name="stopwatch-outline" size={26} color="#2563EB" />
+            <Text style={styles.footerText}>Timer</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
 
-   
-    <TouchableOpacity
-  style={styles.footerButton}
-  activeOpacity={0.6}
-  onPress={() => setShowInput(!showInput)}
->
-  <Ionicons name="add" size={34} color="#2563EB" />
-</TouchableOpacity>
-
-
-   <TouchableOpacity
-  style={styles.footerButton}
-  activeOpacity={0.6}
-  onPress={() => router.push('/timer')}
->
-  <Ionicons name="stopwatch-outline" size={26} color="#2563EB" />
-  <Text style={styles.footerText}>Kohëmatësi</Text>
-</TouchableOpacity>
-
-
-  </View>
-</SafeAreaView>
-
-</View> 
+      <Toast message={success} type="success" visible={!!success} onHide={() => setSuccess('')} />
+      <Toast message={error} type={errorType} visible={!!error} onHide={() => setError('')} />
+    </View>
   );
 }
 
@@ -361,25 +344,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingBottom: 20,
   },
- input: {
-  borderWidth: 1,
-  borderColor: '#ccc',
-  paddingHorizontal: 12,
-  paddingVertical: 10,
-  borderRadius: 8,
-  fontSize: 16,
-  minHeight: 48,
-  width: '100%',
-},
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 8,
+    fontSize: 16,
+    minHeight: 48,
+    width: '100%',
+  },
 
   addButton: {
-  backgroundColor: '#007AFF',
-  height: 48,
-  borderRadius: 10,
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: '100%',
-},
+    backgroundColor: '#007AFF',
+    height: 48,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
 
   addButtonText: {
     color: '#fff',

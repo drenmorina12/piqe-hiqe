@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../../../../../components/layout/Header';
+import Toast from '../../../../../components/ui/Toast';
 import { deleteCard, getCardById, updateCard } from '../../../../../firebase/cardService';
 import { getSubjectById as fetchSubjectById } from '../../../../../firebase/subjectService';
 
@@ -29,6 +30,8 @@ export default function FlashcardEditScreen() {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [error, setError] = useState('');
+  const [errorType, setErrorType] = useState('error');
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     const load = async () => {
@@ -72,85 +75,82 @@ export default function FlashcardEditScreen() {
         answer: answer.trim(),
       });
 
-      router.back();
+      setSuccess('Flashcard updated successfully');
+      setTimeout(() => {
+        router.back();
+      }, 1000);
     } catch (err) {
       console.log('Error updating card:', err);
-      setError(err.message ?? 'Failed to update card.');
+      setError(err.message ?? 'Failed to update flashcard. Please try again.');
+      setErrorType('error');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async () => {
-  if (Platform.OS === 'web') {
-    const confirmed = window.confirm(
-      'Are you sure you want to delete this flashcard? This action cannot be undone.'
-    );
-
-    if (!confirmed) return;
-
-    try {
-      setDeleting(true);
-      await deleteCard(
-        String(subjectId),
-        String(collectionId),
-        String(cardId)
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm(
+        'Are you sure you want to delete this flashcard? This action cannot be undone.'
       );
 
-      router.replace({
-        pathname: '/subjects/[subjectId]/collections/[collectionId]',
-        params: {
-          subjectId: String(subjectId),
-          collectionId: String(collectionId),
-        },
-      });
-    } catch (err) {
-      console.log('Error deleting card:', err);
-      alert('Failed to delete flashcard');
-    } finally {
-      setDeleting(false);
+      if (!confirmed) return;
+
+      try {
+        setDeleting(true);
+        await deleteCard(String(subjectId), String(collectionId), String(cardId));
+
+        router.replace({
+          pathname: '/subjects/[subjectId]/collections/[collectionId]',
+          params: {
+            subjectId: String(subjectId),
+            collectionId: String(collectionId),
+            deletedFlashcard: 'true',
+          },
+        });
+      } catch (err) {
+        console.log('Error deleting card:', err);
+        setError('Failed to delete flashcard. Please try again.');
+        setErrorType('error');
+      } finally {
+        setDeleting(false);
+      }
+
+      return;
     }
 
-    return;
-  }
+    Alert.alert(
+      'Delete Flashcard',
+      'Are you sure you want to delete this flashcard? This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            setDeleting(true);
+            try {
+              await deleteCard(String(subjectId), String(collectionId), String(cardId));
 
-  
-  Alert.alert(
-    'Delete Flashcard',
-    'Are you sure you want to delete this flashcard? This action cannot be undone.',
-    [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          setDeleting(true);
-          try {
-            await deleteCard(
-              String(subjectId),
-              String(collectionId),
-              String(cardId)
-            );
-
-            router.replace({
-              pathname: '/subjects/[subjectId]/collections/[collectionId]',
-              params: {
-                subjectId: String(subjectId),
-                collectionId: String(collectionId),
-              },
-            });
-          } catch (err) {
-            console.log('Error deleting card:', err);
-            Alert.alert('Error', 'Failed to delete flashcard');
-          } finally {
-            setDeleting(false);
-          }
+              router.replace({
+                pathname: '/subjects/[subjectId]/collections/[collectionId]',
+                params: {
+                  subjectId: String(subjectId),
+                  collectionId: String(collectionId),
+                  deletedFlashcard: 'true',
+                },
+              });
+            } catch (err) {
+              console.log('Error deleting card:', err);
+              Alert.alert('Error', 'Failed to delete flashcard. Please try again.');
+            } finally {
+              setDeleting(false);
+            }
+          },
         },
-      },
-    ]
-  );
-};
-
+      ]
+    );
+  };
 
   if (loading) {
     return (
@@ -256,6 +256,10 @@ export default function FlashcardEditScreen() {
           </Pressable>
         </View>
       </ScrollView>
+
+      <Toast message={success} type="success" visible={!!success} onHide={() => setSuccess('')} />
+
+      <Toast message={error} type={errorType} visible={!!error} onHide={() => setError('')} />
     </KeyboardAvoidingView>
   );
 }
