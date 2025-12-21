@@ -1,14 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import {
-  Image,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Image, Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import AnimatedButton from './AnimatedButton';
 
 const SubjectCard = ({
   icon,
@@ -68,13 +61,36 @@ const SubjectCard = ({
           <View style={styles.modal}>
             <Text style={styles.modalTitle}>Opsionet</Text>
 
-            <Pressable testID="subject-delete" style={styles.modalButtonDanger} onPress={openConfirm}>
+            <Pressable
+              testID="subject-delete"
+              style={styles.modalButtonDanger}
+              onPress={openConfirm}
+            >
               <Text style={styles.modalButtonTextDanger}>Fshije lëndën</Text>
             </Pressable>
 
-            <Pressable testID="subject-cancel-options" style={styles.modalButton} onPress={closeOptions}>
+            <Pressable
+              testID="subject-cancel-options"
+              style={styles.modalButton}
+              onPress={closeOptions}
+            >
               <Text style={styles.modalButtonText}>Anulo </Text>
             </Pressable>
+            <AnimatedButton
+              testID="subject-delete"
+              title="Delete subject"
+              variant="danger"
+              onPress={openConfirm}
+              style={styles.modalButtonSpacing}
+            />
+
+            <AnimatedButton
+              testID="subject-cancel-options"
+              title="Cancel"
+              variant="secondary"
+              onPress={closeOptions}
+              style={styles.modalButtonSpacing}
+            />
           </View>
         </Pressable>
       </Modal>
@@ -89,17 +105,38 @@ const SubjectCard = ({
         <Pressable style={styles.backdrop} onPress={closeConfirm}>
           <View style={styles.modal}>
             <Text style={styles.modalTitle}>Konfirmo fshirjen</Text>
-            <Text style={styles.modalText}>
-              Jeni i sigurt që dëshironi ta fshini këtë lëndë?
-            </Text>
+            <Text style={styles.modalText}>Jeni i sigurt që dëshironi ta fshini këtë lëndë?</Text>
 
-            <Pressable testID="subject-confirm-delete"  style={styles.modalButtonDanger} onPress={handleConfirmDelete}>
+            <Pressable
+              testID="subject-confirm-delete"
+              style={styles.modalButtonDanger}
+              onPress={handleConfirmDelete}
+            >
               <Text style={styles.modalButtonTextDanger}>Po, fshije</Text>
             </Pressable>
 
-            <Pressable testID="subject-cancel-options" style={styles.modalButton} onPress={closeConfirm}>
+            <Pressable
+              testID="subject-cancel-options"
+              style={styles.modalButton}
+              onPress={closeConfirm}
+            >
               <Text style={styles.modalButtonText}>Anulo</Text>
             </Pressable>
+            <AnimatedButton
+              testID="subject-confirm-delete"
+              title="Yes, delete"
+              variant="danger"
+              onPress={handleConfirmDelete}
+              style={styles.modalButtonSpacing}
+            />
+
+            <AnimatedButton
+              testID="subject-cancel-options"
+              title="Cancel"
+              variant="secondary"
+              onPress={closeConfirm}
+              style={styles.modalButtonSpacing}
+            />
           </View>
         </Pressable>
       </Modal>
@@ -174,27 +211,7 @@ const styles = StyleSheet.create({
     color: '#4B5563',
     marginBottom: 16,
   },
-  modalButton: {
-    paddingVertical: 10,
-    borderRadius: 9999,
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
+  modalButtonSpacing: {
     marginTop: 8,
-    alignItems: 'center',
-  },
-  modalButtonText: {
-    color: '#111827',
-    fontWeight: '600',
-  },
-  modalButtonDanger: {
-    paddingVertical: 10,
-    borderRadius: 9999,
-    backgroundColor: '#EF4444',
-    marginTop: 8,
-    alignItems: 'center',
-  },
-  modalButtonTextDanger: {
-    color: '#FFFFFF',
-    fontWeight: '700',
   },
 });
