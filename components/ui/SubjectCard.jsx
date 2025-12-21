@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import AnimatedButton from './AnimatedButton';
 
 const SubjectCard = ({
   icon,
@@ -68,13 +69,21 @@ const SubjectCard = ({
           <View style={styles.modal}>
             <Text style={styles.modalTitle}>Options</Text>
 
-            <Pressable testID="subject-delete" style={styles.modalButtonDanger} onPress={openConfirm}>
-              <Text style={styles.modalButtonTextDanger}>Delete subject</Text>
-            </Pressable>
+            <AnimatedButton
+              testID="subject-delete"
+              title="Delete subject"
+              variant="danger"
+              onPress={openConfirm}
+              style={styles.modalButtonSpacing}
+            />
 
-            <Pressable testID="subject-cancel-options" style={styles.modalButton} onPress={closeOptions}>
-              <Text style={styles.modalButtonText}>Cancel</Text>
-            </Pressable>
+            <AnimatedButton
+              testID="subject-cancel-options"
+              title="Cancel"
+              variant="secondary"
+              onPress={closeOptions}
+              style={styles.modalButtonSpacing}
+            />
           </View>
         </Pressable>
       </Modal>
@@ -93,13 +102,21 @@ const SubjectCard = ({
               Are you sure you want to delete this subject?
             </Text>
 
-            <Pressable testID="subject-confirm-delete"  style={styles.modalButtonDanger} onPress={handleConfirmDelete}>
-              <Text style={styles.modalButtonTextDanger}>Yes, delete</Text>
-            </Pressable>
+            <AnimatedButton
+              testID="subject-confirm-delete"
+              title="Yes, delete"
+              variant="danger"
+              onPress={handleConfirmDelete}
+              style={styles.modalButtonSpacing}
+            />
 
-            <Pressable testID="subject-cancel-options" style={styles.modalButton} onPress={closeConfirm}>
-              <Text style={styles.modalButtonText}>Cancel</Text>
-            </Pressable>
+            <AnimatedButton
+              testID="subject-cancel-options"
+              title="Cancel"
+              variant="secondary"
+              onPress={closeConfirm}
+              style={styles.modalButtonSpacing}
+            />
           </View>
         </Pressable>
       </Modal>
@@ -174,27 +191,7 @@ const styles = StyleSheet.create({
     color: '#4B5563',
     marginBottom: 16,
   },
-  modalButton: {
-    paddingVertical: 10,
-    borderRadius: 9999,
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
+  modalButtonSpacing: {
     marginTop: 8,
-    alignItems: 'center',
-  },
-  modalButtonText: {
-    color: '#111827',
-    fontWeight: '600',
-  },
-  modalButtonDanger: {
-    paddingVertical: 10,
-    borderRadius: 9999,
-    backgroundColor: '#EF4444',
-    marginTop: 8,
-    alignItems: 'center',
-  },
-  modalButtonTextDanger: {
-    color: '#FFFFFF',
-    fontWeight: '700',
   },
 });
