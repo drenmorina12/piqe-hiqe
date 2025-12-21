@@ -37,61 +37,7 @@ export default function SubjectCollectionsScreen() {
   const [error, setError] = useState('');
   const [errorType, setErrorType] = useState('error');
 
-  // Load subject + collections
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        const subj = await getSubjectById(subjectId);
-        setSubject(subj);
-
-        const cols = await fetchCollections(subjectId);
-        // Enrich with card counts if missing
-        const colsWithCounts = await Promise.all(
-          cols.map(async (c) => {
-            if (typeof c?.cards === 'number') return c;
-            try {
-              const cards = await fetchCards(subjectId, c.id);
-              return {
-                ...c,
-                cards: cards.length,
-                completed: cards.filter((x) => !!x.completed).length,
-              };
-            } catch {
-              return { ...c, cards: 0, completed: 0 };
-            }
-          })
-        );
-        setCollections(colsWithCounts);
-      } catch (err) {
-        console.log('Error loading subject/collections:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    load();
-  }, [subjectId]);
-
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.errorContainer}>
-        <ActivityIndicator size="large" />
-      </SafeAreaView>
-    );
-  }
-
-  if (!subject) {
-    return (
-      <SafeAreaView style={styles.errorContainer}>
-        <Text style={styles.errorText}>Subject not found</Text>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>Go Back</Text>
-        </Pressable>
-      </SafeAreaView>
-    );
-  }
-
+  // Define all callbacks BEFORE any conditional returns (Rules of Hooks)
   const handleAddCollection = useCallback(async () => {
     if (newCollectionName.trim() === '') return;
 
@@ -151,6 +97,61 @@ export default function SubjectCollectionsScreen() {
     ),
     [handleCollectionPress, handleDeleteCollection]
   );
+
+  // Load subject + collections
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        const subj = await getSubjectById(subjectId);
+        setSubject(subj);
+
+        const cols = await fetchCollections(subjectId);
+        // Enrich with card counts if missing
+        const colsWithCounts = await Promise.all(
+          cols.map(async (c) => {
+            if (typeof c?.cards === 'number') return c;
+            try {
+              const cards = await fetchCards(subjectId, c.id);
+              return {
+                ...c,
+                cards: cards.length,
+                completed: cards.filter((x) => !!x.completed).length,
+              };
+            } catch {
+              return { ...c, cards: 0, completed: 0 };
+            }
+          })
+        );
+        setCollections(colsWithCounts);
+      } catch (err) {
+        console.log('Error loading subject/collections:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [subjectId]);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.errorContainer}>
+        <ActivityIndicator size="large" />
+      </SafeAreaView>
+    );
+  }
+
+  if (!subject) {
+    return (
+      <SafeAreaView style={styles.errorContainer}>
+        <Text style={styles.errorText}>Subject not found</Text>
+        <Pressable onPress={() => router.back()} style={styles.backButton}>
+          <Text style={styles.backButtonText}>Go Back</Text>
+        </Pressable>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <View style={styles.container}>

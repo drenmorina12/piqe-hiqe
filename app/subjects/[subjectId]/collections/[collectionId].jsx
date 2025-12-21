@@ -78,58 +78,7 @@ export default function CollectionDetailScreen() {
     }
   }, [subjectId, collectionId]);
 
-  // Reload data when screen comes into focus (after returning from study/edit/import)
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-
-      // Check if we returned from deleting a flashcard
-      if (deletedFlashcard === 'true') {
-        setSuccess('Flashcard deleted successfully');
-        // Clear the param by replacing the route without it
-        router.replace({
-          pathname: '/subjects/[subjectId]/collections/[collectionId]',
-          params: {
-            subjectId: String(subjectId),
-            collectionId: String(collectionId),
-          },
-        });
-      }
-    }, [loadData, deletedFlashcard])
-  );
-  const derivedProgress = useMemo(
-    () => ({
-      easy: flashcards.filter((c) => c.difficulty === 'easy').length,
-      medium: flashcards.filter((c) => c.difficulty === 'medium').length,
-      hard: flashcards.filter((c) => c.difficulty === 'hard').length,
-    }),
-    [flashcards]
-  );
-
-  const totalProgress = useMemo(
-    () => derivedProgress.easy + derivedProgress.medium + derivedProgress.hard,
-    [derivedProgress]
-  );
-
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.errorContainer}>
-        <ActivityIndicator />
-      </SafeAreaView>
-    );
-  }
-
-  if (!subject || !collection) {
-    return (
-      <SafeAreaView style={styles.errorContainer}>
-        <Text style={styles.errorText}>Collection not found</Text>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>Go Back</Text>
-        </Pressable>
-      </SafeAreaView>
-    );
-  }
-
+  // Define all callbacks and memoized values BEFORE any conditional returns (Rules of Hooks)
   const handleAddFlashcard = useCallback(async () => {
     setFormError('');
     if (savingCard) return; // prevent duplicate presses
@@ -256,6 +205,59 @@ export default function CollectionDetailScreen() {
     ),
     [handleFlashcardPress]
   );
+
+  // Reload data when screen comes into focus (after returning from study/edit/import)
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+
+      // Check if we returned from deleting a flashcard
+      if (deletedFlashcard === 'true') {
+        setSuccess('Flashcard deleted successfully');
+        // Clear the param by replacing the route without it
+        router.replace({
+          pathname: '/subjects/[subjectId]/collections/[collectionId]',
+          params: {
+            subjectId: String(subjectId),
+            collectionId: String(collectionId),
+          },
+        });
+      }
+    }, [loadData, deletedFlashcard, subjectId, collectionId])
+  );
+
+  const derivedProgress = useMemo(
+    () => ({
+      easy: flashcards.filter((c) => c.difficulty === 'easy').length,
+      medium: flashcards.filter((c) => c.difficulty === 'medium').length,
+      hard: flashcards.filter((c) => c.difficulty === 'hard').length,
+    }),
+    [flashcards]
+  );
+
+  const totalProgress = useMemo(
+    () => derivedProgress.easy + derivedProgress.medium + derivedProgress.hard,
+    [derivedProgress]
+  );
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.errorContainer}>
+        <ActivityIndicator />
+      </SafeAreaView>
+    );
+  }
+
+  if (!subject || !collection) {
+    return (
+      <SafeAreaView style={styles.errorContainer}>
+        <Text style={styles.errorText}>Collection not found</Text>
+        <Pressable onPress={() => router.back()} style={styles.backButton}>
+          <Text style={styles.backButtonText}>Go Back</Text>
+        </Pressable>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <View style={styles.container}>

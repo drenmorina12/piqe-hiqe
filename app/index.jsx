@@ -320,7 +320,7 @@ export default function HomeScreen() {
           <TouchableOpacity
             style={styles.footerButton}
             activeOpacity={0.6}
-            onPress={() => router.push('/progress')}
+            onPress={() => router.push('/timer')}
           >
             <Ionicons name="stopwatch-outline" size={26} color="#2563EB" />
             <Text style={styles.footerText}>Timer</Text>
