@@ -6,12 +6,11 @@ import { Entypo, MaterialIcons } from '@expo/vector-icons';
 
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Modal, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig'; // sigurohu që db është i eksportuar
-
 
 import Header from '../components/layout/Header';
 import AnimatedButton from '../components/ui/AnimatedButton';
@@ -19,6 +18,17 @@ import Button from '../components/ui/Button';
 import { auth } from '../firebase/firebaseConfig';
 import { fetchSubjects } from '../firebase/subjectService';
 
+// 🔔 NOTIFICATIONS
+import {
+  cancelDailyReminder,
+  ensurePermissions,
+  scheduleDailyReminder,
+} from '../utils/notifications';
+
+import {
+  getUserNotificationsEnabled,
+  setUserNotificationsEnabled,
+} from '../firebase/notificationSettings';
 
 
 
@@ -34,6 +44,9 @@ export default function ProfileScreen() {
 const [statusModalVisible, setStatusModalVisible] = useState(false);
 const [statusType, setStatusType] = useState(""); // "success" ose "error"
 const [statusMessage, setStatusMessage] = useState("");
+
+// 🔔 NOTIFICATIONS STATE
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
 const showStatusModal = (type, message) => {
   setStatusType(type);
@@ -71,6 +84,30 @@ const handleCloseStatusModal = () => {
 
     return unsub;
   }, []);
+
+
+  // ===============================
+  // LOAD DATA + NOTIFICATIONS STATE
+  // ===============================
+  useEffect(() => {
+    if (!authReady || !user) return;
+
+    const loadData = async () => {
+      try {
+        const data = await fetchSubjects();
+        setSubjectsCount(data.length);
+
+        const enabled = await getUserNotificationsEnabled(user.uid);
+        setNotificationsEnabled(enabled);
+      } catch (err) {
+        console.log('Error fetching subjects in profile:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [authReady, user?.uid]);
 
   useEffect(() => {
     if (!authReady) return;
@@ -171,7 +208,36 @@ const handleCloseStatusModal = () => {
   }
     setShowEditModal(false); // mbyll modal pas heqjes
   };
+// ===============================
+  // 🔔 TOGGLE NOTIFICATIONS
+  // ===============================
+  const handleToggleNotifications = async (value) => {
+    setNotificationsEnabled(value);
+    await setUserNotificationsEnabled(user.uid, value);
 
+    if (value) {
+      const granted = await ensurePermissions();
+      if (!granted) {
+        Alert.alert('Njoftimet', 'Lejet për njoftime nuk u dhanë.');
+        setNotificationsEnabled(false);
+        await setUserNotificationsEnabled(user.uid, false);
+        return;
+      }
+
+      await scheduleDailyReminder(20, 0);
+
+      Alert.alert(
+        'Njoftimet u aktivizuan',
+        'Do të merrni një rikujtues ditor nëse nuk e përdorni aplikacionin.'
+      );
+    } else {
+      await cancelDailyReminder();
+      Alert.alert(
+        'Njoftimet u çaktivizuan',
+        'Nuk do të merrni më njoftime.'
+      );
+    }
+  };
 
 
   const handleLogout = async () => {
@@ -288,6 +354,15 @@ const handleCloseStatusModal = () => {
               <Text style={styles.infoValue}>{subjectsCount}</Text>
             )}
           </View>
+                    {/* 🔔 NOTIFICATIONS */}
+          <View style={styles.infoBox}>
+            <Text style={styles.infoLabel}>Daily Notifications</Text>
+            <Switch
+              value={notificationsEnabled}
+              onValueChange={handleToggleNotifications}
+            />
+          </View>
+
           <View style={styles.logoutContainer}>
             <Button
               style={{
