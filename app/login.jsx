@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { signInWithGitHub } from '../auth/githubAuth';
+import AnimatedButton from '../components/ui/AnimatedButton';
 import Button from '../components/ui/Button';
 import { auth } from '../firebase/firebaseConfig';
 
@@ -113,7 +114,9 @@ export default function WelcomeScreen() {
            <Button
               title="Kyçu me GitHub!"
               onPress={() => signInWithGitHub(router)}
-              style={{ backgroundColor: '#24292e' }}
+              style={{ backgroundColor: '#24292e',
+                marginBottom: 25,
+               }}
               textStyle={{ color: '#fff' }}
           />
           </View>
@@ -188,7 +191,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   formFooter: {
-    paddingVertical: 24,
+    paddingVertical: 20,
     fontSize: 15,
     fontWeight: '600',
     color: '#222',
