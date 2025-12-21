@@ -14,9 +14,12 @@ import { db } from '../firebase/firebaseConfig'; // sigurohu që db është i ek
 
 
 import Header from '../components/layout/Header';
+import AnimatedButton from '../components/ui/AnimatedButton';
 import Button from '../components/ui/Button';
 import { auth } from '../firebase/firebaseConfig';
 import { fetchSubjects } from '../firebase/subjectService';
+
+
 
 
 const DEFAULT_AVATAR =
@@ -224,7 +227,7 @@ const handleCloseStatusModal = () => {
     source={{ uri: profileImage || DEFAULT_AVATAR }}
     style={styles.avatar}
   />
-  <Button
+  <AnimatedButton
     title="Edit"
     onPress={handleToggleEditModal}
     style={styles.editButton}
@@ -288,7 +291,7 @@ const handleCloseStatusModal = () => {
           <View style={styles.logoutContainer}>
             <Button
               style={{
-                backgroundColor: '#a99a5bff',
+                backgroundColor: '#e7d919ff',
                 borderRadius: 30,
                 paddingVertical: 12,
                 alignItems: 'center',
@@ -302,7 +305,7 @@ const handleCloseStatusModal = () => {
 
             <Button
               style={{
-                backgroundColor: '#c8cd99ff',
+                backgroundColor: '#ec6f21ff',
                 borderRadius: 30,
                 paddingVertical: 12,
                 alignItems: 'center',

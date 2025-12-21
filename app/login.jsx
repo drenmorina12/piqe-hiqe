@@ -3,7 +3,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Button from '../components/ui/Button';
+import AnimatedButton from '../components/ui/AnimatedButton';
 import { auth } from '../firebase/firebaseConfig';
 
 
@@ -100,13 +100,14 @@ export default function WelcomeScreen() {
           </View>
 
           <View style={styles.formAction}>
-            <Button
+            <AnimatedButton
               title="Hyr"
               onPress={handleSignIn}
               style={styles.btn}
               textStyle={styles.btnText}
             />
           </View>
+
 
           <TouchableOpacity
             onPress={() => {
