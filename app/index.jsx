@@ -19,7 +19,6 @@ import { StatsCard } from '../components/ui/StatsCard';
 import SubjectCard from '../components/ui/SubjectCard';
 import { useAuth } from '../context/AuthContext';
 
-
 import { fetchCollections } from '../firebase/collectionService';
 import { auth, db } from '../firebase/firebaseConfig';
 import {
@@ -41,14 +40,12 @@ export default function HomeScreen() {
   const [showInput, setShowInput] = useState(false);
   const [dayStreak, setDayStreak] = useState(0);
 
-  
   useEffect(() => {
     if (!authLoading && !user) {
       router.replace('/login');
     }
   }, [authLoading, user]);
 
-  
   const updateStreak = useCallback(async () => {
     const user = auth.currentUser;
     if (!user) return;
@@ -67,7 +64,6 @@ export default function HomeScreen() {
       const previousStreak = typeof data.streak === 'number' ? data.streak : 0;
 
       if (lastActiveDate === todayStr) {
-        
         newStreak = previousStreak || 1;
       } else if (lastActiveDate) {
         const lastDate = new Date(lastActiveDate);
@@ -75,14 +71,11 @@ export default function HomeScreen() {
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
         if (diffDays === 1) {
-          
           newStreak = previousStreak + 1;
         } else {
-          
           newStreak = 1;
         }
       } else {
-        
         newStreak = 1;
       }
     }
@@ -99,13 +92,11 @@ export default function HomeScreen() {
     setDayStreak(newStreak);
   }, []);
 
-  
   const loadSubjects = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
 
-      
       await updateStreak();
 
       const data = await fetchSubjects();
@@ -131,7 +122,6 @@ export default function HomeScreen() {
     }
   }, [updateStreak]);
 
-  
   useEffect(() => {
     if (user) {
       loadSubjects();
@@ -251,9 +241,7 @@ export default function HomeScreen() {
         )}
 
         {!!success && (
-          <Text style={{ color: '#16A34A', marginBottom: 8, textAlign: 'center' }}>
-            {success}
-          </Text>
+          <Text style={{ color: '#16A34A', marginBottom: 8, textAlign: 'center' }}>{success}</Text>
         )}
 
         {showInput && (
@@ -277,20 +265,19 @@ export default function HomeScreen() {
           columnWrapperStyle={{ justifyContent: 'space-between', paddingHorizontal: 10 }}
           contentContainerStyle={{ paddingVertical: 10, paddingBottom: 100 }}
           renderItem={({ item }) => (
-  <View style={{ marginBottom: 15, width: '48%' }}>
-    <Pressable onPress={() => handleSubjectPress(item)}>
-      <SubjectCard
-        subjectId={item.id}
-        subjectName={item.name}
-        icon={require('../assets/images/flashcard.png')}
-        iconBackgroundColor={item.iconBackgroundColor || '#E0F2FE'}
-        collectionCount={item.collectionCount ?? 0}
-        onDelete={handleRemoveSubject}
-      />
-    </Pressable>
-  </View>
-)}
-
+            <View style={{ marginBottom: 15, width: '48%' }}>
+              <Pressable onPress={() => handleSubjectPress(item)}>
+                <SubjectCard
+                  subjectId={item.id}
+                  subjectName={item.name}
+                  icon={require('../assets/images/flashcard.png')}
+                  iconBackgroundColor={item.iconBackgroundColor || '#E0F2FE'}
+                  collectionCount={item.collectionCount ?? 0}
+                  onDelete={handleRemoveSubject}
+                />
+              </Pressable>
+            </View>
+          )}
           ListEmptyComponent={
             !loading && (
               <Text style={{ color: '#777', marginTop: 20 }}>Asnjë lëndë e shtuar deri tani.</Text>
@@ -299,31 +286,21 @@ export default function HomeScreen() {
         />
       </View>
 
-<SafeAreaView edges={['bottom']} style={styles.footerSafe}>
-  <View style={styles.footer}>
+      <SafeAreaView edges={['bottom']} style={styles.footerSafe}>
+        <View style={styles.footer}>
 
-   
-    <Pressable
-      style={styles.footerButton}
-      onPress={() => setShowInput(!showInput)}
-    >
-      <Ionicons name="add" size={34} color="#2563EB" />
-    </Pressable>
+          <Pressable style={styles.footerButton} onPress={() => setShowInput(!showInput)}>
+            <Ionicons name="add" size={34} color="#2563EB" />
+          </Pressable>
 
-    <Pressable
-      style={styles.footerButton}
-      onPress={() => router.push('/progress')}
-    >
+          <Pressable style={styles.footerButton} onPress={() => router.push('/timer')}>
+            <Ionicons name="stopwatch-outline" size={26} color="#2563EB" />
+            <Text style={styles.footerText}>Timer</Text>
+          </Pressable>
 
-    <Ionicons name="stopwatch-outline" size={26} color="#2563EB" />
-<Text style={styles.footerText}>Timer</Text>
-
-    </Pressable>
-
-  </View>
-</SafeAreaView>
-
-</View> 
+        </View>
+      </SafeAreaView>
+    </View>
   );
 }
 
@@ -412,46 +389,44 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-footerSafe: {
-  backgroundColor: '#fff',
-},
+  footerSafe: {
+    backgroundColor: '#fff',
+  },
 
-footer: {
-  flexDirection: 'row',
-  gap: 16,
-  paddingHorizontal: 16,
-  paddingVertical: 14,
-  borderTopWidth: 1,
-  borderTopColor: '#E5E7EB',
-  backgroundColor: '#fff',
-},
+  footer: {
+    flexDirection: 'row',
+    gap: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+    backgroundColor: '#fff',
+  },
 
-footerButton: {
-  flex: 1,                 
-  height: 58,
-  borderRadius: 20,
+  footerButton: {
+    flex: 1,
+    height: 58,
+    borderRadius: 20,
 
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
 
-  backgroundColor: '#fff', 
-  borderWidth: 2,
-  borderColor: '#2563EB',  
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#2563EB',
 
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 3,
-  elevation: 4,
-},
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 4,
+  },
 
-footerText: {
-  color: '#2563EB',
-  fontSize: 16,
-  fontWeight: '600',
-},
-
-
+  footerText: {
+    color: '#2563EB',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });
