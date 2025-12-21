@@ -81,31 +81,76 @@ export default function FlashcardEditScreen() {
     }
   };
 
-  const handleDelete = () => {
-    Alert.alert(
-      'Delete Flashcard',
-      'Are you sure you want to delete this flashcard? This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            setDeleting(true);
-            try {
-              await deleteCard(String(subjectId), String(collectionId), String(cardId));
-              router.back();
-            } catch (err) {
-              console.log('Error deleting card:', err);
-              Alert.alert('Error', 'Failed to delete flashcard');
-            } finally {
-              setDeleting(false);
-            }
-          },
-        },
-      ]
+  const handleDelete = async () => {
+  if (Platform.OS === 'web') {
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this flashcard? This action cannot be undone.'
     );
-  };
+
+    if (!confirmed) return;
+
+    try {
+      setDeleting(true);
+      await deleteCard(
+        String(subjectId),
+        String(collectionId),
+        String(cardId)
+      );
+
+      router.replace({
+        pathname: '/subjects/[subjectId]/collections/[collectionId]',
+        params: {
+          subjectId: String(subjectId),
+          collectionId: String(collectionId),
+        },
+      });
+    } catch (err) {
+      console.log('Error deleting card:', err);
+      alert('Failed to delete flashcard');
+    } finally {
+      setDeleting(false);
+    }
+
+    return;
+  }
+
+  
+  Alert.alert(
+    'Delete Flashcard',
+    'Are you sure you want to delete this flashcard? This action cannot be undone.',
+    [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          setDeleting(true);
+          try {
+            await deleteCard(
+              String(subjectId),
+              String(collectionId),
+              String(cardId)
+            );
+
+            router.replace({
+              pathname: '/subjects/[subjectId]/collections/[collectionId]',
+              params: {
+                subjectId: String(subjectId),
+                collectionId: String(collectionId),
+              },
+            });
+          } catch (err) {
+            console.log('Error deleting card:', err);
+            Alert.alert('Error', 'Failed to delete flashcard');
+          } finally {
+            setDeleting(false);
+          }
+        },
+      },
+    ]
+  );
+};
+
 
   if (loading) {
     return (
