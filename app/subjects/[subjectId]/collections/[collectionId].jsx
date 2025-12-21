@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -97,13 +97,19 @@ export default function CollectionDetailScreen() {
       }
     }, [loadData, deletedFlashcard])
   );
-  const derivedProgress = {
-    easy: flashcards.filter((c) => c.difficulty === 'easy').length,
-    medium: flashcards.filter((c) => c.difficulty === 'medium').length,
-    hard: flashcards.filter((c) => c.difficulty === 'hard').length,
-  };
+  const derivedProgress = useMemo(
+    () => ({
+      easy: flashcards.filter((c) => c.difficulty === 'easy').length,
+      medium: flashcards.filter((c) => c.difficulty === 'medium').length,
+      hard: flashcards.filter((c) => c.difficulty === 'hard').length,
+    }),
+    [flashcards]
+  );
 
-  const totalProgress = derivedProgress.easy + derivedProgress.medium + derivedProgress.hard;
+  const totalProgress = useMemo(
+    () => derivedProgress.easy + derivedProgress.medium + derivedProgress.hard,
+    [derivedProgress]
+  );
 
   if (loading) {
     return (
@@ -124,7 +130,7 @@ export default function CollectionDetailScreen() {
     );
   }
 
-  const handleAddFlashcard = async () => {
+  const handleAddFlashcard = useCallback(async () => {
     setFormError('');
     if (savingCard) return; // prevent duplicate presses
 
@@ -160,27 +166,30 @@ export default function CollectionDetailScreen() {
     } finally {
       setSavingCard(false);
     }
-  };
+  }, [savingCard, newQuestion, newAnswer, subjectId, collectionId]);
 
-  const handleDeleteFlashcard = async (flashcardId) => {
-    try {
-      await deleteCard(String(subjectId), String(collectionId), flashcardId);
-      setFlashcards((prev) => prev.filter((card) => card.id !== flashcardId));
+  const handleDeleteFlashcard = useCallback(
+    async (flashcardId) => {
+      try {
+        await deleteCard(String(subjectId), String(collectionId), flashcardId);
+        setFlashcards((prev) => prev.filter((card) => card.id !== flashcardId));
 
-      // decrement local collection cards count
-      setCollection((prev) => ({
-        ...prev,
-        cards: Math.max((prev?.cards ?? 1) - 1, 0),
-      }));
-      setSuccess('Flashcard deleted successfully');
-    } catch (err) {
-      console.log('Error deleting card:', err);
-      setError(err.message ?? 'Failed to delete flashcard. Please try again.');
-      setErrorType('error');
-    }
-  };
+        // decrement local collection cards count
+        setCollection((prev) => ({
+          ...prev,
+          cards: Math.max((prev?.cards ?? 1) - 1, 0),
+        }));
+        setSuccess('Flashcard deleted successfully');
+      } catch (err) {
+        console.log('Error deleting card:', err);
+        setError(err.message ?? 'Failed to delete flashcard. Please try again.');
+        setErrorType('error');
+      }
+    },
+    [subjectId, collectionId]
+  );
 
-  const handleStartStudy = () => {
+  const handleStartStudy = useCallback(() => {
     if (flashcards.length > 0) {
       router.push({
         pathname: `/subjects/[subjectId]/collections/[collectionId]/study`,
@@ -190,8 +199,9 @@ export default function CollectionDetailScreen() {
         },
       });
     }
-  };
-  const handleResetProgress = async () => {
+  }, [flashcards.length, subjectId, collectionId]);
+
+  const handleResetProgress = useCallback(async () => {
     try {
       // 1️⃣ reset collection progress
       await resetCollectionProgress(String(subjectId), String(collectionId));
@@ -204,39 +214,47 @@ export default function CollectionDetailScreen() {
     } catch (err) {
       console.log('Error resetting progress:', err);
     }
-  };
+  }, [subjectId, collectionId, loadData]);
 
-  const handleFlashcardPress = (cardId) => {
-    router.push({
-      pathname: `/subjects/[subjectId]/collections/[collectionId]/[cardId]`,
-      params: {
-        subjectId: String(subjectId),
-        collectionId: String(collectionId),
-        cardId: String(cardId),
-      },
-    });
-  };
+  const handleFlashcardPress = useCallback(
+    (cardId) => {
+      router.push({
+        pathname: `/subjects/[subjectId]/collections/[collectionId]/[cardId]`,
+        params: {
+          subjectId: String(subjectId),
+          collectionId: String(collectionId),
+          cardId: String(cardId),
+        },
+      });
+    },
+    [subjectId, collectionId]
+  );
 
-  const renderFlashcardItem = ({ item }) => (
-    <Pressable
-      style={({ pressed }) => [styles.flashcardItem, pressed && styles.flashcardItemPressed]}
-      onPress={() => handleFlashcardPress(item.id)}
-    >
-      <View style={styles.flashcardContent}>
-        <View style={styles.flashcardHeader}>
-          <Ionicons name="help-circle-outline" size={20} color="#4F46E5" />
-          <Text style={styles.flashcardQuestion} numberOfLines={2}>
-            {item.question}
-          </Text>
-        </View>
-        {item.difficulty && (
-          <View style={styles.difficultyBadge}>
-            <Text style={styles.difficultyText}>{item.difficulty}</Text>
+  const keyExtractor = useCallback((item) => item.id, []);
+
+  const renderFlashcardItem = useCallback(
+    ({ item }) => (
+      <Pressable
+        style={({ pressed }) => [styles.flashcardItem, pressed && styles.flashcardItemPressed]}
+        onPress={() => handleFlashcardPress(item.id)}
+      >
+        <View style={styles.flashcardContent}>
+          <View style={styles.flashcardHeader}>
+            <Ionicons name="help-circle-outline" size={20} color="#4F46E5" />
+            <Text style={styles.flashcardQuestion} numberOfLines={2}>
+              {item.question}
+            </Text>
           </View>
-        )}
-      </View>
-      <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-    </Pressable>
+          {item.difficulty && (
+            <View style={styles.difficultyBadge}>
+              <Text style={styles.difficultyText}>{item.difficulty}</Text>
+            </View>
+          )}
+        </View>
+        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+      </Pressable>
+    ),
+    [handleFlashcardPress]
   );
 
   return (
@@ -265,10 +283,14 @@ export default function CollectionDetailScreen() {
           <>
             <FlatList
               data={flashcards}
-              keyExtractor={(item) => item.id}
+              keyExtractor={keyExtractor}
               renderItem={renderFlashcardItem}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.listContent}
+              removeClippedSubviews={true}
+              maxToRenderPerBatch={10}
+              updateCellsBatchingPeriod={50}
+              windowSize={10}
               ListHeaderComponent={
                 totalProgress > 0 ? (
                   <>

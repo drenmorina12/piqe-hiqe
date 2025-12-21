@@ -1,14 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
-import {
-  Image,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Image } from 'expo-image';
+import { memo, useCallback, useState } from 'react';
+import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import AnimatedButton from './AnimatedButton';
 
 const SubjectCard = ({
@@ -23,28 +16,34 @@ const SubjectCard = ({
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
 
-  const openOptions = () => setOptionsVisible(true);
-  const closeOptions = () => setOptionsVisible(false);
+  const openOptions = useCallback(() => setOptionsVisible(true), []);
+  const closeOptions = useCallback(() => setOptionsVisible(false), []);
 
-  const openConfirm = () => {
+  const openConfirm = useCallback(() => {
     setOptionsVisible(false);
     setConfirmVisible(true);
-  };
+  }, []);
 
-  const closeConfirm = () => setConfirmVisible(false);
+  const closeConfirm = useCallback(() => setConfirmVisible(false), []);
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = useCallback(() => {
     setConfirmVisible(false);
     if (onDelete && subjectId) {
       onDelete(subjectId);
     }
-  };
+  }, [onDelete, subjectId]);
 
   return (
     <View testID="subject-card" style={styles.card}>
       {/* UI JOTE EKZISTUESE – e paprekur */}
       <View style={[styles.iconWrapper, { backgroundColor: iconBackgroundColor }]}>
-        <Image source={icon} style={styles.icon} resizeMode="cover" />
+        <Image
+          source={icon}
+          style={styles.icon}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          transition={200}
+        />
       </View>
       <Text style={styles.subjectText}>{subjectName}</Text>
       {collectionCount !== undefined && (
@@ -98,9 +97,7 @@ const SubjectCard = ({
         <Pressable style={styles.backdrop} onPress={closeConfirm}>
           <View style={styles.modal}>
             <Text style={styles.modalTitle}>Confirm delete</Text>
-            <Text style={styles.modalText}>
-              Are you sure you want to delete this subject?
-            </Text>
+            <Text style={styles.modalText}>Are you sure you want to delete this subject?</Text>
 
             <AnimatedButton
               testID="subject-confirm-delete"
@@ -124,7 +121,7 @@ const SubjectCard = ({
   );
 };
 
-export default SubjectCard;
+export default memo(SubjectCard);
 
 const styles = StyleSheet.create({
   card: {

@@ -1,10 +1,11 @@
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { useState } from 'react';
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AnimatedButton from '../components/ui/AnimatedButton';
-import { auth } from "../firebase/firebaseConfig";
+import { auth } from '../firebase/firebaseConfig';
 
 export default function SignupScreen() {
   const [form, setForm] = useState({
@@ -16,63 +17,57 @@ export default function SignupScreen() {
   });
   const router = useRouter();
   const handleSignUp = async () => {
-  // 1. Validimi bazik
-  if (
-    !form.name ||
-    !form.lastname ||
-    !form.email ||
-    !form.password ||
-    !form.confirmPassword
-  ) {
-    alert("Ju lutem mbushini të gjitha fushat.");
-    return;
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(form.email)) {
-    alert("Ju lutem vendosni një email adresë valide.");
-    return;
-  }
-
-  if (form.password.length < 6) {
-    alert("Passwordi duhet të jetë së paku me 6 karaktere.");
-    return;
-  }
-
-  if (form.password !== form.confirmPassword) {
-    alert("Passwordet nuk përputhen.");
-    return;
-  }
-
-  try {
-    // 2. Krijo user-in në Firebase
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      form.email.trim(),
-      form.password
-    );
-
-    const user = userCredential.user;
-
-    // 3. (Optional, por e bukur) – ruaj emrin si displayName
-    await updateProfile(user, {
-      displayName: `${form.name} ${form.lastname}`,
-    });
-
-    alert("Account created successfully!");
-
-    // 4. Pas sign up – çoje te login (siç e ke pasur më herët)
-    router.replace("/login");
-  } catch (error) {
-    console.log("SIGNUP ERROR:", error.code, error.message);
-
-    if (error.code === "auth/email-already-in-use") {
-      alert("Kjo email është përdorur. Provo të logoheni.");
-    } else {
-      alert("Regjistrimi ka dështuar: " + error.code);
+    // 1. Validimi bazik
+    if (!form.name || !form.lastname || !form.email || !form.password || !form.confirmPassword) {
+      alert('Ju lutem mbushini të gjitha fushat.');
+      return;
     }
-  }
-};
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      alert('Ju lutem vendosni një email adresë valide.');
+      return;
+    }
+
+    if (form.password.length < 6) {
+      alert('Passwordi duhet të jetë së paku me 6 karaktere.');
+      return;
+    }
+
+    if (form.password !== form.confirmPassword) {
+      alert('Passwordet nuk përputhen.');
+      return;
+    }
+
+    try {
+      // 2. Krijo user-in në Firebase
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        form.email.trim(),
+        form.password
+      );
+
+      const user = userCredential.user;
+
+      // 3. (Optional, por e bukur) – ruaj emrin si displayName
+      await updateProfile(user, {
+        displayName: `${form.name} ${form.lastname}`,
+      });
+
+      alert('Account created successfully!');
+
+      // 4. Pas sign up – çoje te login (siç e ke pasur më herët)
+      router.replace('/login');
+    } catch (error) {
+      console.log('SIGNUP ERROR:', error.code, error.message);
+
+      if (error.code === 'auth/email-already-in-use') {
+        alert('Kjo email është përdorur. Provo të logoheni.');
+      } else {
+        alert('Regjistrimi ka dështuar: ' + error.code);
+      }
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
@@ -80,13 +75,15 @@ export default function SignupScreen() {
         <View style={styles.header}>
           <Image
             alt="App Logo"
-            resizeMode="contain"
+            contentFit="contain"
             style={styles.headerImg}
             source={require('./../assets/images/login.png')}
+            cachePolicy="memory-disk"
+            transition={200}
           />
 
           <Text style={styles.title}>
-          Krijoni <Text style={{ color: '#075eec' }}> llogarinë tuaj</Text>
+            Krijoni <Text style={{ color: '#075eec' }}> llogarinë tuaj</Text>
           </Text>
 
           <Text style={styles.subtitle}>Bashkohu me Piqe-Hiqe dhe fillo të mësosh më zgjuar</Text>
@@ -165,7 +162,6 @@ export default function SignupScreen() {
             style={styles.btn}
             textStyle={styles.btnText}
           />
-
 
           <TouchableOpacity
             onPress={() => {
