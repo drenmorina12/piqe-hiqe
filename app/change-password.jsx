@@ -9,7 +9,7 @@ import {
   reauthenticateWithCredential,
   updatePassword,
 } from 'firebase/auth';
-import Button from '../components/ui/Button';
+import AnimatedButton from '../components/ui/AnimatedButton';
 import { auth } from '../firebase/firebaseConfig';
 
 export default function ChangePasswordScreen() {
@@ -124,7 +124,7 @@ export default function ChangePasswordScreen() {
         </View>
 
         <View style={styles.actions}>
-          <Button
+          <AnimatedButton
             title={loading ? 'Duke ndryshuar...' : 'Ndrysho fjalëkalimin'}
             onPress={handleChangePassword}
             style={{

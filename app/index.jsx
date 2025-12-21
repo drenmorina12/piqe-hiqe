@@ -13,11 +13,16 @@ import {
   View,
 } from 'react-native';
 
+import { TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/layout/Header';
+import AnimatedModal from '../components/ui/AnimatedModal';
 import { StatsCard } from '../components/ui/StatsCard';
 import SubjectCard from '../components/ui/SubjectCard';
 import { useAuth } from '../context/AuthContext';
+
+
+
 
 
 import { fetchCollections } from '../firebase/collectionService';
@@ -256,20 +261,6 @@ export default function HomeScreen() {
           </Text>
         )}
 
-        {showInput && (
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Vendos emrin e lëndës"
-              value={newSubject}
-              onChangeText={setNewSubject}
-            />
-            <Pressable style={styles.addButton} onPress={handleAddSubject}>
-              <Text style={styles.addButtonText}>Shto</Text>
-            </Pressable>
-          </View>
-        )}
-
         <FlatList
           data={subjects}
           keyExtractor={(item) => item.id}
@@ -299,26 +290,53 @@ export default function HomeScreen() {
         />
       </View>
 
+    <AnimatedModal
+  visible={showInput}
+  onClose={() => setShowInput(false)}
+>
+  <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 12 }}>
+    Shto lëndë të re
+  </Text>
+
+  <TextInput
+    style={styles.input}
+    placeholder="Vendos emrin e lëndës"
+    value={newSubject}
+    onChangeText={setNewSubject}
+  />
+
+  <TouchableOpacity
+  style={[styles.addButton, { marginTop: 16, marginBottom: 8 }]}
+  activeOpacity={0.6}
+  onPress={handleAddSubject}
+>
+    <Text style={styles.addButtonText}>Shto</Text>
+  </TouchableOpacity>
+</AnimatedModal>
+
+
 <SafeAreaView edges={['bottom']} style={styles.footerSafe}>
   <View style={styles.footer}>
 
    
-    <Pressable
-      style={styles.footerButton}
-      onPress={() => setShowInput(!showInput)}
-    >
-      <Ionicons name="add" size={34} color="#2563EB" />
-    </Pressable>
+    <TouchableOpacity
+  style={styles.footerButton}
+  activeOpacity={0.6}
+  onPress={() => setShowInput(!showInput)}
+>
+  <Ionicons name="add" size={34} color="#2563EB" />
+</TouchableOpacity>
 
-    <Pressable
-      style={styles.footerButton}
-      onPress={() => router.push('/progress')}
-    >
 
-    <Ionicons name="stopwatch-outline" size={26} color="#2563EB" />
-<Text style={styles.footerText}>Timer</Text>
+   <TouchableOpacity
+  style={styles.footerButton}
+  activeOpacity={0.6}
+  onPress={() => router.push('/progress')}
+>
+  <Ionicons name="stopwatch-outline" size={26} color="#2563EB" />
+  <Text style={styles.footerText}>Timer</Text>
+</TouchableOpacity>
 
-    </Pressable>
 
   </View>
 </SafeAreaView>
@@ -353,21 +371,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 10,
+    paddingBottom: 20,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 8,
-    borderRadius: 6,
-    flex: 1,
-    marginRight: 10,
-  },
+ input: {
+  borderWidth: 1,
+  borderColor: '#ccc',
+  paddingHorizontal: 12,
+  paddingVertical: 10,
+  borderRadius: 8,
+  fontSize: 16,
+  minHeight: 48,
+  width: '100%',
+},
+
   addButton: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 6,
-  },
+  backgroundColor: '#007AFF',
+  height: 48,
+  borderRadius: 10,
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '100%',
+},
+
   addButtonText: {
     color: '#fff',
     fontWeight: 'bold',

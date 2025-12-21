@@ -101,7 +101,7 @@ export default function WelcomeScreen() {
           </View>
 
           <View style={styles.formAction}>
-            <Button
+            <AnimatedButton
               title="Hyr"
               onPress={handleSignIn}
               style={styles.btn}
