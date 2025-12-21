@@ -45,3 +45,4 @@ app-example
 # local env files
 .env*.local
 .env   
+/__test__/__snapshots__/
