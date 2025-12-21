@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react';
 import {
-    Animated,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    StyleSheet,
-    TouchableWithoutFeedback
+  Animated,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  StyleSheet,
+  TouchableWithoutFeedback
 } from 'react-native';
 
 export default function AnimatedModal({ visible, onClose, children }) {
