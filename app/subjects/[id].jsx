@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Modal,
   Pressable,
   StyleSheet,
   Text,
@@ -21,6 +20,7 @@ import {
   fetchCollections,
 } from '../../firebase/collectionService';
 
+import AnimatedModal from '../../components/ui/AnimatedModal';
 import { getSubjectById } from '../../firebase/subjectService';
 
 export default function SubjectCollectionsScreen() {
@@ -138,26 +138,26 @@ export default function SubjectCollectionsScreen() {
           <Text style={styles.listTitle}>Koleksionet</Text>
         </View>
 
-       <FlatList
-  data={collections}
-  keyExtractor={(item) => item.id}
-  contentContainerStyle={{ paddingVertical: 10 }}
-  renderItem={({ item }) => (
-    <View style={{ marginBottom: 12 }}>
-      <CollectionCard
-        collection={item}
-        onPress={() => handleCollectionPress(item)}
-        gradientColors={['#4F46E5', '#6366F1']}
-        onDelete={handleDeleteCollection}   // ⬅️ LIDHET ME FUNKSIONIN TËND
-      />
-    </View>
-  )}
-  ListEmptyComponent={
-    <Text style={{ color: '#6B7280', marginTop: 16, textAlign: 'center' }}>
-    Ende nuk kani koleksione. Krijo të parën!    </Text>
-  }
-/>
-
+        <FlatList
+          data={collections}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingVertical: 10 }}
+          renderItem={({ item }) => (
+            <View style={{ marginBottom: 12 }}>
+              <CollectionCard
+                collection={item}
+                onPress={() => handleCollectionPress(item)}
+                gradientColors={['#4F46E5', '#6366F1']}
+                onDelete={handleDeleteCollection} // ⬅️ LIDHET ME FUNKSIONIN TËND
+              />
+            </View>
+          )}
+          ListEmptyComponent={
+            <Text style={{ color: '#6B7280', marginTop: 16, textAlign: 'center' }}>
+              Nuk ka koleksione. Krijo koleksionin tënd të parë!
+            </Text>
+          }
+        />
 
         {/* Add Collection Button */}
         <Pressable style={styles.addButton} onPress={() => setModalVisible(true)}>
@@ -165,52 +165,59 @@ export default function SubjectCollectionsScreen() {
           <Text style={styles.addButtonText}>Shto Koleksion</Text>
         </Pressable>
       </View>
-
       {/* Add Collection Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
+      <AnimatedModal
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        onClose={() => {
+          setModalVisible(false);
+          setNewCollectionName('');
+        }}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Koleksion i ri</Text>
-              <Pressable onPress={() => setModalVisible(false)}>
-                <Ionicons name="close" size={24} color="#6B7280" />
-              </Pressable>
-            </View>
+        <View>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Koleksion i ri</Text>
+            <Pressable
+              onPress={() => {
+                setModalVisible(false);
+                setNewCollectionName('');
+              }}
+            >
+              <Ionicons name="close" size={24} color="#6B7280" />
+            </Pressable>
+          </View>
 
-            <TextInput
-              style={styles.input}
-              placeholder="Emri i koleksionit"
-              value={newCollectionName}
-              onChangeText={setNewCollectionName}
-              autoFocus
-            />
+          <TextInput
+            style={styles.input}
+            placeholder="Emri i koleksionit"
+            value={newCollectionName}
+            onChangeText={setNewCollectionName}
+            autoFocus
+          />
 
-            <View style={styles.modalButtons}>
-              <Pressable
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => {
-                  setModalVisible(false);
-                  setNewCollectionName('');
-                }}
-              >
-                <Text style={styles.cancelButtonText}>Anulo</Text>
-              </Pressable>
+          <View style={styles.modalButtons}>
+            <Pressable
+              style={[styles.modalButton, styles.cancelButton]}
+              onPress={() => {
+                setModalVisible(false);
+                setNewCollectionName('');
+              }}
+            >
+              <Text style={styles.cancelButtonText}>Anulo</Text>
+            </Pressable>
 
-              <Pressable
-                style={[styles.modalButton, styles.createButton]}
-                onPress={handleAddCollection}
-              >
-                <Text style={styles.createButtonText}>Krijo</Text>
-              </Pressable>
-            </View>
+            <Pressable
+              style={[styles.modalButton, styles.createButton]}
+              onPress={handleAddCollection}
+            >
+              <Text style={styles.createButtonText}>Krijo</Text>
+            </Pressable>
           </View>
         </View>
-      </Modal>
+      </AnimatedModal>
+
+      <Toast message={success} type="success" visible={!!success} onHide={() => setSuccess('')} />
+
+      <Toast message={error} type={errorType} visible={!!error} onHide={() => setError('')} />
     </View>
   );
 }
@@ -288,20 +295,6 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     marginBottom: 20,
   },
-  // Modal styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 24,
-    width: '85%',
-    maxWidth: 400,
-  },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -333,6 +326,7 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     backgroundColor: '#F3F4F6',
+    marginBottom: 10,
   },
   cancelButtonText: {
     color: '#6B7280',
@@ -341,6 +335,7 @@ const styles = StyleSheet.create({
   },
   createButton: {
     backgroundColor: '#4F46E5',
+    marginBottom: 10,
   },
   createButtonText: {
     color: 'white',

@@ -17,13 +17,18 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CollectionProgressPie from '../../../../components/charts/CollectionProgressPie';
 import Header from '../../../../components/layout/Header';
-import { addCard, deleteCard, fetchCards, resetCardsDifficulty } from '../../../../firebase/cardService';
-import { getCollectionById as fetchCollectionById, resetCollectionProgress } from '../../../../firebase/collectionService';
+import AnimatedModal from '../../../../components/ui/AnimatedModal';
+import {
+  addCard,
+  deleteCard,
+  fetchCards,
+  resetCardsDifficulty,
+} from '../../../../firebase/cardService';
+import {
+  getCollectionById as fetchCollectionById,
+  resetCollectionProgress,
+} from '../../../../firebase/collectionService';
 import { getSubjectById as fetchSubjectById } from '../../../../firebase/subjectService';
-
-
-
-
 
 export default function CollectionDetailScreen() {
   const { subjectId, collectionId } = useLocalSearchParams();
@@ -50,14 +55,14 @@ export default function CollectionDetailScreen() {
       const cards = await fetchCards(String(subjectId), String(collectionId));
       // Ensure collection metadata is present; fallback to counts derived from cards
       const collWithCounts = {
-  ...coll,
-  cards: typeof coll?.cards === 'number' ? coll.cards : cards.length,
-  completed:
-    typeof coll?.completed === 'number'
-      ? coll.completed
-      : cards.filter((c) => !!c.completed).length,
-  progress: coll.progress ?? { easy: 0, medium: 0, hard: 0 },
-};
+        ...coll,
+        cards: typeof coll?.cards === 'number' ? coll.cards : cards.length,
+        completed:
+          typeof coll?.completed === 'number'
+            ? coll.completed
+            : cards.filter((c) => !!c.completed).length,
+        progress: coll.progress ?? { easy: 0, medium: 0, hard: 0 },
+      };
 
       setCollection(collWithCounts);
       setFlashcards(cards);
@@ -74,17 +79,13 @@ export default function CollectionDetailScreen() {
       loadData();
     }, [loadData])
   );
-const derivedProgress = {
-  easy: flashcards.filter(c => c.difficulty === 'easy').length,
-  medium: flashcards.filter(c => c.difficulty === 'medium').length,
-  hard: flashcards.filter(c => c.difficulty === 'hard').length,
-};
+  const derivedProgress = {
+    easy: flashcards.filter((c) => c.difficulty === 'easy').length,
+    medium: flashcards.filter((c) => c.difficulty === 'medium').length,
+    hard: flashcards.filter((c) => c.difficulty === 'hard').length,
+  };
 
-const totalProgress =
-  derivedProgress.easy +
-  derivedProgress.medium +
-  derivedProgress.hard;
-
+  const totalProgress = derivedProgress.easy + derivedProgress.medium + derivedProgress.hard;
 
   if (loading) {
     return (
@@ -167,27 +168,19 @@ const totalProgress =
     }
   };
   const handleResetProgress = async () => {
-  try {
-    // 1️⃣ reset collection progress
-    await resetCollectionProgress(
-      String(subjectId),
-      String(collectionId)
-    );
+    try {
+      // 1️⃣ reset collection progress
+      await resetCollectionProgress(String(subjectId), String(collectionId));
 
-    // 2️⃣ reset cards në DB
-    await resetCardsDifficulty(
-      String(subjectId),
-      String(collectionId)
-    );
+      // 2️⃣ reset cards në DB
+      await resetCardsDifficulty(String(subjectId), String(collectionId));
 
-    // 3️⃣ refresh EVERYTHING from source of truth
-    await loadData();
-  } catch (err) {
-    console.log('Error resetting progress:', err);
-  }
-};
-
-
+      // 3️⃣ refresh EVERYTHING from source of truth
+      await loadData();
+    } catch (err) {
+      console.log('Error resetting progress:', err);
+    }
+  };
 
   const handleFlashcardPress = (cardId) => {
     router.push({
@@ -246,41 +239,34 @@ const totalProgress =
         {/* Flashcards List */}
         {flashcards.length > 0 ? (
           <>
+            <FlatList
+              data={flashcards}
+              keyExtractor={(item) => item.id}
+              renderItem={renderFlashcardItem}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.listContent}
+              ListHeaderComponent={
+                totalProgress > 0 ? (
+                  <>
+                    <CollectionProgressPie progress={derivedProgress} />
 
-        <FlatList
-  data={flashcards}
-  keyExtractor={(item) => item.id}
-  renderItem={renderFlashcardItem}
-  showsVerticalScrollIndicator={false}
-  contentContainerStyle={styles.listContent}
-  ListHeaderComponent={
-    totalProgress > 0 ? (
-      <>
-        <CollectionProgressPie progress={derivedProgress} />
-
-        <Pressable
-          onPress={handleResetProgress}
-          style={{
-            alignSelf: 'center',
-            marginBottom: 16,
-            paddingVertical: 6,
-            paddingHorizontal: 14,
-            borderRadius: 8,
-            backgroundColor: '#F3F4F6',
-          }}
-        >
-          <Text style={{ color: '#6B7280', fontWeight: '600' }}>
-            Rinis progresin
-          </Text>
-        </Pressable>
-
-      </>
-    ) : (
-      null
-    )
-  }
-/>
-
+                    <Pressable
+                      onPress={handleResetProgress}
+                      style={{
+                        alignSelf: 'center',
+                        marginBottom: 16,
+                        paddingVertical: 6,
+                        paddingHorizontal: 14,
+                        borderRadius: 8,
+                        backgroundColor: '#F3F4F6',
+                      }}
+                    >
+                      <Text style={{ color: '#6B7280', fontWeight: '600' }}>Rinis progresin</Text>
+                    </Pressable>
+                  </>
+                ) : null
+              }
+            />
 
             {/* Start Study Button */}
             {!showForm && (
@@ -309,13 +295,23 @@ const totalProgress =
         )}
       </View>
 
-      {/* Add Flashcard Form - Outside main content, as overlay */}
-      {showForm && (
+      {/* Add Flashcard Form Modal */}
+      <AnimatedModal
+        visible={showForm}
+        variant="bottom"
+        onClose={() => {
+          setShowForm(false);
+          setNewQuestion('');
+          setNewAnswer('');
+          setFormError('');
+        }}
+      >
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.keyboardAvoidingView}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ width: '100%' }}
         >
-          <View style={styles.formContainer}>
+          <View style={[styles.formContainer, { maxWidth: 600, width: '90%' }]}>
+            {/* Header */}
             <View style={styles.formHeader}>
               <Text style={styles.formTitle}>Karta e re</Text>
               <Pressable
@@ -349,9 +345,7 @@ const totalProgress =
                 multiline
               />
 
-              {formError ? (
-                <Text style={{ color: '#EF4444', marginBottom: 8 }}>{formError}</Text>
-              ) : null}
+              {formError ? <Text style={styles.errorText}>{formError}</Text> : null}
 
               <View style={styles.formButtons}>
                 <Pressable
@@ -380,7 +374,11 @@ const totalProgress =
             </ScrollView>
           </View>
         </KeyboardAvoidingView>
-      )}
+      </AnimatedModal>
+
+      <Toast message={success} type="success" visible={!!success} onHide={() => setSuccess('')} />
+
+      <Toast message={error} type={errorType} visible={!!error} onHide={() => setError('')} />
     </View>
   );
 }
@@ -409,8 +407,8 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   listContent: {
-  paddingBottom: 320,
-},
+    paddingBottom: 320,
+  },
 
   flashcardItem: {
     backgroundColor: 'white',
@@ -547,15 +545,8 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     backgroundColor: 'white',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderRadius: 24,
     padding: 24,
-    maxHeight: '80%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
   },
   formHeader: {
     flexDirection: 'row',
@@ -639,5 +630,23 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
+  },
+  apiButton: {
+    alignSelf: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 9999,
+    borderWidth: 1,
+    borderColor: '#2563EB',
+    backgroundColor: '#EFF6FF',
+    marginBottom: 12,
+  },
+  apiButtonText: {
+    color: '#2563EB',
+    fontWeight: '600',
+    fontSize: 14,
   },
 });
