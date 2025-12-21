@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Modal,
   Pressable,
   StyleSheet,
   Text,
@@ -21,7 +20,9 @@ import {
   fetchCollections,
 } from '../../firebase/collectionService';
 
+import AnimatedModal from '../../components/ui/AnimatedModal';
 import { getSubjectById } from '../../firebase/subjectService';
+
 
 export default function SubjectCollectionsScreen() {
   const { id } = useLocalSearchParams();
@@ -135,7 +136,7 @@ export default function SubjectCollectionsScreen() {
       {/* Collections List */}
       <View style={styles.content}>
         <View style={styles.listHeader}>
-          <Text style={styles.listTitle}>Collections</Text>
+          <Text style={styles.listTitle}>Koleksionet</Text>
         </View>
 
        <FlatList
@@ -154,7 +155,7 @@ export default function SubjectCollectionsScreen() {
   )}
   ListEmptyComponent={
     <Text style={{ color: '#6B7280', marginTop: 16, textAlign: 'center' }}>
-      No collections yet. Create your first one!
+      Nuk ka koleksione. Krijo koleksionin tënd të parë!
     </Text>
   }
 />
@@ -163,55 +164,60 @@ export default function SubjectCollectionsScreen() {
         {/* Add Collection Button */}
         <Pressable style={styles.addButton} onPress={() => setModalVisible(true)}>
           <Ionicons name="add" size={20} color="#4F46E5" />
-          <Text style={styles.addButtonText}>Add Collection</Text>
+          <Text style={styles.addButtonText}>Shto koleksion</Text>
         </Pressable>
       </View>
 
       {/* Add Collection Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+<AnimatedModal
+  visible={modalVisible}
+  onClose={() => {
+    setModalVisible(false);
+    setNewCollectionName('');
+  }}
+>
+  <View>
+    <View style={styles.modalHeader}>
+      <Text style={styles.modalTitle}>Koleksioni i ri</Text>
+      <Pressable
+        onPress={() => {
+          setModalVisible(false);
+          setNewCollectionName('');
+        }}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>New Collection</Text>
-              <Pressable onPress={() => setModalVisible(false)}>
-                <Ionicons name="close" size={24} color="#6B7280" />
-              </Pressable>
-            </View>
+        <Ionicons name="close" size={24} color="#6B7280" />
+      </Pressable>
+    </View>
 
-            <TextInput
-              style={styles.input}
-              placeholder="Collection name"
-              value={newCollectionName}
-              onChangeText={setNewCollectionName}
-              autoFocus
-            />
+    <TextInput
+      style={styles.input}
+      placeholder="Collection name"
+      value={newCollectionName}
+      onChangeText={setNewCollectionName}
+      autoFocus
+    />
 
-            <View style={styles.modalButtons}>
-              <Pressable
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => {
-                  setModalVisible(false);
-                  setNewCollectionName('');
-                }}
-              >
-                <Text style={styles.cancelButtonText}>Anulo</Text>
-              </Pressable>
+    <View style={styles.modalButtons}>
+      <Pressable
+        style={[styles.modalButton, styles.cancelButton]}
+        onPress={() => {
+          setModalVisible(false);
+          setNewCollectionName('');
+        }}
+      >
+        <Text style={styles.cancelButtonText}>Anulo</Text>
+      </Pressable>
 
-              <Pressable
-                style={[styles.modalButton, styles.createButton]}
-                onPress={handleAddCollection}
-              >
-                <Text style={styles.createButtonText}>Krijo</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      <Pressable
+        style={[styles.modalButton, styles.createButton]}
+        onPress={handleAddCollection}
+      >
+        <Text style={styles.createButtonText}>Krijo</Text>
+      </Pressable>
+    </View>
+  </View>
+</AnimatedModal>
+
     </View>
   );
 }
@@ -289,20 +295,6 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     marginBottom: 20,
   },
-  // Modal styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 24,
-    width: '85%',
-    maxWidth: 400,
-  },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -334,6 +326,7 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     backgroundColor: '#F3F4F6',
+    marginBottom: 10,
   },
   cancelButtonText: {
     color: '#6B7280',
@@ -342,6 +335,7 @@ const styles = StyleSheet.create({
   },
   createButton: {
     backgroundColor: '#4F46E5',
+    marginBottom: 10,
   },
   createButtonText: {
     color: 'white',
