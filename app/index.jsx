@@ -139,7 +139,8 @@ export default function HomeScreen() {
       }
     }, [user, loadSubjects])
   );
-  const handleAddSubject = async () => {
+
+  const handleAddSubject = useCallback(async () => {
     if (!newSubject.trim()) return;
 
     try {
@@ -159,9 +160,9 @@ export default function HomeScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [newSubject]);
 
-  const handleRemoveSubject = async (subjectId) => {
+  const handleRemoveSubject = useCallback(async (subjectId) => {
     try {
       setLoading(true);
       setError('');
@@ -175,14 +176,34 @@ export default function HomeScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleSubjectPress = (subject) => {
+  const handleSubjectPress = useCallback((subject) => {
     router.push({
       pathname: '/subjects/[id]',
       params: { id: subject.id },
     });
-  };
+  }, []);
+
+  const keyExtractor = useCallback((item) => item.id, []);
+
+  const renderSubjectItem = useCallback(
+    ({ item }) => (
+      <View style={{ marginBottom: 15, width: '48%' }}>
+        <Pressable onPress={() => handleSubjectPress(item)}>
+          <SubjectCard
+            subjectId={item.id}
+            subjectName={item.name}
+            icon={require('../assets/images/flashcard.png')}
+            iconBackgroundColor={item.iconBackgroundColor || '#E0F2FE'}
+            collectionCount={item.collectionCount ?? 0}
+            onDelete={handleRemoveSubject}
+          />
+        </Pressable>
+      </View>
+    ),
+    [handleSubjectPress, handleRemoveSubject]
+  );
 
   if (authLoading) {
     return (
@@ -250,29 +271,20 @@ export default function HomeScreen() {
 
         <FlatList
           data={subjects}
-          keyExtractor={(item) => item.id}
+          keyExtractor={keyExtractor}
           numColumns={2}
           columnWrapperStyle={{ justifyContent: 'space-between', paddingHorizontal: 10 }}
           contentContainerStyle={{ paddingVertical: 10, paddingBottom: 100 }}
-          renderItem={({ item }) => (
-            <View style={{ marginBottom: 15, width: '48%' }}>
-              <Pressable onPress={() => handleSubjectPress(item)}>
-                <SubjectCard
-                  subjectId={item.id}
-                  subjectName={item.name}
-                  icon={require('../assets/images/flashcard.png')}
-                  iconBackgroundColor={item.iconBackgroundColor || '#E0F2FE'}
-                  collectionCount={item.collectionCount ?? 0}
-                  onDelete={handleRemoveSubject}
-                />
-              </Pressable>
-            </View>
-          )}
+          renderItem={renderSubjectItem}
           ListEmptyComponent={
             !loading && (
               <Text style={{ color: '#777', marginTop: 20 }}>Asnjë lëndë e shtuar deri tani.</Text>
             )
           }
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={10}
+          updateCellsBatchingPeriod={50}
+          windowSize={10}
         />
       </View>
 

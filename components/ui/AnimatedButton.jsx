@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 const AnimatedButton = ({
@@ -8,7 +9,7 @@ const AnimatedButton = ({
   disabled = false,
   variant = 'primary', // 'primary', 'danger', 'secondary'
 }) => {
-  const getVariantStyle = () => {
+  const variantStyle = useMemo(() => {
     switch (variant) {
       case 'danger':
         return styles.buttonDanger;
@@ -18,9 +19,9 @@ const AnimatedButton = ({
       default:
         return styles.button;
     }
-  };
+  }, [variant]);
 
-  const getTextVariantStyle = () => {
+  const textVariantStyle = useMemo(() => {
     switch (variant) {
       case 'danger':
         return styles.textDanger;
@@ -30,22 +31,16 @@ const AnimatedButton = ({
       default:
         return styles.text;
     }
-  };
+  }, [variant]);
 
   return (
     <TouchableOpacity
       activeOpacity={0.6}
       onPress={onPress}
       disabled={disabled}
-      style={[
-        getVariantStyle(),
-        disabled && styles.disabled,
-        style,
-      ]}
+      style={[variantStyle, disabled && styles.disabled, style]}
     >
-      <Text style={[getTextVariantStyle(), textStyle]}>
-        {title}
-      </Text>
+      <Text style={[textVariantStyle, textStyle]}>{title}</Text>
     </TouchableOpacity>
   );
 };

@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -92,7 +92,7 @@ export default function SubjectCollectionsScreen() {
     );
   }
 
-  const handleAddCollection = async () => {
+  const handleAddCollection = useCallback(async () => {
     if (newCollectionName.trim() === '') return;
 
     try {
@@ -106,29 +106,51 @@ export default function SubjectCollectionsScreen() {
       setError(err.message ?? 'Failed to create collection. Please try again.');
       setErrorType('error');
     }
-  };
+  }, [newCollectionName, subjectId]);
 
-  const handleDeleteCollection = async (collectionId) => {
-    try {
-      await deleteCollection(subjectId, collectionId);
-      setCollections((prev) => prev.filter((c) => c.id !== collectionId));
-      setSuccess('Collection deleted successfully');
-    } catch (err) {
-      console.log('Error deleting collection:', err);
-      setError(err.message ?? 'Failed to delete collection. Please try again.');
-      setErrorType('error');
-    }
-  };
+  const handleDeleteCollection = useCallback(
+    async (collectionId) => {
+      try {
+        await deleteCollection(subjectId, collectionId);
+        setCollections((prev) => prev.filter((c) => c.id !== collectionId));
+        setSuccess('Collection deleted successfully');
+      } catch (err) {
+        console.log('Error deleting collection:', err);
+        setError(err.message ?? 'Failed to delete collection. Please try again.');
+        setErrorType('error');
+      }
+    },
+    [subjectId]
+  );
 
-  const handleCollectionPress = (collection) => {
-    router.push({
-      pathname: '/subjects/[subjectId]/collections/[collectionId]',
-      params: {
-        subjectId,
-        collectionId: String(collection.id),
-      },
-    });
-  };
+  const handleCollectionPress = useCallback(
+    (collection) => {
+      router.push({
+        pathname: '/subjects/[subjectId]/collections/[collectionId]',
+        params: {
+          subjectId,
+          collectionId: String(collection.id),
+        },
+      });
+    },
+    [subjectId]
+  );
+
+  const keyExtractor = useCallback((item) => item.id, []);
+
+  const renderCollectionItem = useCallback(
+    ({ item }) => (
+      <View style={{ marginBottom: 12 }}>
+        <CollectionCard
+          collection={item}
+          onPress={() => handleCollectionPress(item)}
+          gradientColors={['#4F46E5', '#6366F1']}
+          onDelete={handleDeleteCollection}
+        />
+      </View>
+    ),
+    [handleCollectionPress, handleDeleteCollection]
+  );
 
   return (
     <View style={styles.container}>
@@ -150,23 +172,18 @@ export default function SubjectCollectionsScreen() {
 
         <FlatList
           data={collections}
-          keyExtractor={(item) => item.id}
+          keyExtractor={keyExtractor}
           contentContainerStyle={{ paddingVertical: 10 }}
-          renderItem={({ item }) => (
-            <View style={{ marginBottom: 12 }}>
-              <CollectionCard
-                collection={item}
-                onPress={() => handleCollectionPress(item)}
-                gradientColors={['#4F46E5', '#6366F1']}
-                onDelete={handleDeleteCollection} // ⬅️ LIDHET ME FUNKSIONIN TËND
-              />
-            </View>
-          )}
+          renderItem={renderCollectionItem}
           ListEmptyComponent={
             <Text style={{ color: '#6B7280', marginTop: 16, textAlign: 'center' }}>
               Nuk ka koleksione. Krijo koleksionin tënd të parë!
             </Text>
           }
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={10}
+          updateCellsBatchingPeriod={50}
+          windowSize={10}
         />
 
         {/* Add Collection Button */}

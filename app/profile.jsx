@@ -1,18 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  Modal,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { doc, updateDoc } from 'firebase/firestore';
@@ -217,7 +210,13 @@ export default function ProfileScreen() {
       <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
         <View style={styles.container}>
           <View style={styles.avatarContainer}>
-            <Image source={{ uri: profileImage || DEFAULT_AVATAR }} style={styles.avatar} />
+            <Image
+              source={{ uri: profileImage || DEFAULT_AVATAR }}
+              style={styles.avatar}
+              contentFit="cover"
+              cachePolicy="memory-disk"
+              transition={200}
+            />
             <AnimatedButton
               title="Edit"
               onPress={handleToggleEditModal}

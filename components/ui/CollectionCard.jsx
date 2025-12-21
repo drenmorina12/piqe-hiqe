@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import AnimatedButton from './AnimatedButton';
 import ProgressBar from './ProgressBar';
@@ -8,22 +8,22 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
 
-  const openOptions = () => setOptionsVisible(true);
-  const closeOptions = () => setOptionsVisible(false);
+  const openOptions = useCallback(() => setOptionsVisible(true), []);
+  const closeOptions = useCallback(() => setOptionsVisible(false), []);
 
-  const openConfirm = () => {
+  const openConfirm = useCallback(() => {
     setOptionsVisible(false);
     setConfirmVisible(true);
-  };
+  }, []);
 
-  const closeConfirm = () => setConfirmVisible(false);
+  const closeConfirm = useCallback(() => setConfirmVisible(false), []);
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = useCallback(() => {
     setConfirmVisible(false);
     if (onDelete && collection?.id) {
       onDelete(collection.id);
     }
-  };
+  }, [onDelete, collection?.id]);
 
   const progress = collection.cards > 0 ? (collection.completed / collection.cards) * 100 : 0;
   const isCompleted = collection.completed === collection.cards && collection.cards > 0;
@@ -132,7 +132,7 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
   );
 };
 
-export default CollectionCard;
+export default memo(CollectionCard);
 
 const styles = StyleSheet.create({
   card: {

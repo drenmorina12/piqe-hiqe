@@ -1,13 +1,13 @@
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useState } from 'react';
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { signInWithGitHub } from '../auth/githubAuth';
 import AnimatedButton from '../components/ui/AnimatedButton';
 import Button from '../components/ui/Button';
 import { auth } from '../firebase/firebaseConfig';
-
 
 export default function WelcomeScreen() {
   const [form, setForm] = useState({
@@ -17,39 +17,37 @@ export default function WelcomeScreen() {
   const router = useRouter();
 
   const handleSignIn = async () => {
-  // 1. Validimi i inputeve PARA login-it
-  if (!form.email || !form.password) {
-    alert('Ju lutem shënoni email-in dhe passwordin.');
-    return;
-  }
+    // 1. Validimi i inputeve PARA login-it
+    if (!form.email || !form.password) {
+      alert('Ju lutem shënoni email-in dhe passwordin.');
+      return;
+    }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(form.email)) {
-    alert('Ju lutem vendosni një email valide.');
-    return;
-  }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      alert('Ju lutem vendosni një email valide.');
+      return;
+    }
 
-  try {
-    // 2. Thirrja e Firebase, presim me `await`
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      form.email.trim(),
-      form.password
-    );
+    try {
+      // 2. Thirrja e Firebase, presim me `await`
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        form.email.trim(),
+        form.password
+      );
 
-    const user = userCredential.user; // user është këtu
+      const user = userCredential.user; // user është këtu
 
-    // 3. Nëse arriti këtu, login ka sukses
-    alert('U identifikuat me sukses!');
-    router.replace('/'); // shko në Home / root
-
-  } catch (error) {
-    // 4. Kapim gabimin (p.sh. auth/invalid-credential)
-    console.log('LOGIN ERROR:', error.code, error.message);
-    alert('Identifikimi dështoi. Ju lutem kontrolloni kredencialet dhe provoni përsëri.');
-  }
-};
-
+      // 3. Nëse arriti këtu, login ka sukses
+      alert('U identifikuat me sukses!');
+      router.replace('/'); // shko në Home / root
+    } catch (error) {
+      // 4. Kapim gabimin (p.sh. auth/invalid-credential)
+      console.log('LOGIN ERROR:', error.code, error.message);
+      alert('Identifikimi dështoi. Ju lutem kontrolloni kredencialet dhe provoni përsëri.');
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
@@ -57,13 +55,21 @@ export default function WelcomeScreen() {
         <View style={styles.header}>
           <Image
             alt="App Logo"
-            resizeMode="contain"
+            contentFit="contain"
             style={styles.headerImg}
             source={require('./../assets/images/login.png')}
+            cachePolicy="memory-disk"
+            transition={200}
           />
 
           <Text style={styles.title}>
-            Mirë se erdhët në<Text style={{ color: '#075eec' }}> {'\n'}{'\t'}{'\t'} Piqe-Hiqe</Text>
+            Mirë se erdhët në
+            <Text style={{ color: '#075eec' }}>
+              {' '}
+              {'\n'}
+              {'\t'}
+              {'\t'} Piqe-Hiqe
+            </Text>
           </Text>
 
           <Text style={styles.subtitle}>Mësoni më zgjuar, jo më vështirë</Text>
@@ -111,16 +117,14 @@ export default function WelcomeScreen() {
           </View>
 
           <View style={{ marginTop: 16 }}>
-           <Button
+            <Button
               title="Kyçu me GitHub!"
               onPress={() => signInWithGitHub(router)}
-              style={{ backgroundColor: '#24292e',
-                marginBottom: 25,
-               }}
+              style={{ backgroundColor: '#24292e', marginBottom: 25 }}
               textStyle={{ color: '#fff' }}
-          />
+            />
           </View>
-          
+
           <TouchableOpacity
             onPress={() => {
               router.push('/forgotpassword');

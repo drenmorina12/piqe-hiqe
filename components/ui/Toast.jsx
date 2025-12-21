@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Animated, StyleSheet, Text } from 'react-native';
 
-export default function Toast({ message, type = 'success', visible, onHide, duration = 3000 }) {
+const Toast = ({ message, type = 'success', visible, onHide, duration = 3000 }) => {
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(-20)).current;
 
@@ -44,9 +44,7 @@ export default function Toast({ message, type = 'success', visible, onHide, dura
     }
   }, [visible, message]);
 
-  if (!visible || !message) return null;
-
-  const getStyles = () => {
+  const toastStyles = useMemo(() => {
     switch (type) {
       case 'success':
         return {
@@ -73,9 +71,11 @@ export default function Toast({ message, type = 'success', visible, onHide, dura
           iconColor: '#10B981',
         };
     }
-  };
+  }, [type]);
 
-  const { container, icon, iconColor } = getStyles();
+  if (!visible || !message) return null;
+
+  const { container, icon, iconColor } = toastStyles;
 
   return (
     <Animated.View
@@ -92,7 +92,9 @@ export default function Toast({ message, type = 'success', visible, onHide, dura
       <Text style={styles.message}>{message}</Text>
     </Animated.View>
   );
-}
+};
+
+export default Toast;
 
 const styles = StyleSheet.create({
   toast: {
