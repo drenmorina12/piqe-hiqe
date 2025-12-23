@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { doc, updateDoc } from 'firebase/firestore';
@@ -16,7 +16,21 @@ import AnimatedButton from '../components/ui/AnimatedButton';
 import { auth } from '../firebase/firebaseConfig';
 import { fetchSubjects } from '../firebase/subjectService';
 
+
+// 🔔 NOTIFICATIONS
+import {
+  cancelDailyReminder,
+  ensurePermissions,
+  scheduleDailyReminder,
+} from '../utils/notifications';
+
+import {
+  getUserNotificationsEnabled,
+  setUserNotificationsEnabled,
+} from '../firebase/notificationSettings';
+
 const DEFAULT_AVATAR = 'https://i.pinimg.com/1200x/51/c3/59/51c359defeb3cbae892c5cdada9ab747.jpg';
+
 
 export default function ProfileScreen() {
   const [subjectsCount, setSubjectsCount] = useState(0);
@@ -28,11 +42,15 @@ export default function ProfileScreen() {
   const [statusType, setStatusType] = useState(''); // "success" ose "error"
   const [statusMessage, setStatusMessage] = useState('');
 
-  const showStatusModal = (type, message) => {
-    setStatusType(type);
-    setStatusMessage(message);
-    setStatusModalVisible(true);
-  };
+// 🔔 NOTIFICATIONS STATE
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+const showStatusModal = (type, message) => {
+  setStatusType(type);
+  setStatusMessage(message);
+  setStatusModalVisible(true);
+};
+
 
   const handleCloseStatusModal = () => {
     setStatusModalVisible(false);
@@ -64,13 +82,20 @@ export default function ProfileScreen() {
     return unsub;
   }, []);
 
-  useEffect(() => {
-    if (!authReady) return;
 
-    const loadSubjects = async () => {
+  // ===============================
+  // LOAD DATA + NOTIFICATIONS STATE
+  // ===============================
+  useEffect(() => {
+    if (!authReady || !user) return;
+
+    const loadData = async () => {
       try {
         const data = await fetchSubjects();
         setSubjectsCount(data.length);
+
+        const enabled = await getUserNotificationsEnabled(user.uid);
+        setNotificationsEnabled(enabled);
       } catch (err) {
         console.log('Error fetching subjects in profile:', err);
       } finally {
@@ -78,8 +103,8 @@ export default function ProfileScreen() {
       }
     };
 
-    loadSubjects();
-  }, [authReady]);
+    loadData();
+  }, [authReady, user?.uid]);
 
   const displayName = user?.displayName || (user?.email ? user.email.split('@')[0] : 'User');
 
@@ -160,6 +185,37 @@ export default function ProfileScreen() {
     }
     setShowEditModal(false); // mbyll modal pas heqjes
   };
+// ===============================
+  // 🔔 TOGGLE NOTIFICATIONS
+  // ===============================
+  const handleToggleNotifications = async (value) => {
+    setNotificationsEnabled(value);
+    await setUserNotificationsEnabled(user.uid, value);
+
+    if (value) {
+      const granted = await ensurePermissions();
+      if (!granted) {
+        Alert.alert('Njoftimet', 'Lejet për njoftime nuk u dhanë.');
+        setNotificationsEnabled(false);
+        await setUserNotificationsEnabled(user.uid, false);
+        return;
+      }
+
+      await scheduleDailyReminder(20, 0);
+
+      Alert.alert(
+        'Njoftimet u aktivizuan',
+        'Do të merrni një rikujtues ditor nëse nuk e përdorni aplikacionin.'
+      );
+    } else {
+      await cancelDailyReminder();
+      Alert.alert(
+        'Njoftimet u çaktivizuan',
+        'Nuk do të merrni më njoftime.'
+      );
+    }
+  };
+
 
   const handleLogout = async () => {
     try {
@@ -282,6 +338,15 @@ export default function ProfileScreen() {
             ) : (
               <Text style={styles.infoValue}>{subjectsCount}</Text>
             )}
+          </View>
+
+                    {/* 🔔 NOTIFICATIONS */}
+          <View style={styles.infoBox}>
+            <Text style={styles.infoLabel}>Daily Notifications</Text>
+            <Switch
+              value={notificationsEnabled}
+              onValueChange={handleToggleNotifications}
+            />
           </View>
 
           <View style={styles.buttonContainer}>
