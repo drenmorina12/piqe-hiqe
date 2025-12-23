@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
+
 import { router } from 'expo-router';
 
 import { onAuthStateChanged, signOut } from 'firebase/auth';
@@ -8,15 +9,18 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '../firebase/firebaseConfig'; // sigurohu që db është i eksportuar
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../firebase/firebaseConfig';
 
 import Header from '../components/layout/Header';
 import AnimatedButton from '../components/ui/AnimatedButton';
 import { auth } from '../firebase/firebaseConfig';
 import { fetchSubjects } from '../firebase/subjectService';
 
-const DEFAULT_AVATAR = 'https://i.pinimg.com/1200x/51/c3/59/51c359defeb3cbae892c5cdada9ab747.jpg';
+
+
+const DEFAULT_AVATAR =
+  'https://i.pinimg.com/1200x/51/c3/59/51c359defeb3cbae892c5cdada9ab747.jpg';
 
 export default function ProfileScreen() {
   const [subjectsCount, setSubjectsCount] = useState(0);
@@ -27,6 +31,7 @@ export default function ProfileScreen() {
   const [statusModalVisible, setStatusModalVisible] = useState(false);
   const [statusType, setStatusType] = useState(''); // "success" ose "error"
   const [statusMessage, setStatusMessage] = useState('');
+
 
   const showStatusModal = (type, message) => {
     setStatusType(type);
@@ -39,7 +44,7 @@ export default function ProfileScreen() {
   };
 
   const [user, setUser] = useState(auth.currentUser ?? null);
-  useEffect(() => {
+  /*useEffect(() => {
     const loadAvatar = async () => {
       const savedAvatar = await AsyncStorage.getItem('profileAvatar');
 
@@ -49,7 +54,7 @@ export default function ProfileScreen() {
     };
 
     loadAvatar();
-  }, []);
+  }, []);*/
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
@@ -63,6 +68,38 @@ export default function ProfileScreen() {
 
     return unsub;
   }, []);
+  useEffect(() => {
+  if (!authReady || !user) return;
+
+  const loadAvatar = async () => {
+    try {
+      // 1. Merr nga AsyncStorage për shpejtësi
+      const savedAvatar = await AsyncStorage.getItem('profileAvatar');
+      if (savedAvatar) {
+        setProfileImage(savedAvatar);
+      }
+
+      // 2. Merr nga Firebase për të siguruar sinkronizimin
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const data = userSnap.data();
+        if (data.image && data.image !== savedAvatar) {
+          setProfileImage(data.image);
+          await AsyncStorage.setItem('profileAvatar', data.image); // ruaj lokalisht
+        }
+      } else {
+        setProfileImage(DEFAULT_AVATAR);
+      }
+    } catch (err) {
+      console.log("Error loading avatar:", err);
+      setProfileImage(DEFAULT_AVATAR);
+    }
+  };
+
+  loadAvatar();
+}, [authReady, user]);
+
 
   useEffect(() => {
     if (!authReady) return;
@@ -91,75 +128,91 @@ export default function ProfileScreen() {
       const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, { image: '' });
 
+      await AsyncStorage.removeItem('profileAvatar');
+
+    setShowEditModal(false); // mbyll modalin
+  } catch (err) {
+    console.log('Error removing image:', err);
+    showStatusModal("error", "Fotoja nuk u fshi, provoni përsëri.");
+  }
       setShowEditModal(false); // mbyll modalin
-    } catch (err) {
-      console.log('Error removing image:', err);
-    }
+    
   };
   const handleToggleEditModal = () => {
     setShowEditModal((prev) => !prev);
   };
   const handlePickImage = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    if (!permission.granted) {
-      alert('Duhet leje për të zgjedhur foto');
-      return;
+  if (!permission.granted) {
+    alert('Duhet leje për të zgjedhur foto');
+    return;
+  }
+
+
+
+  const result = await ImagePicker.launchImageLibraryAsync({
+     mediaTypes: ["images"],
+    allowsEditing: true,
+    aspect: [1, 1],
+    base64: true,
+    quality: 0.8,
+});
+
+
+  if (!result.canceled) {
+    const base64Img = `data:image/jpg;base64,${result.assets[0].base64}`;
+
+    try {
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, { image: base64Img }); // Firebase
+      await AsyncStorage.setItem('profileAvatar', base64Img); // AsyncStorage
+      setProfileImage(base64Img); // UI
+      showStatusModal("success", "Fotoja u ruajt me sukses!");
+    } catch (err) {
+      console.log(err);
+      showStatusModal("error", "Fotoja nuk u ruajt, provoni përsëri.");
     }
+  }
+  setShowEditModal(false);
+};
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'Images',
-      allowsEditing: true,
-      aspect: [1, 1],
-      base64: true,
-      quality: 0.8,
-    });
+const handleTakePhoto = async () => {   // <-- funksioni duhet të jetë async
+  const permission = await ImagePicker.requestCameraPermissionsAsync();
 
-    if (!result.canceled) {
-      const base64Img = `data:image/jpg;base64,${result.assets[0].base64}`;
+  if (!permission.granted) {
+    alert('Duhet leje për të përdorur kamerën');
+    return;
+  }
 
-      // Ruajmë në Firestore
-      const userRef = doc(db, 'users', user.uid); // sigurohu që user ka uid
-      try {
-        await updateDoc(userRef, { image: base64Img });
-        setProfileImage(base64Img); // për UI
-        showStatusModal('success', 'Fotoja u ruajt me sukses!');
-      } catch (err) {
-        console.log(err);
-        showStatusModal('error', 'Fotoja nuk u ruajt, provoni përsëri.');
-      }
+  const result = await ImagePicker.launchCameraAsync({
+    allowsEditing: true,
+    aspect: [1, 1],
+    base64: true,
+    quality: 0.8,
+     mediaTypes: ["images"]
+  });
+
+  if (!result.canceled) {
+    const base64Img = `data:image/jpg;base64,${result.assets[0].base64}`;
+
+    try {
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, { image: base64Img }); // ruaj në Firebase
+      await AsyncStorage.setItem('profileAvatar', base64Img); // ruaj lokalisht
+      setProfileImage(base64Img); // për UI
+      showStatusModal("success", "Foto u ruajt me sukses!");
+    } catch (err) {
+      console.log(err);
+      showStatusModal("error", "Foto nuk u ruajt, provoni përsëri.");
     }
-    setShowEditModal(false); // mbyll modal pas zgjedhjes
-  };
-  const handleTakePhoto = async () => {
-    const permission = await ImagePicker.requestCameraPermissionsAsync();
-    if (!permission.granted) {
-      alert('Duhet leje për të përdorur kamerën');
-      return;
-    }
+  }
+  setShowEditModal(false);
+};
 
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [1, 1],
-      base64: true,
-      quality: 0.8,
-    });
 
-    if (!result.canceled) {
-      const base64Img = `data:image/jpg;base64,${result.assets[0].base64}`;
 
-      const userRef = doc(db, 'users', user.uid);
-      try {
-        await updateDoc(userRef, { image: base64Img });
-        setProfileImage(base64Img);
-        showStatusModal('success', 'Foto u ruajt me sukses!');
-      } catch (err) {
-        console.log(err);
-        showStatusModal('error', 'Foto nuk u ruajt, provoni përsëri.');
-      }
-    }
-    setShowEditModal(false); // mbyll modal pas heqjes
-  };
+
 
   const handleLogout = async () => {
     try {
