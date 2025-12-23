@@ -1,14 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
-import {
-  Image,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Image } from 'expo-image';
+import { memo, useCallback, useState } from 'react';
+import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import AnimatedButton from './AnimatedButton';
 
 const SubjectCard = ({
   icon,
@@ -22,28 +16,34 @@ const SubjectCard = ({
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
 
-  const openOptions = () => setOptionsVisible(true);
-  const closeOptions = () => setOptionsVisible(false);
+  const openOptions = useCallback(() => setOptionsVisible(true), []);
+  const closeOptions = useCallback(() => setOptionsVisible(false), []);
 
-  const openConfirm = () => {
+  const openConfirm = useCallback(() => {
     setOptionsVisible(false);
     setConfirmVisible(true);
-  };
+  }, []);
 
-  const closeConfirm = () => setConfirmVisible(false);
+  const closeConfirm = useCallback(() => setConfirmVisible(false), []);
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = useCallback(() => {
     setConfirmVisible(false);
     if (onDelete && subjectId) {
       onDelete(subjectId);
     }
-  };
+  }, [onDelete, subjectId]);
 
   return (
     <View testID="subject-card" style={styles.card}>
       {/* UI JOTE EKZISTUESE – e paprekur */}
       <View style={[styles.iconWrapper, { backgroundColor: iconBackgroundColor }]}>
-        <Image source={icon} style={styles.icon} resizeMode="cover" />
+        <Image
+          source={icon}
+          style={styles.icon}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          transition={200}
+        />
       </View>
       <Text style={styles.subjectText}>{subjectName}</Text>
       {collectionCount !== undefined && (
@@ -68,13 +68,21 @@ const SubjectCard = ({
           <View style={styles.modal}>
             <Text style={styles.modalTitle}>Options</Text>
 
-            <Pressable testID="subject-delete" style={styles.modalButtonDanger} onPress={openConfirm}>
-              <Text style={styles.modalButtonTextDanger}>Delete subject</Text>
-            </Pressable>
+            <AnimatedButton
+              testID="subject-delete"
+              title="Delete subject"
+              variant="danger"
+              onPress={openConfirm}
+              style={styles.modalButtonSpacing}
+            />
 
-            <Pressable testID="subject-cancel-options" style={styles.modalButton} onPress={closeOptions}>
-              <Text style={styles.modalButtonText}>Cancel</Text>
-            </Pressable>
+            <AnimatedButton
+              testID="subject-cancel-options"
+              title="Cancel"
+              variant="secondary"
+              onPress={closeOptions}
+              style={styles.modalButtonSpacing}
+            />
           </View>
         </Pressable>
       </Modal>
@@ -89,17 +97,23 @@ const SubjectCard = ({
         <Pressable style={styles.backdrop} onPress={closeConfirm}>
           <View style={styles.modal}>
             <Text style={styles.modalTitle}>Confirm delete</Text>
-            <Text style={styles.modalText}>
-              Are you sure you want to delete this subject?
-            </Text>
+            <Text style={styles.modalText}>Are you sure you want to delete this subject?</Text>
 
-            <Pressable testID="subject-confirm-delete"  style={styles.modalButtonDanger} onPress={handleConfirmDelete}>
-              <Text style={styles.modalButtonTextDanger}>Yes, delete</Text>
-            </Pressable>
+            <AnimatedButton
+              testID="subject-confirm-delete"
+              title="Yes, delete"
+              variant="danger"
+              onPress={handleConfirmDelete}
+              style={styles.modalButtonSpacing}
+            />
 
-            <Pressable testID="subject-cancel-options" style={styles.modalButton} onPress={closeConfirm}>
-              <Text style={styles.modalButtonText}>Cancel</Text>
-            </Pressable>
+            <AnimatedButton
+              testID="subject-cancel-options"
+              title="Cancel"
+              variant="secondary"
+              onPress={closeConfirm}
+              style={styles.modalButtonSpacing}
+            />
           </View>
         </Pressable>
       </Modal>
@@ -107,7 +121,7 @@ const SubjectCard = ({
   );
 };
 
-export default SubjectCard;
+export default memo(SubjectCard);
 
 const styles = StyleSheet.create({
   card: {
@@ -174,27 +188,7 @@ const styles = StyleSheet.create({
     color: '#4B5563',
     marginBottom: 16,
   },
-  modalButton: {
-    paddingVertical: 10,
-    borderRadius: 9999,
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
+  modalButtonSpacing: {
     marginTop: 8,
-    alignItems: 'center',
-  },
-  modalButtonText: {
-    color: '#111827',
-    fontWeight: '600',
-  },
-  modalButtonDanger: {
-    paddingVertical: 10,
-    borderRadius: 9999,
-    backgroundColor: '#EF4444',
-    marginTop: 8,
-    alignItems: 'center',
-  },
-  modalButtonTextDanger: {
-    color: '#FFFFFF',
-    fontWeight: '700',
   },
 });

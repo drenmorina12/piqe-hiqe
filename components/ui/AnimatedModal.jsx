@@ -5,7 +5,7 @@ import {
   Modal,
   Platform,
   StyleSheet,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
 } from 'react-native';
 
 export default function AnimatedModal({ visible, onClose, children }) {
@@ -20,23 +20,16 @@ export default function AnimatedModal({ visible, onClose, children }) {
   }, [visible]);
 
   return (
-    <Modal
-        transparent
-        visible={visible}
-        animationType="none"
-        onRequestClose={onClose}
-    >
-
+    <Modal transparent visible={visible} animationType="none" onRequestClose={onClose}>
       <TouchableWithoutFeedback onPress={onClose}>
         <Animated.View style={[styles.overlay, { opacity }]}>
           <TouchableWithoutFeedback>
             <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            style={styles.modalContent}
+              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+              style={styles.modalContent}
             >
-            {children}
+              {children}
             </KeyboardAvoidingView>
-
           </TouchableWithoutFeedback>
         </Animated.View>
       </TouchableWithoutFeedback>
@@ -52,12 +45,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-  width: '85%',
-  backgroundColor: '#fff',
-  borderRadius: 16,
-  paddingTop: 20,
-  paddingHorizontal: 20,
-  paddingBottom: 35,
-},
-
+    width: '90%',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    paddingTop: 16,
+    paddingHorizontal: 12,
+    paddingBottom: 20,
+  },
 });

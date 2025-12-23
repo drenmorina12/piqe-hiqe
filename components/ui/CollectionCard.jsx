@@ -1,40 +1,32 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
-import {
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { memo, useCallback, useState } from 'react';
+import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import AnimatedButton from './AnimatedButton';
 import ProgressBar from './ProgressBar';
 
 const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
 
-  const openOptions = () => setOptionsVisible(true);
-  const closeOptions = () => setOptionsVisible(false);
+  const openOptions = useCallback(() => setOptionsVisible(true), []);
+  const closeOptions = useCallback(() => setOptionsVisible(false), []);
 
-  const openConfirm = () => {
+  const openConfirm = useCallback(() => {
     setOptionsVisible(false);
     setConfirmVisible(true);
-  };
+  }, []);
 
-  const closeConfirm = () => setConfirmVisible(false);
+  const closeConfirm = useCallback(() => setConfirmVisible(false), []);
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = useCallback(() => {
     setConfirmVisible(false);
     if (onDelete && collection?.id) {
       onDelete(collection.id);
     }
-  };
+  }, [onDelete, collection?.id]);
 
-  const progress =
-    collection.cards > 0 ? (collection.completed / collection.cards) * 100 : 0;
-  const isCompleted =
-    collection.completed === collection.cards && collection.cards > 0;
+  const progress = collection.cards > 0 ? (collection.completed / collection.cards) * 100 : 0;
+  const isCompleted = collection.completed === collection.cards && collection.cards > 0;
 
   return (
     <Pressable
@@ -43,17 +35,8 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
     >
       <View style={styles.content}>
         {/* Icon */}
-        <View
-          style={[
-            styles.iconWrapper,
-            isCompleted ? styles.iconCompleted : styles.iconDefault,
-          ]}
-        >
-          <Ionicons
-            name="folder-open"
-            size={24}
-            color={isCompleted ? '#059669' : '#4F46E5'}
-          />
+        <View style={[styles.iconWrapper, isCompleted ? styles.iconCompleted : styles.iconDefault]}>
+          <Ionicons name="folder-open" size={24} color={isCompleted ? '#059669' : '#4F46E5'} />
         </View>
 
         {/* Collection Info */}
@@ -78,7 +61,7 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
             value={progress}
             height={8}
             trackColor="#E5E7EB"
-            fillColor={isCompleted ? '#10B981' : gradientColors?.[1] ?? '#4F46E5'}
+            fillColor={isCompleted ? '#10B981' : (gradientColors?.[1] ?? '#4F46E5')}
             style={{}}
           />
         </View>
@@ -100,13 +83,19 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
           <View style={styles.modal}>
             <Text style={styles.modalTitle}>Options</Text>
 
-            <Pressable style={styles.modalButtonDanger} onPress={openConfirm}>
-              <Text style={styles.modalButtonTextDanger}>Delete collection</Text>
-            </Pressable>
+            <AnimatedButton
+              title="Delete collection"
+              variant="danger"
+              onPress={openConfirm}
+              style={styles.modalButtonSpacing}
+            />
 
-            <Pressable style={styles.modalButton} onPress={closeOptions}>
-              <Text style={styles.modalButtonText}>Cancel</Text>
-            </Pressable>
+            <AnimatedButton
+              title="Cancel"
+              variant="secondary"
+              onPress={closeOptions}
+              style={styles.modalButtonSpacing}
+            />
           </View>
         </Pressable>
       </Modal>
@@ -121,17 +110,21 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
         <Pressable style={styles.backdrop} onPress={closeConfirm}>
           <View style={styles.modal}>
             <Text style={styles.modalTitle}>Confirm delete</Text>
-            <Text style={styles.modalText}>
-              Are you sure you want to delete this collection?
-            </Text>
+            <Text style={styles.modalText}>Are you sure you want to delete this collection?</Text>
 
-            <Pressable style={styles.modalButtonDanger} onPress={handleConfirmDelete}>
-              <Text style={styles.modalButtonTextDanger}>Yes, delete</Text>
-            </Pressable>
+            <AnimatedButton
+              title="Yes, delete"
+              variant="danger"
+              onPress={handleConfirmDelete}
+              style={styles.modalButtonSpacing}
+            />
 
-            <Pressable style={styles.modalButton} onPress={closeConfirm}>
-              <Text style={styles.modalButtonText}>Cancel</Text>
-            </Pressable>
+            <AnimatedButton
+              title="Cancel"
+              variant="secondary"
+              onPress={closeConfirm}
+              style={styles.modalButtonSpacing}
+            />
           </View>
         </Pressable>
       </Modal>
@@ -139,7 +132,7 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
   );
 };
 
-export default CollectionCard;
+export default memo(CollectionCard);
 
 const styles = StyleSheet.create({
   card: {
@@ -234,27 +227,7 @@ const styles = StyleSheet.create({
     color: '#4B5563',
     marginBottom: 16,
   },
-  modalButton: {
-    paddingVertical: 10,
-    borderRadius: 9999,
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
+  modalButtonSpacing: {
     marginTop: 8,
-    alignItems: 'center',
-  },
-  modalButtonText: {
-    color: '#111827',
-    fontWeight: '600',
-  },
-  modalButtonDanger: {
-    paddingVertical: 10,
-    borderRadius: 9999,
-    backgroundColor: '#EF4444',
-    marginTop: 8,
-    alignItems: 'center',
-  },
-  modalButtonTextDanger: {
-    color: '#FFFFFF',
-    fontWeight: '700',
   },
 });
