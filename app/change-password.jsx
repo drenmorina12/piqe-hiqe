@@ -1,14 +1,10 @@
-import { router } from 'expo-router';
+import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
+import { EmailAuthProvider, onAuthStateChanged, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-import {
-  EmailAuthProvider,
-  onAuthStateChanged,
-  reauthenticateWithCredential,
-  updatePassword,
-} from 'firebase/auth';
+import Header from '../components/layout/Header';
 import AnimatedButton from '../components/ui/AnimatedButton';
 import { auth } from '../firebase/firebaseConfig';
 
@@ -16,19 +12,19 @@ export default function ChangePasswordScreen() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [currentFocused, setCurrentFocused] = useState(false);
+  const [newFocused, setNewFocused] = useState(false);
+  const [confirmFocused, setConfirmFocused] = useState(false);
   const [user, setUser] = useState(auth.currentUser ?? null);
   const [loading, setLoading] = useState(false);
 
-  // sigurohemi që user-i është i loguar
+  const router = useRouter();
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
-      if (!firebaseUser) {
-        router.replace('/login');
-      } else {
-        setUser(firebaseUser);
-      }
+      if (!firebaseUser) router.replace('/login');
+      else setUser(firebaseUser);
     });
-
     return unsub;
   }, []);
 
@@ -37,17 +33,14 @@ export default function ChangePasswordScreen() {
       Alert.alert('Gabim', 'Ju lutem mbushni të gjitha fushat.');
       return;
     }
-
     if (newPassword.length < 6) {
       Alert.alert('Gabim', 'Fjalëkalimi i ri duhet të ketë së paku 6 karaktere.');
       return;
     }
-
     if (newPassword !== confirmPassword) {
       Alert.alert('Gabim', 'Fjalëkalimi i ri dhe konfirmimi nuk përputhen.');
       return;
     }
-
     if (!user || !user.email) {
       Alert.alert('Gabim', 'Nuk u gjet përdoruesi aktual. Provoni të hyni sërish.');
       router.replace('/login');
@@ -56,70 +49,88 @@ export default function ChangePasswordScreen() {
 
     try {
       setLoading(true);
-
-      // 1️⃣ Re-authenticate me current password
       const credential = EmailAuthProvider.credential(user.email, currentPassword);
-
       await reauthenticateWithCredential(user, credential);
-
-      // 2️⃣ Update password me të riun
       await updatePassword(user, newPassword);
-
       Alert.alert('Sukses', 'Fjalëkalimi u ndryshua me sukses.');
-      router.back(); // kthehu te profili (ose router.replace('/profile'))
+      router.back();
     } catch (error) {
       console.log('CHANGE PASSWORD ERROR:', error.code, error.message);
-
-      if (error.code === 'auth/wrong-password') {
-        Alert.alert('Gabim', 'Fjalëkalimi aktual nuk është i saktë.');
-      } else if (error.code === 'auth/weak-password') {
-        Alert.alert('Gabim', 'Fjalëkalimi i ri është shumë i dobët.');
-      } else {
-        Alert.alert('Gabim', 'Ndodhi një gabim gjatë ndryshimit të fjalëkalimit.');
-      }
+      if (error.code === 'auth/wrong-password') Alert.alert('Gabim', 'Fjalëkalimi aktual nuk është i saktë.');
+      else if (error.code === 'auth/weak-password') Alert.alert('Gabim', 'Fjalëkalimi i ri është shumë i dobët.');
+      else Alert.alert('Gabim', 'Ndodhi një gabim gjatë ndryshimit të fjalëkalimit.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
+    <View style={styles.safeArea}>
+          <Header
+            backgroundColor='#4bb8e7ff'
+            showBack={true}
+            showHome
+            onBackPress={() => router.back()}
+          />
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <Text style={styles.title}>Ndrysho fjalëkalimin</Text>
-        <Text style={styles.subtitle}>
-          Për siguri, së pari shkruani fjalëkalimin aktual dhe pastaj të riun.
-        </Text>
+        <View style={styles.header}>
+          <Image
+            alt="App Logo"
+            contentFit="contain"
+            style={styles.headerImg}
+            source={require('./../assets/images/logo.jpg')}
+            cachePolicy="memory-disk"
+            transition={200}
+          />
+          <Text style={styles.title}>Ndrysho fjalëkalimin</Text>
+        </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Fjalëkalimi aktual</Text>
+        {/* Current Password */}
+        <View style={styles.igInputContainer}>
+          <Text style={[styles.igLabel, (currentFocused || currentPassword) && styles.igLabelActive]}>
+            Fjalëkalimi aktual
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[styles.igInput, currentFocused && styles.igInputFocused]}
             secureTextEntry
-            placeholder="Fjalëkalimi aktual"
             value={currentPassword}
             onChangeText={setCurrentPassword}
+            onFocus={() => setCurrentFocused(true)}
+            onBlur={() => setCurrentFocused(false)}
+            placeholderTextColor="#6b7280"
           />
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Fjalëkalimi i ri</Text>
+        {/* New Password */}
+        <View style={styles.igInputContainer}>
+          <Text style={[styles.igLabel, (newFocused || newPassword) && styles.igLabelActive]}>
+            Fjalëkalimi i ri
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[styles.igInput, newFocused && styles.igInputFocused]}
             secureTextEntry
-            placeholder="Fjalëkalimi i ri"
             value={newPassword}
             onChangeText={setNewPassword}
+            onFocus={() => setNewFocused(true)}
+            onBlur={() => setNewFocused(false)}
+            placeholderTextColor="#6b7280"
           />
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Konfirmo fjalëkalimin e ri</Text>
+        {/* Confirm Password */}
+        <View style={styles.igInputContainer}>
+          <Text style={[styles.igLabel, (confirmFocused || confirmPassword) && styles.igLabelActive]}>
+            Konfirmo fjalëkalimin e ri
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[styles.igInput, confirmFocused && styles.igInputFocused]}
             secureTextEntry
-            placeholder="Konfirmo fjalëkalimin e ri"
             value={confirmPassword}
             onChangeText={setConfirmPassword}
+            onFocus={() => setConfirmFocused(true)}
+            onBlur={() => setConfirmFocused(false)}
+            placeholderTextColor="#6b7280"
           />
         </View>
 
@@ -127,64 +138,88 @@ export default function ChangePasswordScreen() {
           <AnimatedButton
             title={loading ? 'Duke ndryshuar...' : 'Ndrysho fjalëkalimin'}
             onPress={handleChangePassword}
-            style={{
-              backgroundColor: '#075eec',
-              borderRadius: 30,
-              paddingVertical: 12,
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity: loading ? 0.7 : 1,
-            }}
+            style={styles.btn}
+            textStyle={styles.btnText}
           />
         </View>
       </View>
     </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
+     flex: 1,
+     backgroundColor: '#ffffffff'
+     },
+  container: { 
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  container: {
-    flex: 1,
-    padding: 20,
-  },
+    padding: 20 
+    },
+  header: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom:15,
+      },
+  headerImg: {
+    width: 140,
+    height: 140,
+    alignSelf: 'center',
+    marginBottom: 20 
+      },
   title: {
     fontSize: 24,
     fontWeight: '700',
-    marginTop: 20,
-    marginBottom: 8,
-    textAlign: 'center',
-    color: '#1a1a1a',
-  },
+    marginBottom: 8, 
+    textAlign: 'center', 
+    color: '#1a1a1a' 
+      },
   subtitle: {
     fontSize: 14,
     color: '#6b7280',
     textAlign: 'center',
-    marginBottom: 24,
-  },
-  inputGroup: {
-    marginBottom: 14,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#374151',
-    marginBottom: 4,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
+    marginBottom: 24 
+      },
+  igInputContainer: {
+     position: 'relative',
+     marginBottom: 16 
+      },
+  igLabel: {
+    position: 'absolute', 
+    left: 12, 
+    top: 15, 
+    fontSize: 16, 
+    color: '#8e8e8e', 
+    zIndex: 1 },
+  igLabelActive: {
+    top: 6, 
+    fontSize: 11 
+      },
+  igInput: {
+    height: 50,
     backgroundColor: '#fff',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    fontSize: 15,
+    borderWidth: 1,
+    borderColor: '#8e8e8e',
     color: '#111827',
   },
-  actions: {
-    marginTop: 24,
+  igInputFocused: { backgroundColor: '#f4f6fa' },
+  actions: { marginTop: 24 },
+  btn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 30,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    backgroundColor: '#4bb8e7ff',
+    borderColor: '#4bb8e7ff',
   },
+  btnText: { fontSize: 18, fontWeight: '600', color: '#fff' },
 });
+

@@ -1,11 +1,12 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
+  Image,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -16,6 +17,8 @@ export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [emailFocused, setEmailFocused] = useState(false);
+
 
   const handleResetPassword = async () => {
     if (!email) {
@@ -52,6 +55,12 @@ export default function ForgotPasswordScreen() {
       <View style={styles.container}>
         {/* Header / Logo nëse don me përdor imazhin */}
         <View style={styles.header}>
+          <Image
+            alt="App Logo"
+            resizeMode="contain"
+            style={styles.headerImg}
+            source={require('./../assets/images/logo.jpg')}
+          />
           <Text style={styles.title}>Keni harruar passwordin?</Text>
           <Text style={styles.subtitle}>
             Shkruani email-in tuaj dhe ne do të ju dërgojmë një link për të resetuar passwordin!
@@ -61,17 +70,27 @@ export default function ForgotPasswordScreen() {
         {/* Forma */}
         <View style={styles.form}>
           <View style={styles.input}>
-            <Text style={styles.inputLabel}>Email</Text>
-            <TextInput
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="email-address"
-              placeholder="john@example.com"
-              placeholderTextColor="#6b7280"
-              style={styles.inputControl}
-              value={email}
-              onChangeText={setEmail}
-            />
+            <View style={styles.igInputContainer}>
+              <Text
+                style={[
+                  styles.igLabel,
+                  (emailFocused || email) && styles.igLabelActive,
+                ]}
+              >
+                Email
+              </Text>
+
+              <TextInput
+                style={[styles.igInput, emailFocused && styles.igInputFocused]}
+                value={email}
+                onChangeText={setEmail}
+                onFocus={() => setEmailFocused(true)}
+                onBlur={() => setEmailFocused(false)}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+
           </View>
 
           <View style={styles.formAction}>
@@ -104,7 +123,7 @@ export default function ForgotPasswordScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#ffffffff',
   },
   container: {
     flex: 1,
@@ -120,9 +139,10 @@ const styles = StyleSheet.create({
     fontSize: 28,
     lineHeight: 34,
     fontWeight: '700',
-    color: '#111827',
+    color: '#012c46ff',
     marginBottom: 8,
     textAlign: 'center',
+
   },
   subtitle: {
     fontSize: 14,
@@ -149,7 +169,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#111827',
+    color: '#4bb8e7ff',
     backgroundColor: '#fff',
   },
   formAction: {
@@ -162,9 +182,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#075eec',
+    backgroundColor: '#4bb8e7ff',
     borderWidth: 1,
-    borderColor: '#075eec',
+    borderColor: '#4bb8e7ff',
   },
   btnText: {
     fontSize: 18,
@@ -175,8 +195,50 @@ const styles = StyleSheet.create({
   formLink: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#075eec',
+    color: '#032357ff',
     textAlign: 'center',
     marginTop: 8,
   },
-});
+
+  igInputContainer: {
+    position: 'relative',
+    marginBottom: 12,
+  },
+
+  igLabel: {
+    position: 'absolute',
+    left: 12,
+    top: 15,
+    fontSize: 16,
+    color: '#8e8e8e',
+    zIndex: 1,
+  },
+
+  igLabelActive: {
+    top: 6,
+    fontSize: 11,
+  },
+
+  igInput: {
+    height: 50,
+    backgroundColor: '#ffffffff',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    fontSize: 15,
+    borderWidth: 1,
+    borderColor: '#8e8e8e'
+  },
+
+  igInputFocused: {
+    backgroundColor: '##f4f6fa',
+  },
+  headerImg: {
+    width: 130,
+    height: 130,
+    alignSelf: 'center',
+    marginBottom: 20,
+  }
+
+},
+);

@@ -10,6 +10,10 @@ import Button from '../components/ui/Button';
 import { auth } from '../firebase/firebaseConfig';
 
 export default function WelcomeScreen() {
+
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
+
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -50,62 +54,77 @@ export default function WelcomeScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffffff' }}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Image
             alt="App Logo"
             contentFit="contain"
             style={styles.headerImg}
-            source={require('./../assets/images/login.png')}
+            source={require('./../assets/images/logo.jpg')}
             cachePolicy="memory-disk"
             transition={200}
           />
 
-          <Text style={styles.title}>
-            Mirë se erdhët në
-            <Text style={{ color: '#075eec' }}>
-              {' '}
-              {'\n'}
-              {'\t'}
-              {'\t'} Piqe-Hiqe
+            <Text style={styles.title}>PIQE HIQE</Text>
+
+
+
+          </View>
+
+          <View style={styles.igInputContainer}>
+            <Text
+              style={[
+                styles.igLabel,
+                (emailFocused || form.email) && styles.igLabelActive,
+              ]}
+            >
+              Email
             </Text>
-          </Text>
-
-          <Text style={styles.subtitle}>Mësoni më zgjuar, jo më vështirë</Text>
-        </View>
-
-        <View style={styles.form}>
-          <View style={styles.input}>
-            <Text style={styles.inputLabel}>Email adresa</Text>
 
             <TextInput
-              autoCapitalize="none"
-              autoCorrect={false}
-              clearButtonMode="while-editing"
-              keyboardType="email-address"
-              onChangeText={(email) => setForm({ ...form, email })}
-              placeholder="john@example.com"
-              placeholderTextColor="#6b7280"
-              style={styles.inputControl}
+              style={[
+                styles.igInput,
+                emailFocused && styles.igInputFocused,
+              ]}
               value={form.email}
+              onChangeText={(email) => setForm({ ...form, email })}
+              onFocus={() => setEmailFocused(true)}
+              onBlur={() => setEmailFocused(false)}
+              keyboardType="email-address"
+              autoCapitalize="none"
             />
           </View>
 
-          <View style={styles.input}>
-            <Text style={styles.inputLabel}>Password</Text>
+
+          <View style={styles.igInputContainer}>
+            <Text
+              style={[
+                styles.igLabel,
+                (passwordFocused || form.password) && styles.igLabelActive,
+              ]}
+            >
+              Password
+            </Text>
 
             <TextInput
-              autoCorrect={false}
-              clearButtonMode="while-editing"
-              onChangeText={(password) => setForm({ ...form, password })}
-              placeholder="********"
-              placeholderTextColor="#6b7280"
-              style={styles.inputControl}
-              secureTextEntry={true}
+              style={[
+                styles.igInput,
+                passwordFocused && styles.igInputFocused,
+              ]}
               value={form.password}
+              onChangeText={(password) => setForm({ ...form, password })}
+              onFocus={() => setPasswordFocused(true)}
+              onBlur={() => setPasswordFocused(false)}
+              secureTextEntry
             />
           </View>
+
+          <TouchableOpacity
+            style={styles.forgotContainer}
+            onPress={() => router.push('/forgotpassword')}>
+            <Text style={styles.forgotText}>Keni harruar passwordin?</Text>
+          </TouchableOpacity>
 
           <View style={styles.formAction}>
             <AnimatedButton
@@ -114,6 +133,11 @@ export default function WelcomeScreen() {
               style={styles.btn}
               textStyle={styles.btnText}
             />
+          </View>
+          <View style={styles.separator}>
+            <View style={styles.line} />
+            <Text style={styles.separatorText}>OSE</Text>
+            <View style={styles.line} />
           </View>
 
           <View style={{ marginTop: 16 }}>
@@ -125,25 +149,19 @@ export default function WelcomeScreen() {
             />
           </View>
 
-          <TouchableOpacity
-            onPress={() => {
-              router.push('/forgotpassword');
-            }}
-          >
-            <Text style={styles.formLink}>Keni harruar passwordin?</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
 
-      <TouchableOpacity
-        onPress={() => {
-          router.push('/signup');
-        }}
-      >
-        <Text style={styles.formFooter}>
-          Nuk keni llogari? <Text style={{ textDecorationLine: 'underline' }}>Regjistrohu</Text>
-        </Text>
-      </TouchableOpacity>
+       
+
+        <TouchableOpacity
+          onPress={() => {
+            router.push('/signup');
+          }}
+        >
+          <Text style={styles.formFooter}>
+            Nuk keni llogari? <Text style={{ textDecorationLine: 'underline' }}>Regjistrohu</Text>
+          </Text>
+        </TouchableOpacity>
+         </View>
     </SafeAreaView>
   );
 }
@@ -156,10 +174,11 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   title: {
-    fontSize: 31,
-    fontWeight: '700',
-    color: '#1D2A32',
-    marginBottom: 6,
+    fontSize: 30,
+    fontFamily: 'Poppins-Bold',
+    fontWeight: '800',
+    color: '#012c46ff',
+    marginBottom: 20,
   },
   subtitle: {
     fontSize: 15,
@@ -170,13 +189,13 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 36,
+    marginVertical: 30,
   },
   headerImg: {
-    width: 80,
-    height: 80,
+    width: 160,
+    height: 160,
     alignSelf: 'center',
-    marginBottom: 36,
+    marginBottom: 20,
   },
   /** Form */
   form: {
@@ -185,7 +204,7 @@ const styles = StyleSheet.create({
     flexBasis: 0,
   },
   formAction: {
-    marginTop: 4,
+    marginTop: 20,
     marginBottom: 16,
   },
   formLink: {
@@ -204,7 +223,7 @@ const styles = StyleSheet.create({
   },
   /** Input */
   input: {
-    marginBottom: 16,
+    marginBottom: 10,
   },
   inputLabel: {
     fontSize: 17,
@@ -233,13 +252,76 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderWidth: 1,
-    backgroundColor: '#075eec',
-    borderColor: '#075eec',
+    backgroundColor: '#4bb8e7ff',
+    borderColor: '#4bb8e7ff',
   },
   btnText: {
     fontSize: 18,
     lineHeight: 26,
     fontWeight: '600',
     color: '#fff',
+  }, igInputContainer: {
+    position: 'relative',
+    marginBottom: 12,
   },
+
+  igLabel: {
+    position: 'absolute',
+    left: 12,
+    top: 15,
+    fontSize: 16,
+    color: '#8e8e8e',
+    zIndex: 1,
+  },
+
+  igLabelActive: {
+    top: 6,
+    fontSize: 11,
+  },
+
+  igInput: {
+    height: 50,
+    backgroundColor: '#ffffffff',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    fontSize: 15,
+    borderWidth: 1,
+    borderColor: '#8e8e8e'
+  },
+
+  igInputFocused: {
+    backgroundColor: '##f4f6fa',
+  },
+  forgotContainer: {
+    paddingLeft: 8,     
+  },
+
+  forgotText: {
+    fontSize: 14,
+    color: '#000000ff',
+    fontWeight: '600',
+  },
+  separator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#e5e7eb',
+  },
+
+  separatorText: {
+    marginHorizontal: 10,
+    fontSize: 13,
+    fontWeight: '600',   // pak më e trashë
+    color: '#6b7280',
+  },
+
+
+
+
 });
