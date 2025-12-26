@@ -48,7 +48,7 @@ const SubjectCard = ({
       <Text style={styles.subjectText}>{subjectName}</Text>
       {collectionCount !== undefined && (
         <Text style={styles.collectionText}>
-          {collectionCount} {collectionCount === 1 ? 'collection' : 'collections'}
+          {collectionCount} {collectionCount === 1 ? 'koleksion' : 'koleksione'}
         </Text>
       )}
 
@@ -66,11 +66,11 @@ const SubjectCard = ({
       >
         <Pressable style={styles.backdrop} onPress={closeOptions}>
           <View style={styles.modal}>
-            <Text style={styles.modalTitle}>Options</Text>
+            <Text style={styles.modalTitle}>Opsione</Text>
 
             <AnimatedButton
               testID="subject-delete"
-              title="Delete subject"
+              title="Fshi lëndën"
               variant="danger"
               onPress={openConfirm}
               style={styles.modalButtonSpacing}
@@ -78,7 +78,7 @@ const SubjectCard = ({
 
             <AnimatedButton
               testID="subject-cancel-options"
-              title="Cancel"
+              title="Anulo"
               variant="secondary"
               onPress={closeOptions}
               style={styles.modalButtonSpacing}
@@ -96,12 +96,12 @@ const SubjectCard = ({
       >
         <Pressable style={styles.backdrop} onPress={closeConfirm}>
           <View style={styles.modal}>
-            <Text style={styles.modalTitle}>Confirm delete</Text>
-            <Text style={styles.modalText}>Are you sure you want to delete this subject?</Text>
+            <Text style={styles.modalTitle}>Konfirmo fshirjen</Text>
+            <Text style={styles.modalText}>Jeni i sigurt që dëshironi ta fshini këtë lëndë?</Text>
 
             <AnimatedButton
               testID="subject-confirm-delete"
-              title="Yes, delete"
+              title="Po, fshi"
               variant="danger"
               onPress={handleConfirmDelete}
               style={styles.modalButtonSpacing}
@@ -109,7 +109,7 @@ const SubjectCard = ({
 
             <AnimatedButton
               testID="subject-cancel-options"
-              title="Cancel"
+              title="Anulo"
               variant="secondary"
               onPress={closeConfirm}
               style={styles.modalButtonSpacing}

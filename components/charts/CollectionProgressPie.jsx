@@ -13,7 +13,7 @@ export default function CollectionProgressPie({ progress }) {
   if (total === 0) {
     return (
       <View style={styles.empty}>
-        <Text style={styles.emptyText}>No progress yet</Text>
+        <Text style={styles.emptyText}>Ende nuk ka progres</Text>
       </View>
     );
   }
@@ -85,9 +85,9 @@ export default function CollectionProgressPie({ progress }) {
 
       {/* Legend */}
       <View style={styles.legend}>
-        <Legend color="#22C55E" label={`Easy (${easy})`} />
-        <Legend color="#FACC15" label={`Medium (${medium})`} />
-        <Legend color="#EF4444" label={`Hard (${hard})`} />
+        <Legend color="#22C55E" label={`Lehtë (${easy})`} />
+        <Legend color="#FACC15" label={`Mesëm (${medium})`} />
+        <Legend color="#EF4444" label={`Vështirë (${hard})`} />
       </View>
     </View>
   );
