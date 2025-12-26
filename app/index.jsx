@@ -152,10 +152,10 @@ export default function HomeScreen() {
       setSubjects((prev) => [...prev, createdWithCount]);
       setNewSubject('');
       setShowInput(false);
-      setSuccess('Subject created successfully');
+      setSuccess('Lënda u krijua me sukses');
     } catch (err) {
-      console.log('Error adding subject:', err);
-      setError(err.message ?? 'Failed to create subject. Please try again.');
+      console.log('Gabim gjatë shtimit të lëndës:', err);
+      setError(err.message ?? 'Krijimi i lëndës dështoi. Ju lutemi provoni përsëri.');
       setErrorType('error');
     } finally {
       setLoading(false);
@@ -168,10 +168,10 @@ export default function HomeScreen() {
       setError('');
       await deleteSubjectFromDb(subjectId);
       setSubjects((prev) => prev.filter((s) => s.id !== subjectId));
-      setSuccess('Subject deleted successfully');
+      setSuccess('Lënda u fshi me sukses');
     } catch (err) {
       console.log('Error deleting subject:', err);
-      setError(err.message ?? 'Failed to delete subject. Please try again.');
+      setError(err.message ?? 'Fshirja e lëndës dështoi. Ju lutemi provoni përsëri.');
       setErrorType('error');
     } finally {
       setLoading(false);
@@ -240,7 +240,7 @@ export default function HomeScreen() {
             easy={0}
             medium={0}
             hard={0}
-            label="Day Streak"
+            label="Ditët"
           />
 
           {/* Cards Done U HEQ – mbesin vetëm Day Streak + Subjects */}

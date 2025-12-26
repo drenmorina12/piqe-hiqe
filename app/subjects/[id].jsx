@@ -46,10 +46,10 @@ export default function SubjectCollectionsScreen() {
       setCollections((prev) => [...prev, created]);
       setNewCollectionName('');
       setModalVisible(false);
-      setSuccess('Collection created successfully');
+      setSuccess('Koleksioni u krijua me sukses');
     } catch (err) {
-      console.log('Error adding collection:', err);
-      setError(err.message ?? 'Failed to create collection. Please try again.');
+      console.log('Gabim gjatë shtimit të koleksionit:', err);
+      setError(err.message ?? 'Krijimi i koleksionit dështoi. Ju lutemi provoni përsëri.');
       setErrorType('error');
     }
   }, [newCollectionName, subjectId]);
@@ -59,10 +59,10 @@ export default function SubjectCollectionsScreen() {
       try {
         await deleteCollection(subjectId, collectionId);
         setCollections((prev) => prev.filter((c) => c.id !== collectionId));
-        setSuccess('Collection deleted successfully');
+        setSuccess('Koleksioni u fshi me sukses');
       } catch (err) {
-        console.log('Error deleting collection:', err);
-        setError(err.message ?? 'Failed to delete collection. Please try again.');
+        console.log('Gabim gjatë fshirjes së koleksionit:', err);
+        setError(err.message ?? 'Fshirja e koleksionit dështoi. Ju lutemi provoni përsëri.');
         setErrorType('error');
       }
     },
@@ -125,7 +125,7 @@ export default function SubjectCollectionsScreen() {
         );
         setCollections(colsWithCounts);
       } catch (err) {
-        console.log('Error loading subject/collections:', err);
+        console.log('Gabim gjatë ngarkimit të subjektin/koleksionin:', err);
       } finally {
         setLoading(false);
       }
@@ -145,9 +145,9 @@ export default function SubjectCollectionsScreen() {
   if (!subject) {
     return (
       <SafeAreaView style={styles.errorContainer}>
-        <Text style={styles.errorText}>Subject not found</Text>
+        <Text style={styles.errorText}>Lënda nuk u gjet</Text>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>Go Back</Text>
+          <Text style={styles.backButtonText}>Kthehu prapa</Text>
         </Pressable>
       </SafeAreaView>
     );
@@ -159,7 +159,7 @@ export default function SubjectCollectionsScreen() {
       <Header
         backgroundColor={subject.headerColor}
         title={subject.name}
-        subtitle={`${collections.length} ${collections.length === 1 ? 'collection' : 'collections'}`}
+        subtitle={`${collections.length} ${collections.length === 1 ? 'koleksion' : 'koleksione'}`}
         icon={subject.icon}
         showHome
         showBack={true}
@@ -217,7 +217,7 @@ export default function SubjectCollectionsScreen() {
 
           <TextInput
             style={styles.input}
-            placeholder="Collection name"
+            placeholder="Emri i koleksionit"
             value={newCollectionName}
             onChangeText={setNewCollectionName}
             autoFocus

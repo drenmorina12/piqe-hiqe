@@ -48,13 +48,13 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
             {isCompleted && (
               <View style={styles.completeBadge}>
                 <Ionicons name="checkmark-circle" size={16} color="#059669" />
-                <Text style={styles.completeText}>Complete</Text>
+                <Text style={styles.completeText}>Përfunduar</Text>
               </View>
             )}
           </View>
 
           <Text style={styles.cardCount}>
-            {collection.completed} / {collection.cards} cards
+            {collection.completed} / {collection.cards} karta
           </Text>
 
           <ProgressBar
@@ -84,14 +84,14 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
             <Text style={styles.modalTitle}>Options</Text>
 
             <AnimatedButton
-              title="Delete collection"
+              title="Fshi koleksionin"
               variant="danger"
               onPress={openConfirm}
               style={styles.modalButtonSpacing}
             />
 
             <AnimatedButton
-              title="Cancel"
+              title="Anulo"
               variant="secondary"
               onPress={closeOptions}
               style={styles.modalButtonSpacing}
@@ -109,18 +109,18 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
       >
         <Pressable style={styles.backdrop} onPress={closeConfirm}>
           <View style={styles.modal}>
-            <Text style={styles.modalTitle}>Confirm delete</Text>
-            <Text style={styles.modalText}>Are you sure you want to delete this collection?</Text>
+            <Text style={styles.modalTitle}>Konfirmo fshirjen</Text>
+            <Text style={styles.modalText}>Jeni i sigurt që dëshironi ta fshini këtë koleksion?</Text>
 
             <AnimatedButton
-              title="Yes, delete"
+              title="Po, fshi"
               variant="danger"
               onPress={handleConfirmDelete}
               style={styles.modalButtonSpacing}
             />
 
             <AnimatedButton
-              title="Cancel"
+              title="Anulo"
               variant="secondary"
               onPress={closeConfirm}
               style={styles.modalButtonSpacing}

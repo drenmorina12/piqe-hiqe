@@ -28,7 +28,7 @@ export default function Header({
           {showBack ? (
             <Pressable onPress={handleBack} style={styles.backButton}>
               <Ionicons name="arrow-back" size={22} color="white" />
-              <Text style={styles.backText}>Back</Text>
+              <Text style={styles.backText}>Mbrapa</Text>
             </Pressable>
           ) : (
             <View style={{ width: 60 }} />

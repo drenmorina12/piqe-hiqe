@@ -28,14 +28,14 @@ export default function StudyCompleteModal({ visible, onClose }) {
 
         )}
 
-        <Text style={styles.title}>Session completed 🎉</Text>
+        <Text style={styles.title}>Seanca përfundoj 🎉</Text>
 
         <Text style={styles.subtitle}>
-          You’ve finished all flashcards in this study session.
+          Ju keni përfunduar të gjitha kartat në këtë sesion studimi.
         </Text>
 
         <Pressable style={styles.button} onPress={onClose}>
-          <Text style={styles.buttonText}>Done</Text>
+          <Text style={styles.buttonText}>Mbaro</Text>
         </Pressable>
       </View>
     </AnimatedModal>

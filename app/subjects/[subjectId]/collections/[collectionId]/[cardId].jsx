@@ -50,7 +50,7 @@ export default function FlashcardEditScreen() {
         setAnswer(flashcard.answer || '');
       } catch (err) {
         console.log('Error loading flashcard:', err);
-        setError('Failed to load flashcard');
+        setError('Ngarkimi i kartelës dështoi');
       } finally {
         setLoading(false);
       }
@@ -64,7 +64,7 @@ export default function FlashcardEditScreen() {
     if (saving) return;
 
     if (question.trim() === '' || answer.trim() === '') {
-      setError('Both question and answer are required.');
+      setError('Kërkohen pyetje edhe përgjigje.');
       return;
     }
 
@@ -75,13 +75,13 @@ export default function FlashcardEditScreen() {
         answer: answer.trim(),
       });
 
-      setSuccess('Flashcard updated successfully');
+      setSuccess('Karta u përditësua me sukses');
       setTimeout(() => {
         router.back();
       }, 1000);
     } catch (err) {
-      console.log('Error updating card:', err);
-      setError(err.message ?? 'Failed to update flashcard. Please try again.');
+      console.log('Gabim gjatë përditësimit të kartës:', err);
+      setError(err.message ?? 'Përditësimi i kartës dështoi. Ju lutemi provoni përsëri.');
       setErrorType('error');
     } finally {
       setSaving(false);
@@ -91,7 +91,7 @@ export default function FlashcardEditScreen() {
   const handleDelete = async () => {
     if (Platform.OS === 'web') {
       const confirmed = window.confirm(
-        'Are you sure you want to delete this flashcard? This action cannot be undone.'
+        'Jeni i sigurt që dëshironi të fshini këtë kartë? Ky veprim nuk mund të zhbëhet.'
       );
 
       if (!confirmed) return;
@@ -109,8 +109,8 @@ export default function FlashcardEditScreen() {
           },
         });
       } catch (err) {
-        console.log('Error deleting card:', err);
-        setError('Failed to delete flashcard. Please try again.');
+        console.log('Gabim gjatë fshirjes së kartës:', err);
+        setError('Fshirja e kartës dështoi. Ju lutemi provoni përsëri.');
         setErrorType('error');
       } finally {
         setDeleting(false);
@@ -120,12 +120,12 @@ export default function FlashcardEditScreen() {
     }
 
     Alert.alert(
-      'Delete Flashcard',
-      'Are you sure you want to delete this flashcard? This action cannot be undone.',
+      'Fshi Kartën',
+      'Jeni i sigurt që dëshironi të fshini këtë kartë? Ky veprim nuk mund të zhbëhet.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Delete',
+          text: 'Fshije',
           style: 'destructive',
           onPress: async () => {
             setDeleting(true);
@@ -142,7 +142,7 @@ export default function FlashcardEditScreen() {
               });
             } catch (err) {
               console.log('Error deleting card:', err);
-              Alert.alert('Error', 'Failed to delete flashcard. Please try again.');
+              Alert.alert('Error', 'Fshirja e kartës dështoi. Ju lutemi provoni përsëri.');
             } finally {
               setDeleting(false);
             }
@@ -163,9 +163,9 @@ export default function FlashcardEditScreen() {
   if (!card || !subject) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.errorText}>Flashcard not found</Text>
+        <Text style={styles.errorText}>Karta nuk u gjet</Text>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>Go Back</Text>
+          <Text style={styles.backButtonText}>Kthehu</Text>
         </Pressable>
       </SafeAreaView>
     );
@@ -179,7 +179,7 @@ export default function FlashcardEditScreen() {
       <Header
         backgroundColor={subject.headerColor}
         title={subject.name}
-        subtitle="Edit Flashcard"
+        subtitle="Përditëso kartën"
         icon={subject.icon}
         showBack={true}
         showHome
@@ -191,10 +191,10 @@ export default function FlashcardEditScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.section}>
-          <Text style={styles.label}>Question</Text>
+          <Text style={styles.label}>Pyetja</Text>
           <TextInput
             style={[styles.input, styles.questionInput]}
-            placeholder="Enter your question..."
+            placeholder="Shkruani pyetjen tuaj..."
             value={question}
             onChangeText={setQuestion}
             multiline
@@ -203,10 +203,10 @@ export default function FlashcardEditScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.label}>Answer</Text>
+          <Text style={styles.label}>Përgjigjia</Text>
           <TextInput
             style={[styles.input, styles.answerInput]}
-            placeholder="Enter the answer..."
+            placeholder="Shkruani përgjigjen..."
             value={answer}
             onChangeText={setAnswer}
             multiline
@@ -215,7 +215,7 @@ export default function FlashcardEditScreen() {
 
         {card.difficulty && (
           <View style={styles.section}>
-            <Text style={styles.label}>Current Difficulty</Text>
+            <Text style={styles.label}>Vështirësia aktuale</Text>
             <View style={styles.difficultyBadge}>
               <Text style={styles.difficultyText}>{card.difficulty}</Text>
             </View>
@@ -235,7 +235,7 @@ export default function FlashcardEditScreen() {
             ) : (
               <>
                 <Ionicons name="checkmark-circle" size={20} color="white" />
-                <Text style={styles.saveButtonText}>Save Changes</Text>
+                <Text style={styles.saveButtonText}>Ruaj Ndryshimet</Text>
               </>
             )}
           </Pressable>
@@ -250,7 +250,7 @@ export default function FlashcardEditScreen() {
             ) : (
               <>
                 <Ionicons name="trash" size={20} color="white" />
-                <Text style={styles.deleteButtonText}>Delete</Text>
+                <Text style={styles.deleteButtonText}>Fshije</Text>
               </>
             )}
           </Pressable>

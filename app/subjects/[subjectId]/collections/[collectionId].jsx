@@ -72,7 +72,7 @@ export default function CollectionDetailScreen() {
       setCollection(collWithCounts);
       setFlashcards(cards);
     } catch (err) {
-      console.log('Error loading collection or cards:', err);
+      console.log('Gabim gjatë ngarkimit të koleksionit ose kartave:', err);
     } finally {
       setLoading(false);
     }
@@ -84,7 +84,7 @@ export default function CollectionDetailScreen() {
     if (savingCard) return; // prevent duplicate presses
 
     if (newQuestion.trim() === '' || newAnswer.trim() === '') {
-      setFormError('Both question and answer are required.');
+      setFormError('Kërkohen pyetje edhe përgjigje.');
       return;
     }
 
@@ -106,11 +106,11 @@ export default function CollectionDetailScreen() {
       setNewQuestion('');
       setNewAnswer('');
       setShowForm(false);
-      setSuccess('Flashcard created successfully');
+      setSuccess('Karta u krijua me sukses');
     } catch (err) {
-      console.log('Error adding card:', err);
-      setFormError(err.message ?? 'Failed to create flashcard.');
-      setError(err.message ?? 'Failed to create flashcard. Please try again.');
+      console.log('Gabim gjatë shtimit të kartës:', err);
+      setFormError(err.message ?? 'Krijimi i kartelës dështoi.');
+      setError(err.message ?? 'Krijimi i kartelës dështoi. Ju lutemi provoni përsëri.');
       setErrorType('error');
     } finally {
       setSavingCard(false);
@@ -128,10 +128,10 @@ export default function CollectionDetailScreen() {
           ...prev,
           cards: Math.max((prev?.cards ?? 1) - 1, 0),
         }));
-        setSuccess('Flashcard deleted successfully');
+        setSuccess('Karta u fshi me sukses');
       } catch (err) {
-        console.log('Error deleting card:', err);
-        setError(err.message ?? 'Failed to delete flashcard. Please try again.');
+        console.log('Gabim gjatë fshirjes së kartës:', err);
+        setError(err.message ?? 'Fshirja e kartelës dështoi. Ju lutemi provoni përsëri.');
         setErrorType('error');
       }
     },
@@ -161,7 +161,7 @@ export default function CollectionDetailScreen() {
       // 3️⃣ refresh EVERYTHING from source of truth
       await loadData();
     } catch (err) {
-      console.log('Error resetting progress:', err);
+      console.log('Gabim gjatë rivendosjes së progresit:', err);
     }
   }, [subjectId, collectionId, loadData]);
 
@@ -213,7 +213,7 @@ export default function CollectionDetailScreen() {
 
       // Check if we returned from deleting a flashcard
       if (deletedFlashcard === 'true') {
-        setSuccess('Flashcard deleted successfully');
+        setSuccess('Karta u fshi me sukses');
         // Clear the param by replacing the route without it
         router.replace({
           pathname: '/subjects/[subjectId]/collections/[collectionId]',
@@ -251,9 +251,9 @@ export default function CollectionDetailScreen() {
   if (!subject || !collection) {
     return (
       <SafeAreaView style={styles.errorContainer}>
-        <Text style={styles.errorText}>Collection not found</Text>
+        <Text style={styles.errorText}>Koleksioni nuk u gjet</Text>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>Go Back</Text>
+          <Text style={styles.backButtonText}>Kthehu prapa</Text>
         </Pressable>
       </SafeAreaView>
     );
@@ -265,7 +265,7 @@ export default function CollectionDetailScreen() {
       <Header
         backgroundColor={subject.headerColor}
         title={subject.name}
-        subtitle={`${flashcards.length} ${flashcards.length === 1 ? 'flashcard' : 'flashcards'}`}
+        subtitle={`${flashcards.length} ${flashcards.length === 1 ? 'kartë' : 'karta'}`}
         icon={subject.icon}
         showBack={true}
         showHome
@@ -276,7 +276,7 @@ export default function CollectionDetailScreen() {
         <View style={styles.collectionInfo}>
           <Text style={styles.collectionName}>{collection.name}</Text>
           <Text style={styles.cardCount}>
-            {flashcards.length} {flashcards.length === 1 ? 'card' : 'cards'}
+            {flashcards.length} {flashcards.length === 1 ? 'kartë' : 'karta'}
           </Text>
         </View>
 
@@ -309,7 +309,7 @@ export default function CollectionDetailScreen() {
                         backgroundColor: '#F3F4F6',
                       }}
                     >
-                      <Text style={{ color: '#6B7280', fontWeight: '600' }}>Reset progress</Text>
+                      <Text style={{ color: '#6B7280', fontWeight: '600' }}>Rivendosni progresin</Text>
                     </Pressable>
                   </>
                 ) : null
@@ -320,7 +320,7 @@ export default function CollectionDetailScreen() {
             {!showForm && (
               <Pressable style={styles.studyButton} onPress={handleStartStudy}>
                 <Ionicons name="school" size={20} color="white" />
-                <Text style={styles.studyButtonText}>Start Study Session</Text>
+                <Text style={styles.studyButtonText}>Filloni seancën e studimit</Text>
               </Pressable>
             )}
           </>
@@ -328,8 +328,8 @@ export default function CollectionDetailScreen() {
           !showForm && (
             <View style={styles.emptyContainer}>
               <Ionicons name="document-text-outline" size={64} color="#D1D5DB" />
-              <Text style={styles.emptyText}>No flashcards yet</Text>
-              <Text style={styles.emptySubtext}>Create your first flashcard to get started</Text>
+              <Text style={styles.emptyText}>Nuk keni karta</Text>
+              <Text style={styles.emptySubtext}>Krijoni kartën e parë për të filluar</Text>
             </View>
           )
         )}
@@ -338,7 +338,7 @@ export default function CollectionDetailScreen() {
         {!showForm && (
           <Pressable style={styles.addButton} onPress={() => setShowForm(true)}>
             <Ionicons name="add" size={20} color="#4F46E5" />
-            <Text style={styles.addButtonText}>Add Flashcard</Text>
+            <Text style={styles.addButtonText}>Shto kartë</Text>
           </Pressable>
         )}
       </View>
@@ -361,10 +361,10 @@ export default function CollectionDetailScreen() {
           >
             {/* Header */}
             <View style={styles.formHeader}>
-              <Text style={styles.formTitle}>New Flashcard</Text>
-              <Pressable onPress={() => setShowForm(false)}>
+              <Text style={styles.formTitle}>Kartë e re</Text>
+              {/* <Pressable onPress={() => setShowForm(false)}>
                 <Ionicons name="close" size={24} color="#6B7280" />
-              </Pressable>
+              </Pressable> */}
             </View>
 
             {/* Scrollable content */}
@@ -373,19 +373,19 @@ export default function CollectionDetailScreen() {
               contentContainerStyle={{ paddingBottom: 16 }}
               showsVerticalScrollIndicator={false}
             >
-              <Text style={styles.inputLabel}>Question</Text>
+              <Text style={styles.inputLabel}>Pyetje</Text>
               <TextInput
                 style={[styles.input, styles.questionInput]}
-                placeholder="Enter your question..."
+                placeholder="Shkruani pyetjen tuaj..."
                 value={newQuestion}
                 onChangeText={setNewQuestion}
                 multiline
               />
 
-              <Text style={styles.inputLabel}>Answer</Text>
+              <Text style={styles.inputLabel}>Përgjigje</Text>
               <TextInput
                 style={[styles.input, styles.answerInput]}
-                placeholder="Enter the answer..."
+                placeholder="Shkruani përgjigjen..."
                 value={newAnswer}
                 onChangeText={setNewAnswer}
                 multiline
@@ -402,7 +402,7 @@ export default function CollectionDetailScreen() {
                 style={[styles.formButton, styles.cancelButton]}
                 onPress={() => setShowForm(false)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>Anulo</Text>
               </Pressable>
 
               <Pressable
@@ -413,7 +413,7 @@ export default function CollectionDetailScreen() {
                 {savingCard ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.createButtonText}>Create</Text>
+                  <Text style={styles.createButtonText}>Krijo</Text>
                 )}
               </Pressable>
             </View>

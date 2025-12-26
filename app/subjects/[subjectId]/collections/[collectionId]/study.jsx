@@ -89,7 +89,7 @@ export default function StudyModeScreen() {
         setCollection(coll);
         setFlashcards(cards);
       } catch (err) {
-        console.log('Error loading study data:', err);
+        console.log('Gabim gjatë ngarkimit të të dhënave të studimit:', err);
       } finally {
         setLoading(false);
       }
@@ -169,7 +169,7 @@ export default function StudyModeScreen() {
       )
     );
   } catch (err) {
-    console.log('Error updating difficulty:', err);
+    console.log('Gabim gjatë vështirësisë së përditësimit:', err);
   }
 
   goNext();
@@ -206,7 +206,7 @@ export default function StudyModeScreen() {
           showHome
         />
         <View style={styles.center}>
-          <Text style={styles.emptyText}>No flashcards to study</Text>
+          <Text style={styles.emptyText}>Nuk ka karta për të studiuar</Text>
         </View>
       </View>
     );
@@ -219,7 +219,7 @@ export default function StudyModeScreen() {
       <Header
         backgroundColor={subject.headerColor}
         title={collection.name}
-        subtitle={`${total} flashcard${total === 1 ? '' : 's'}`}
+        subtitle={`${total} ${total === 1 ? 'karte' : 'kartat'}`}
         icon={subject.icon}
         showBack
         showHome
@@ -265,12 +265,12 @@ export default function StudyModeScreen() {
       <View style={styles.buttonsContainer}>
         <View style={styles.row}>
           <Button
-            title="Repeat"
+            title="Përsërit"
             onPress={() => handleDifficulty('repeat')}
             style={[styles.btn, { backgroundColor: '#5094e7ff' }]}
           />
           <Button
-            title="Hard"
+            title="Vështirë"
             onPress={() => handleDifficulty('hard')}
             style={[styles.btn, { backgroundColor: '#EF4444' }]}
           />
@@ -278,12 +278,12 @@ export default function StudyModeScreen() {
 
         <View style={styles.row}>
           <Button
-            title="Medium"
+            title="Mesme"
             onPress={() => handleDifficulty('medium')}
             style={[styles.btn, { backgroundColor: '#FACC15' }]}
           />
           <Button
-            title="Easy"
+            title="Lehtë"
             onPress={() => handleDifficulty('easy')}
             style={[styles.btn, { backgroundColor: '#22C55E' }]}
           />
