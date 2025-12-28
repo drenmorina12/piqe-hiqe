@@ -16,10 +16,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../../../../../components/layout/Header';
 import Toast from '../../../../../components/ui/Toast';
+import { useTheme } from '../../../../../context/ThemeContext';
 import { deleteCard, getCardById, updateCard } from '../../../../../firebase/cardService';
 import { getSubjectById as fetchSubjectById } from '../../../../../firebase/subjectService';
 
 export default function FlashcardEditScreen() {
+  const { colors } = useTheme();
+  const accent = colors.primary ?? colors.tint ?? '#4F46E5';
+
   const { subjectId, collectionId, cardId } = useLocalSearchParams();
   const [subject, setSubject] = useState(null);
   const [card, setCard] = useState(null);
@@ -154,18 +158,21 @@ export default function FlashcardEditScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" style={{ marginTop: 100 }} />
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" style={{ marginTop: 100 }} color={accent} />
       </SafeAreaView>
     );
   }
 
   if (!card || !subject) {
     return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.errorText}>Karta nuk u gjet</Text>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>Kthehu</Text>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.mutedText ?? '#6B7280' }]}>Karta nuk u gjet</Text>
+        <Pressable
+          onPress={() => router.back()}
+          style={[styles.backButton, { backgroundColor: accent }]}
+        >
+          <Text style={[styles.backButtonText, { color: colors.onPrimary ?? 'white' }]}>Kthehu</Text>
         </Pressable>
       </SafeAreaView>
     );
@@ -174,7 +181,7 @@ export default function FlashcardEditScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
     >
       <Header
         backgroundColor={subject.headerColor}
@@ -191,33 +198,60 @@ export default function FlashcardEditScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.section}>
-          <Text style={styles.label}>Pyetja</Text>
+          <Text style={[styles.label, { color: colors.text }]}>Pyetja</Text>
           <TextInput
-            style={[styles.input, styles.questionInput]}
+            style={[
+              styles.input,
+              styles.questionInput,
+              {
+                borderColor: colors.border ?? '#D1D5DB',
+                backgroundColor: colors.inputBg ?? colors.card ?? 'white',
+                color: colors.text,
+              },
+            ]}
             placeholder="Shkruani pyetjen tuaj..."
+            placeholderTextColor={colors.placeholder ?? colors.mutedText ?? '#9CA3AF'}
             value={question}
             onChangeText={setQuestion}
             multiline
             autoFocus
+            selectionColor={accent}
           />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.label}>Përgjigjia</Text>
+          <Text style={[styles.label, { color: colors.text }]}>Përgjigjia</Text>
           <TextInput
-            style={[styles.input, styles.answerInput]}
+            style={[
+              styles.input,
+              styles.answerInput,
+              {
+                borderColor: colors.border ?? '#D1D5DB',
+                backgroundColor: colors.inputBg ?? colors.card ?? 'white',
+                color: colors.text,
+              },
+            ]}
             placeholder="Shkruani përgjigjen..."
+            placeholderTextColor={colors.placeholder ?? colors.mutedText ?? '#9CA3AF'}
             value={answer}
             onChangeText={setAnswer}
             multiline
+            selectionColor={accent}
           />
         </View>
 
         {card.difficulty && (
           <View style={styles.section}>
-            <Text style={styles.label}>Vështirësia aktuale</Text>
-            <View style={styles.difficultyBadge}>
-              <Text style={styles.difficultyText}>{card.difficulty}</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Vështirësia aktuale</Text>
+            <View
+              style={[
+                styles.difficultyBadge,
+                { backgroundColor: colors.chipBg ?? colors.surface ?? '#F3F4F6' },
+              ]}
+            >
+              <Text style={[styles.difficultyText, { color: colors.mutedText ?? '#6B7280' }]}>
+                {card.difficulty}
+              </Text>
             </View>
           </View>
         )}
@@ -226,22 +260,33 @@ export default function FlashcardEditScreen() {
 
         <View style={styles.buttonContainer}>
           <Pressable
-            style={[styles.button, styles.saveButton, saving && { opacity: 0.7 }]}
+            style={[
+              styles.button,
+              styles.saveButton,
+              { backgroundColor: accent },
+              saving && { opacity: 0.7 },
+            ]}
             onPress={handleSave}
             disabled={saving || deleting}
           >
             {saving ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={colors.onPrimary ?? '#fff'} />
             ) : (
               <>
-                <Ionicons name="checkmark-circle" size={20} color="white" />
-                <Text style={styles.saveButtonText}>Ruaj Ndryshimet</Text>
+                <Ionicons name="checkmark-circle" size={20} color={'white'} />
+                <Text style={[styles.saveButtonText, { color: 'white' }]}>
+                  Ruaj Ndryshimet
+                </Text>
               </>
             )}
           </Pressable>
 
           <Pressable
-            style={[styles.button, styles.deleteButton, deleting && { opacity: 0.7 }]}
+            style={[
+              styles.button,
+              styles.deleteButton,
+              deleting && { opacity: 0.7 },
+            ]}
             onPress={handleDelete}
             disabled={saving || deleting}
           >
@@ -258,7 +303,6 @@ export default function FlashcardEditScreen() {
       </ScrollView>
 
       <Toast message={success} type="success" visible={!!success} onHide={() => setSuccess('')} />
-
       <Toast message={error} type={errorType} visible={!!error} onHide={() => setError('')} />
     </KeyboardAvoidingView>
   );

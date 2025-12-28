@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
+import { useTheme } from '../../context/ThemeContext';
 import AnimatedModal from './AnimatedModal';
 
 export default function StudyCompleteModal({ visible, onClose }) {
+  const { colors } = useTheme();
   const [shoot, setShoot] = useState(false);
 
   useEffect(() => {
@@ -24,18 +26,27 @@ export default function StudyCompleteModal({ visible, onClose }) {
             explosionSpeed={350}
             fallSpeed={2500}
             fadeOut={false}
-            />
-
+          />
         )}
 
-        <Text style={styles.title}>Seanca përfundoj 🎉</Text>
+        <Text style={[styles.title, { color: colors.text ?? '#111827' }]}>
+          Seanca përfundoj 🎉
+        </Text>
 
-        <Text style={styles.subtitle}>
+        <Text style={[styles.subtitle, { color: colors.mutedText ?? '#6B7280' }]}>
           Ju keni përfunduar të gjitha kartat në këtë sesion studimi.
         </Text>
 
-        <Pressable style={styles.button} onPress={onClose}>
-          <Text style={styles.buttonText}>Mbaro</Text>
+        <Pressable
+          style={[
+            styles.button,
+            { backgroundColor: colors.primary ?? colors.tint ?? '#4F46E5' },
+          ]}
+          onPress={onClose}
+        >
+          <Text style={[styles.buttonText, { color: colors.onPrimary ?? 'white' }]}>
+            Mbaro
+          </Text>
         </Pressable>
       </View>
     </AnimatedModal>

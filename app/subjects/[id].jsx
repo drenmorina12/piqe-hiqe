@@ -22,9 +22,13 @@ import {
 } from '../../firebase/collectionService';
 
 import AnimatedModal from '../../components/ui/AnimatedModal';
+import { useTheme } from '../../context/ThemeContext';
 import { getSubjectById } from '../../firebase/subjectService';
 
 export default function SubjectCollectionsScreen() {
+  const { colors } = useTheme();
+  const accent = colors.primary ?? colors.tint ?? '#4F46E5';
+
   const { id } = useLocalSearchParams();
   const subjectId = String(id);
 
@@ -136,25 +140,27 @@ export default function SubjectCollectionsScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.errorContainer}>
-        <ActivityIndicator size="large" />
+      <SafeAreaView style={[styles.errorContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={accent} />
       </SafeAreaView>
     );
   }
 
   if (!subject) {
     return (
-      <SafeAreaView style={styles.errorContainer}>
-        <Text style={styles.errorText}>Lënda nuk u gjet</Text>
+      <SafeAreaView style={[styles.errorContainer, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.mutedText ?? '#6B7280' }]}>
+          Lënda nuk u gjet
+        </Text>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>Kthehu prapa</Text>
+          <Text style={[styles.backButtonText, { color: accent }]}>Kthehu prapa</Text>
         </Pressable>
       </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <Header
         backgroundColor={subject.headerColor}
@@ -168,7 +174,7 @@ export default function SubjectCollectionsScreen() {
       {/* Collections List */}
       <View style={styles.content}>
         <View style={styles.listHeader}>
-          <Text style={styles.listTitle}>Koleksionet</Text>
+          <Text style={[styles.listTitle, { color: colors.text }]}>Koleksionet</Text>
         </View>
 
         <FlatList
@@ -177,7 +183,7 @@ export default function SubjectCollectionsScreen() {
           contentContainerStyle={{ paddingVertical: 10 }}
           renderItem={renderCollectionItem}
           ListEmptyComponent={
-            <Text style={{ color: '#6B7280', marginTop: 16, textAlign: 'center' }}>
+            <Text style={{ color: colors.mutedText ?? '#6B7280', marginTop: 16, textAlign: 'center' }}>
               Nuk ka koleksione. Krijo koleksionin tënd të parë!
             </Text>
           }
@@ -188,9 +194,18 @@ export default function SubjectCollectionsScreen() {
         />
 
         {/* Add Collection Button */}
-        <Pressable style={styles.addButton} onPress={() => setModalVisible(true)}>
-          <Ionicons name="add" size={20} color="#4F46E5" />
-          <Text style={styles.addButtonText}>Shto koleksion</Text>
+        <Pressable
+          style={[
+            styles.addButton,
+            {
+              backgroundColor: colors.card ?? colors.background,
+              borderColor: accent,
+            },
+          ]}
+          onPress={() => setModalVisible(true)}
+        >
+          <Ionicons name="add" size={20} color={accent} />
+          <Text style={[styles.addButtonText, { color: accent }]}>Shto koleksion</Text>
         </Pressable>
       </View>
 
@@ -204,20 +219,28 @@ export default function SubjectCollectionsScreen() {
       >
         <View>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Koleksioni i ri</Text>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Koleksioni i ri</Text>
             <Pressable
               onPress={() => {
                 setModalVisible(false);
                 setNewCollectionName('');
               }}
             >
-              <Ionicons name="close" size={24} color="#6B7280" />
+              <Ionicons name="close" size={24} color={colors.mutedText ?? '#6B7280'} />
             </Pressable>
           </View>
 
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                borderColor: colors.border ?? '#D1D5DB',
+                backgroundColor: colors.inputBg ?? colors.card ?? colors.background,
+                color: colors.text,
+              },
+            ]}
             placeholder="Emri i koleksionit"
+            placeholderTextColor={colors.placeholder ?? colors.mutedText ?? '#9CA3AF'}
             value={newCollectionName}
             onChangeText={setNewCollectionName}
             autoFocus
@@ -225,27 +248,34 @@ export default function SubjectCollectionsScreen() {
 
           <View style={styles.modalButtons}>
             <Pressable
-              style={[styles.modalButton, styles.cancelButton]}
+              style={[
+                styles.modalButton,
+                styles.cancelButton,
+                { backgroundColor: colors.card ?? '#F3F4F6' },
+              ]}
               onPress={() => {
                 setModalVisible(false);
                 setNewCollectionName('');
               }}
             >
-              <Text style={styles.cancelButtonText}>Anulo</Text>
+              <Text style={[styles.cancelButtonText, { color: colors.mutedText ?? '#6B7280' }]}>
+                Anulo
+              </Text>
             </Pressable>
 
             <Pressable
-              style={[styles.modalButton, styles.createButton]}
+              style={[styles.modalButton, styles.createButton, { backgroundColor: accent }]}
               onPress={handleAddCollection}
             >
-              <Text style={styles.createButtonText}>Krijo</Text>
+              <Text style={[styles.createButtonText, { color: colors.onPrimary ?? 'white' }]}>
+                Krijo
+              </Text>
             </Pressable>
           </View>
         </View>
       </AnimatedModal>
 
       <Toast message={success} type="success" visible={!!success} onHide={() => setSuccess('')} />
-
       <Toast message={error} type={errorType} visible={!!error} onHide={() => setError('')} />
     </View>
   );
@@ -371,4 +401,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+
+  // nëse i ke tashmë këto styles diku tjetër, lëri si janë (s’preket logjika)
+  backButton: { paddingVertical: 10, paddingHorizontal: 14 },
+  backButtonText: { fontSize: 16, fontWeight: '600' },
 });

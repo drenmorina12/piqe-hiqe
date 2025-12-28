@@ -6,7 +6,7 @@ import { router } from 'expo-router';
 
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, Platform, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
@@ -17,6 +17,7 @@ import AnimatedButton from '../components/ui/AnimatedButton';
 import { auth } from '../firebase/firebaseConfig';
 import { fetchSubjects } from '../firebase/subjectService';
 
+import { useTheme } from '../context/ThemeContext';
 
 // 🔔 NOTIFICATIONS
 import {
@@ -34,6 +35,8 @@ const DEFAULT_AVATAR = 'https://i.pinimg.com/1200x/51/c3/59/51c359defeb3cbae892c
 
 
 export default function ProfileScreen() {
+  const { colors, isDark, toggleTheme } = useTheme();
+
   const [subjectsCount, setSubjectsCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [authReady, setAuthReady] = useState(false);
@@ -43,32 +46,21 @@ export default function ProfileScreen() {
   const [statusType, setStatusType] = useState(''); // "success" ose "error"
   const [statusMessage, setStatusMessage] = useState('');
 
-// 🔔 NOTIFICATIONS STATE
+  // 🔔 NOTIFICATIONS STATE
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
-const showStatusModal = (type, message) => {
-  setStatusType(type);
-  setStatusMessage(message);
-  setStatusModalVisible(true);
-};
-
+  const showStatusModal = (type, message) => {
+    setStatusType(type);
+    setStatusMessage(message);
+    setStatusModalVisible(true);
+  };
 
   const handleCloseStatusModal = () => {
     setStatusModalVisible(false);
   };
 
   const [user, setUser] = useState(auth.currentUser ?? null);
-  /*useEffect(() => {
-    const loadAvatar = async () => {
-      const savedAvatar = await AsyncStorage.getItem('profileAvatar');
 
-      if (savedAvatar) {
-        setProfileImage(savedAvatar);
-      }
-    };
-
-    loadAvatar();
-  }, []);*/
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
@@ -82,39 +74,36 @@ const showStatusModal = (type, message) => {
 
     return unsub;
   }, []);
+
   useEffect(() => {
-  if (!authReady || !user) return;
+    if (!authReady || !user) return;
 
-  const loadAvatar = async () => {
-    try {
-      // 1. Merr nga AsyncStorage për shpejtësi
-      const savedAvatar = await AsyncStorage.getItem('profileAvatar');
-      if (savedAvatar) {
-        setProfileImage(savedAvatar);
-      }
-
-      // 2. Merr nga Firebase për të siguruar sinkronizimin
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        const data = userSnap.data();
-        if (data.image && data.image !== savedAvatar) {
-          setProfileImage(data.image);
-          await AsyncStorage.setItem('profileAvatar', data.image); // ruaj lokalisht
+    const loadAvatar = async () => {
+      try {
+        const savedAvatar = await AsyncStorage.getItem('profileAvatar');
+        if (savedAvatar) {
+          setProfileImage(savedAvatar);
         }
-      } else {
+
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          if (data.image && data.image !== savedAvatar) {
+            setProfileImage(data.image);
+            await AsyncStorage.setItem('profileAvatar', data.image);
+          }
+        } else {
+          setProfileImage(DEFAULT_AVATAR);
+        }
+      } catch (err) {
+        console.log("Error loading avatar:", err);
         setProfileImage(DEFAULT_AVATAR);
       }
-    } catch (err) {
-      console.log("Error loading avatar:", err);
-      setProfileImage(DEFAULT_AVATAR);
-    }
-  };
+    };
 
-  loadAvatar();
-}, [authReady, user]);
-
-
+    loadAvatar();
+  }, [authReady, user]);
 
   // ===============================
   // LOAD DATA + NOTIFICATIONS STATE
@@ -143,94 +132,92 @@ const showStatusModal = (type, message) => {
 
   const handleRemoveImage = async () => {
     try {
-      setProfileImage(DEFAULT_AVATAR); // ndryshon UI
+      setProfileImage(DEFAULT_AVATAR);
 
-      // heq ose pastron fushën image në Firestore
-      const userRef = doc(db, 'users', user.uid);
+
+
+     const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, { image: '' });
 
       await AsyncStorage.removeItem('profileAvatar');
-
-  } catch (err) {
-    console.log('Error removing image:', err);
-    showStatusModal("error", "Fotoja nuk u fshi, provoni përsëri.");
-  }
-  setShowEditModal(false); // mbyll modalin
-    
+    } catch (err) {
+      console.log('Error removing image:', err);
+      showStatusModal("error", "Fotoja nuk u fshi, provoni përsëri.");
+    }
+    setShowEditModal(false);
   };
+
   const handleToggleEditModal = () => {
     setShowEditModal((prev) => !prev);
   };
+
   const handlePickImage = async () => {
-  const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-  if (!permission.granted) {
-    alert('Duhet leje për të zgjedhur foto');
-    return;
-  }
-
-
-
-  const result = await ImagePicker.launchImageLibraryAsync({
-     mediaTypes: ["images"],
-    allowsEditing: true,
-    aspect: [1, 1],
-    base64: true,
-    quality: 0.8,
-});
-
-
-  if (!result.canceled) {
-    const base64Img = `data:image/jpg;base64,${result.assets[0].base64}`;
-
-    try {
-      const userRef = doc(db, "users", user.uid);
-      await updateDoc(userRef, { image: base64Img }); // Firebase
-      await AsyncStorage.setItem('profileAvatar', base64Img); // AsyncStorage
-      setProfileImage(base64Img); // UI
-      showStatusModal("success", "Fotoja u ruajt me sukses!");
-    } catch (err) {
-      console.log(err);
-      showStatusModal("error", "Fotoja nuk u ruajt, provoni përsëri.");
-    }}
-  setShowEditModal(false);
-};
-
-const handleTakePhoto = async () => {   // <-- funksioni duhet të jetë async
-  const permission = await ImagePicker.requestCameraPermissionsAsync();
-
-  if (!permission.granted) {
-    alert('Duhet leje për të përdorur kamerën');
-    return;
-  }
-
-  const result = await ImagePicker.launchCameraAsync({
-    allowsEditing: true,
-    aspect: [1, 1],
-    base64: true,
-    quality: 0.8,
-     mediaTypes: ["images"]
-  });
-
-  if (!result.canceled) {
-    const base64Img = `data:image/jpg;base64,${result.assets[0].base64}`;
-
-    try {
-      const userRef = doc(db, "users", user.uid);
-      await updateDoc(userRef, { image: base64Img }); // ruaj në Firebase
-      await AsyncStorage.setItem('profileAvatar', base64Img); // ruaj lokalisht
-      setProfileImage(base64Img); // për UI
-      showStatusModal("success", "Foto u ruajt me sukses!");
-    } catch (err) {
-      console.log(err);
-      showStatusModal("error", "Foto nuk u ruajt, provoni përsëri.");
+    if (!permission.granted) {
+      alert('Duhet leje për të zgjedhur foto');
+      return;
     }
-  }
-  setShowEditModal(false);
-};
 
-  
-// ===============================
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      base64: true,
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      const base64Img = `data:image/jpg;base64,${result.assets[0].base64}`;
+
+      try {
+        const userRef = doc(db, "users", user.uid);
+        await updateDoc(userRef, { image: base64Img });
+        await AsyncStorage.setItem('profileAvatar', base64Img);
+        setProfileImage(base64Img);
+        showStatusModal("success", "Fotoja u ruajt me sukses!");
+      } catch (err) {
+        console.log(err);
+        showStatusModal("error", "Fotoja nuk u ruajt, provoni përsëri.");
+      }
+    }
+    setShowEditModal(false);
+  };
+
+  const handleTakePhoto = async () => {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (!permission.granted) {
+      alert('Duhet leje për të përdorur kamerën');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [1, 1],
+      base64: true,
+      quality: 0.8,
+      mediaTypes: ["images"]
+    });
+
+    if (!result.canceled) {
+      const base64Img = `data:image/jpg;base64,${result.assets[0].base64}`;
+
+      try {
+        const userRef = doc(db, "users", user.uid);
+        await updateDoc(userRef, { image: base64Img });
+        await AsyncStorage.setItem('profileAvatar', base64Img);
+        setProfileImage(base64Img);
+        showStatusModal("success", "Foto u ruajt me sukses!");
+      } catch (err) {
+        console.log(err);
+        showStatusModal("error", "Foto nuk u ruajt, provoni përsëri.");
+      }
+    }
+    setShowEditModal(false);
+  };
+
+  // ===============================
   // 🔔 TOGGLE NOTIFICATIONS
   // ===============================
   const handleToggleNotifications = async (value) => {
@@ -274,12 +261,12 @@ const handleTakePhoto = async () => {   // <-- funksioni duhet të jetë async
   const email = user?.email || 'Nuk ka email';
 
   const handleChangePassword = () => {
-    router.push('/change-password'); // emri i route-it të ri
+    router.push('/change-password');
   };
 
   if (!authReady) {
     return (
-      <View style={styles.safeArea}>
+      <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
         <Header
           backgroundColor="#e4ca47ff"
           title="Profili"
@@ -291,14 +278,14 @@ const handleTakePhoto = async () => {   // <-- funksioni duhet të jetë async
         />
 
         <View style={styles.center}>
-          <ActivityIndicator size="large" />
+          <ActivityIndicator size="large" color={colors.primary ?? colors.tint} />
         </View>
       </View>
     );
   }
 
   return (
-    <View style={styles.safeArea}>
+    <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <Header
         backgroundColor="#e4ca47ff"
         title="Profili"
@@ -309,7 +296,7 @@ const handleTakePhoto = async () => {   // <-- funksioni duhet të jetë async
       />
 
       <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
           <View style={styles.avatarContainer}>
             <Image
               source={{ uri: profileImage || DEFAULT_AVATAR }}
@@ -321,7 +308,10 @@ const handleTakePhoto = async () => {   // <-- funksioni duhet të jetë async
             <AnimatedButton
               title="Edit"
               onPress={handleToggleEditModal}
-              style={styles.editButton}
+              style={[
+                styles.editButton,
+                { backgroundColor: colors.card ?? colors.background }
+              ]}
               textStyle={styles.editButtonText}
             />
           </View>
@@ -333,11 +323,11 @@ const handleTakePhoto = async () => {   // <-- funksioni duhet të jetë async
             onRequestClose={handleToggleEditModal}
           >
             <TouchableOpacity
-              style={styles.modalOverlay}
+              style={[styles.modalOverlay, { backgroundColor: colors.overlay ?? 'rgba(0,0,0,0.5)' }]}
               activeOpacity={1}
               onPressOut={handleToggleEditModal}
             >
-              <View style={styles.modalContent}>
+              <View style={[styles.modalContent, { backgroundColor: colors.card ?? colors.background }]}>
                 <AnimatedButton
                   title="Bëj foton"
                   onPress={handleTakePhoto}
@@ -366,47 +356,67 @@ const handleTakePhoto = async () => {   // <-- funksioni duhet të jetë async
               </View>
             </TouchableOpacity>
           </Modal>
-          <View style={styles.infoBox}>
-            <Text style={styles.infoLabel}>Emri:</Text>
-            <Text style={styles.infoValue}>{displayName}</Text>
+
+          <View style={[styles.infoBox, { backgroundColor: colors.card ?? colors.background }]}>
+            <Text style={[styles.infoLabel, { color: colors.mutedText ?? '#6B7280' }]}>Emri:</Text>
+            <Text style={[styles.infoValue, { color: colors.text ?? '#111827' }]}>{displayName}</Text>
           </View>
 
-          <View style={styles.infoBox}>
-            <Text style={styles.infoLabel}>Email:</Text>
-            <Text style={styles.infoValue}>{email}</Text>
+          <View style={[styles.infoBox, { backgroundColor: colors.card ?? colors.background }]}>
+            <Text style={[styles.infoLabel, { color: colors.mutedText ?? '#6B7280' }]}>Email:</Text>
+            <Text style={[styles.infoValue, { color: colors.text ?? '#111827' }]}>{email}</Text>
           </View>
 
-          <View style={styles.infoBox}>
-            <Text style={styles.infoLabel}>Lëndët e regjistruara:</Text>
+          <View style={[styles.infoBox, { backgroundColor: colors.card ?? colors.background }]}>
+            <Text style={[styles.infoLabel, { color: colors.mutedText ?? '#6B7280' }]}>Lëndët e regjistruara:</Text>
             {loading ? (
-              <ActivityIndicator size="small" />
+              <ActivityIndicator size="small" color={colors.primary ?? colors.tint} />
             ) : (
-              <Text style={styles.infoValue}>{subjectsCount}</Text>
+              <Text style={[styles.infoValue, { color: colors.text ?? '#111827' }]}>{subjectsCount}</Text>
             )}
           </View>
 
-                    {/* 🔔 NOTIFICATIONS */}
-          <View style={styles.infoBox}>
-            <Text style={styles.infoLabel}>Daily Notifications</Text>
+          {/* ✅ DARK/LIGHT SWITCH (i ri) */}
+          <View style={[styles.infoBox, { backgroundColor: colors.card ?? colors.background }]}>
+            <Text style={[styles.infoLabel, { color: colors.mutedText ?? '#6B7280' }]}>
+              Dark Mode
+            </Text>
+            <Switch
+              value={isDark}
+              onValueChange={toggleTheme}
+              trackColor={{ false: colors.border ?? '#ccc', true: colors.primary ?? colors.tint ?? '#4F46E5' }}
+              thumbColor={Platform?.OS === 'android' ? (isDark ? (colors.onPrimary ?? '#fff') : '#fff') : undefined}
+              ios_backgroundColor={colors.border ?? '#ccc'}
+            />
+          </View>
+
+          {/* 🔔 NOTIFICATIONS */}
+          <View style={[styles.infoBox, { backgroundColor: colors.card ?? colors.background }]}>
+            <Text style={[styles.infoLabel, { color: colors.mutedText ?? '#6B7280' }]}>Daily Notifications</Text>
             <Switch
               value={notificationsEnabled}
               onValueChange={handleToggleNotifications}
+              trackColor={{ false: colors.border ?? '#ccc', true: colors.primary ?? colors.tint ?? '#4F46E5' }}
+              ios_backgroundColor={colors.border ?? '#ccc'}
             />
           </View>
 
           <View style={styles.buttonContainer}>
-            <AnimatedButton
-              title="Ndrysho fjalëkalimin"
-              onPress={handleChangePassword}
-              style={[styles.changePasswordButton, { backgroundColor: '#e7d919ff' }]}
-            />
+              <AnimatedButton
+                title="Ndrysho fjalëkalimin"
+                onPress={handleChangePassword}
+                style={[styles.changePasswordButton, { backgroundColor: '#e7d919ff' }]}
+                textStyle={{ color: '#fff' }}
+              />
 
-            <AnimatedButton
-              title="Dil (Logout)"
-              onPress={handleLogout}
-              style={[styles.logoutButton, { backgroundColor: '#ec6f21ff' }]}
-            />
+              <AnimatedButton
+                title="Dil (Logout)"
+                onPress={handleLogout}
+                style={[styles.logoutButton, { backgroundColor: '#ec6f21ff' }]}
+                textStyle={{ color: '#fff' }}
+              />
           </View>
+
           <Modal
             visible={statusModalVisible}
             transparent
@@ -416,7 +426,7 @@ const handleTakePhoto = async () => {   // <-- funksioni duhet të jetë async
             <TouchableOpacity
               style={{
                 flex: 1,
-                backgroundColor: 'rgba(0,0,0,0.5)',
+                backgroundColor: colors.overlay ?? 'rgba(0,0,0,0.5)',
                 justifyContent: 'center',
                 alignItems: 'center',
               }}
@@ -425,7 +435,7 @@ const handleTakePhoto = async () => {   // <-- funksioni duhet të jetë async
             >
               <View
                 style={{
-                  backgroundColor: '#fff',
+                  backgroundColor: colors.card ?? colors.background ?? '#fff',
                   padding: 20,
                   borderRadius: 10,
                   minWidth: 250,
@@ -441,31 +451,20 @@ const handleTakePhoto = async () => {   // <-- funksioni duhet të jetë async
                 >
                   {statusType === 'success' ? '✔' : '✖'}
                 </Text>
-                <Text style={{ textAlign: 'center' }}>{statusMessage}</Text>
+                <Text style={{ textAlign: 'center', color: colors.text ?? '#111827' }}>
+                  {statusMessage}
+                </Text>
                 <TouchableOpacity onPress={handleCloseStatusModal} style={{ marginTop: 15 }}>
-                  <Text style={{ color: '#3f9f95ff' }}>Mbyll</Text>
+                  <Text style={{ color: colors.primary ?? colors.tint ?? '#3f9f95ff' }}>Mbyll</Text>
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
           </Modal>
-
-          {/* <View style={styles.logoutContainer}>
-          <Button
-            style={{
-              backgroundColor: '#075eec',
-              borderRadius: 30,
-              paddingVertical: 12,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            title="Dil (Logout)"
-            onPress={handleLogout}
-          />
-        </View> */}
         </View>
       </SafeAreaView>
-    </View>);
-  }
+    </View>
+  );
+}
 
 
 const styles = StyleSheet.create({
