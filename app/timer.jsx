@@ -1,11 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Header from '../components/layout/Header';
 import Button from '../components/ui/Button';
+import { useTheme } from '../context/ThemeContext';
 
 const PRESETS = [
   { id: 'focus', label: 'Fokus', minutes: 25 },
@@ -24,6 +25,15 @@ function formatMMSS(totalSeconds) {
 }
 
 export default function TimerScreen() {
+  const { theme, colors } = useTheme();
+  const isDark = theme === 'dark';
+
+  const BG = colors?.background ?? (isDark ? '#0B1220' : '#f5f5f5');
+  const CARD = colors?.card ?? (isDark ? '#111827' : '#ffffff');
+  const TEXT = colors?.text ?? (isDark ? '#F9FAFB' : '#1a1a1a');
+  const MUTED = colors?.muted ?? (isDark ? '#9CA3AF' : '#666');
+  const BORDER = colors?.border ?? (isDark ? '#374151' : '#e8e8e8');
+
   const [mode, setMode] = useState('focus');
   const [isRunning, setIsRunning] = useState(false);
   const [sessionsCompleted, setSessionsCompleted] = useState(0);
@@ -99,7 +109,9 @@ export default function TimerScreen() {
   };
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { backgroundColor: BG }]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+
       <Header
         backgroundColor="#e4ca47ff"
         title="Timer"
@@ -119,9 +131,19 @@ export default function TimerScreen() {
                 <Pressable
                   key={p.id}
                   onPress={() => setMode(p.id)}
-                  style={[styles.presetChip, active && styles.presetChipActive]}
+                  style={[
+                    styles.presetChip,
+                    { backgroundColor: CARD, borderColor: BORDER },
+                    active && styles.presetChipActive,
+                  ]}
                 >
-                  <Text style={[styles.presetText, active && styles.presetTextActive]}>
+                  <Text
+                    style={[
+                      styles.presetText,
+                      { color: isDark ? '#D1D5DB' : '#444' },
+                      active && styles.presetTextActive,
+                    ]}
+                  >
                     {p.label}
                   </Text>
                 </Pressable>
@@ -129,22 +151,41 @@ export default function TimerScreen() {
             })}
           </View>
 
-          <View style={styles.timerCard}>
-            <Text style={styles.modeTitle}>{currentPreset.label}</Text>
+          <View
+            style={[
+              styles.timerCard,
+              {
+                backgroundColor: isDark ? (colors?.card ?? '#111827') : '#ffffffbb',
+                borderColor: isDark ? BORDER : '#ffffffb9',
+              },
+            ]}
+          >
+            <Text style={[styles.modeTitle, { color: TEXT }]}>{currentPreset.label}</Text>
 
-            <Text style={styles.timeText}>{formatMMSS(secondsLeft)}</Text>
+            <Text style={[styles.timeText, { color: TEXT }]}>{formatMMSS(secondsLeft)}</Text>
 
             <View style={styles.metaRow}>
-              <View style={styles.metaBox}>
-                <Text style={styles.metaLabel}>Sesione Fokusi</Text>
-                <Text style={styles.metaValue}>{sessionsCompleted}</Text>
+              <View
+                style={[
+                  styles.metaBox,
+                  { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : '#f0f0f05b' },
+                ]}
+              >
+                <Text style={[styles.metaLabel, { color: MUTED }]}>Sesione Fokusi</Text>
+                <Text style={[styles.metaValue, { color: TEXT }]}>{sessionsCompleted}</Text>
               </View>
             </View>
           </View>
 
           <View style={styles.buttons}>
             <Button
-              title={<Ionicons name={isRunning ? 'pause' : 'play'} size={20} />}
+              title={
+                <Ionicons
+                  name={isRunning ? 'pause' : 'play'}
+                  size={20}
+                  color= '#fff'
+                />
+              }
               onPress={handleToggle}
               style={styles.primaryBtn}
               textStyle={styles.primaryBtnText}
@@ -152,11 +193,7 @@ export default function TimerScreen() {
 
             <View style={styles.secondaryRow}>
               <Button
-                title={
-                  <>
-                    <Ionicons name="refresh" size={16} />{' '}
-                  </>
-                }
+                title={<Ionicons name="refresh" size={16} color= '#fff' />}
                 onPress={handleReset}
                 style={styles.secondaryBtn}
                 textStyle={styles.secondaryBtnText}
@@ -164,9 +201,11 @@ export default function TimerScreen() {
 
               <Button
                 title={
-                  <>
-                    <Ionicons name="play-skip-forward" size={16} />{' '}
-                  </>
+                  <Ionicons
+                    name="play-skip-forward"
+                    size={16}
+                    color='#fff'
+                  />
                 }
                 onPress={handleSkip}
                 style={styles.secondaryBtn}
@@ -175,10 +214,20 @@ export default function TimerScreen() {
             </View>
           </View>
 
-          <View style={styles.tipBox}>
-            <Text style={styles.tipTitle}>Rregulli</Text>
-            <Text style={styles.tipText}>
-              25 min fokus, 5 min pushim. {"\n"}
+          <View
+            style={[
+              styles.tipBox,
+              {
+                backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : '#ffffff4d',
+                borderColor: isDark ? BORDER : '#edededa9',
+              },
+            ]}
+          >
+            <Text style={[styles.tipTitle, { color: isDark ? '#E5E7EB' : '#4a4a4a95' }]}>
+              Rregulli
+            </Text>
+            <Text style={[styles.tipText, { color: isDark ? '#CBD5E1' : '#5d5d5db2' }]}>
+              25 min fokus, 5 min pushim. {'\n'}
               Pas 4 sesioneve fokus, 15 min pushim i gjatë.
             </Text>
           </View>

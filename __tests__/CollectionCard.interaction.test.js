@@ -1,43 +1,36 @@
-import { fireEvent, render } from "@testing-library/react-native";
 import CollectionCard from "../components/ui/CollectionCard";
+import { fireEvent, render, waitFor } from "../test-utils";
 
-// Mock icons -> stabil + pa "act" warnings
+// Mock icons
 jest.mock("@expo/vector-icons", () => {
   const React = require("react");
   const { Text } = require("react-native");
-  return {
-    Ionicons: ({ name }) => <Text>{name}</Text>,
-  };
+  return { Ionicons: ({ name }) => React.createElement(Text, null, name) };
 });
 
-// Mock ProgressBar -> mos na prish testet/snapshot (sidomos nese ka animacione)
+// Mock ProgressBar
 jest.mock("../components/ui/ProgressBar", () => {
   const React = require("react");
   const { View } = require("react-native");
-  return function MockProgressBar(props) {
-    return <View testID="progress-bar" {...props} />;
-  };
+  return (props) => React.createElement(View, { testID: "progress-bar", ...props });
 });
 
-// helper: gjen prindin ma t'afert qe ka onPress dhe e shtyp
+const OPTIONS_RE = /Options|Opsione|Opsionet/i;
+const DELETE_RE = /Delete collection|Fshi koleksionin|Fshije koleksionin/i; // ✅ fix
+const CANCEL_RE = /Cancel|Anulo/i;
+const CONFIRM_RE = /Confirm|Konfirmo/i;
+
 const pressClosestPressable = (node) => {
   let cur = node;
-  while (cur && !cur.props?.onPress) {
-    cur = cur.parent;
-  }
+  while (cur && !cur.props?.onPress) cur = cur.parent;
   if (!cur) throw new Error("No pressable parent found for this element");
   fireEvent.press(cur);
 };
 
 describe("CollectionCard (interaction)", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   test("press on card calls onPress", () => {
     const onPress = jest.fn();
     const onDelete = jest.fn();
-
     const collection = { id: "c1", name: "Biology", completed: 1, cards: 5 };
 
     const { getByText } = render(
@@ -49,16 +42,13 @@ describe("CollectionCard (interaction)", () => {
       />
     );
 
-    // Shtype kartën duke nis prej tekstit të emrit, pastaj ngjit te Pressable me onPress
     pressClosestPressable(getByText("Biology"));
-
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
-  test("cancel delete closes modal and does not call onDelete", () => {
+  test("cancel delete closes modal and does not call onDelete", async () => {
     const onPress = jest.fn();
     const onDelete = jest.fn();
-
     const collection = { id: "c1", name: "Biology", completed: 1, cards: 5 };
 
     const { getByText, queryByText } = render(
@@ -70,17 +60,24 @@ describe("CollectionCard (interaction)", () => {
       />
     );
 
-    // Hape Options (3 pikat)
+    // open options
     pressClosestPressable(getByText("ellipsis-vertical"));
-    expect(getByText("Options")).toBeTruthy();
+    expect(getByText(OPTIONS_RE)).toBeTruthy();
 
-    // Hape Confirm delete
-    pressClosestPressable(getByText("Delete collection"));
-    expect(getByText("Confirm delete")).toBeTruthy();
+    // open confirm
+    pressClosestPressable(getByText(DELETE_RE));
 
-    // Cancel -> mbyllet modali, dhe s'thirret onDelete
-    pressClosestPressable(getByText("Cancel"));
-    expect(queryByText("Confirm delete")).toBeNull();
+    await waitFor(() => {
+      expect(getByText(CONFIRM_RE)).toBeTruthy();
+    });
+
+    // cancel confirm
+    pressClosestPressable(getByText(CANCEL_RE));
+
+    await waitFor(() => {
+      expect(queryByText(CONFIRM_RE)).toBeNull();
+    });
+
     expect(onDelete).not.toHaveBeenCalled();
   });
 });

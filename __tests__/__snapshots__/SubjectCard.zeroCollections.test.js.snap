@@ -3,23 +3,28 @@
 exports[`renders 0 collections correctly 1`] = `
 <View
   style={
-    {
-      "alignItems": "flex-start",
-      "backgroundColor": "white",
-      "borderRadius": 16,
-      "elevation": 4,
-      "height": 150,
-      "margin": 7,
-      "padding": 13,
-      "shadowColor": "#071638ff",
-      "shadowOffset": {
-        "height": 2,
-        "width": 0,
+    [
+      {
+        "alignItems": "flex-start",
+        "backgroundColor": "white",
+        "borderRadius": 16,
+        "elevation": 4,
+        "height": 150,
+        "margin": 7,
+        "padding": 13,
+        "shadowColor": "#071638ff",
+        "shadowOffset": {
+          "height": 2,
+          "width": 0,
+        },
+        "shadowOpacity": 0.1,
+        "shadowRadius": 4,
+        "width": 160,
       },
-      "shadowOpacity": 0.1,
-      "shadowRadius": 4,
-      "width": 160,
-    }
+      {
+        "backgroundColor": "#FFFFFF",
+      },
+    ]
   }
   testID="subject-card"
 >
@@ -37,25 +42,72 @@ exports[`renders 0 collections correctly 1`] = `
       ]
     }
   >
-    <Image
-      resizeMode="cover"
+    <ViewManagerAdapter_ExpoImage
+      cachePolicy="memory-disk"
+      containerViewRef={"[React.ref]"}
+      contentFit="cover"
+      contentPosition={
+        {
+          "left": "50%",
+          "top": "50%",
+        }
+      }
+      height={60}
+      nativeViewRef={"[React.ref]"}
+      onError={[Function]}
+      onLoad={[Function]}
+      onLoadStart={[Function]}
+      onProgress={[Function]}
+      placeholder={[]}
+      source={[]}
       style={
         {
           "height": 60,
           "width": 60,
         }
       }
+      transition={
+        {
+          "duration": 200,
+        }
+      }
+      width={60}
     />
   </View>
   <Text
     style={
-      {
-        "color": "#000000ff",
-        "fontSize": 16,
-        "fontWeight": "600",
-      }
+      [
+        {
+          "color": "#000000ff",
+          "fontSize": 16,
+          "fontWeight": "600",
+        },
+        {
+          "color": "#11181C",
+        },
+      ]
     }
-  />
+  >
+    Math
+  </Text>
+  <Text
+    style={
+      [
+        {
+          "color": "#666",
+          "fontSize": 14,
+          "marginTop": 2,
+        },
+        {
+          "color": "#6B7280",
+        },
+      ]
+    }
+  >
+    0
+     
+    koleksione
+  </Text>
   <View
     accessibilityState={
       {
@@ -95,10 +147,7 @@ exports[`renders 0 collections correctly 1`] = `
     }
     testID="subject-menu"
   >
-    <Text
-      color="#4B5563"
-      size={18}
-    >
+    <Text>
       ellipsis-vertical
     </Text>
   </View>
