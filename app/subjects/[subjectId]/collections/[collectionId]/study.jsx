@@ -17,6 +17,7 @@ import FlashcardCard from '../../../../../components/ui/FlashcardCard';
 import ProgressBar from '../../../../../components/ui/ProgressBar';
 
 import StudyCompleteModal from '../../../../../components/ui/StudyCompleteModal';
+import { useTheme } from '../../../../../context/ThemeContext';
 import { fetchCards, updateCard } from '../../../../../firebase/cardService';
 import {
   getCollectionById as fetchCollectionById,
@@ -24,10 +25,12 @@ import {
 } from '../../../../../firebase/collectionService';
 import { getSubjectById as fetchSubjectById } from '../../../../../firebase/subjectService';
 
-
 const CARD_WIDTH = Dimensions.get('window').width;
 
 export default function StudyModeScreen() {
+  const { colors, theme } = useTheme();
+  const accent = colors.primary ?? colors.tint ?? '#4F46E5';
+
   const router = useRouter();
   const { subjectId, collectionId } = useLocalSearchParams();
 
@@ -36,7 +39,6 @@ export default function StudyModeScreen() {
   const [flashcards, setFlashcards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [studyCompleted, setStudyCompleted] = useState(false);
-
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState({});
@@ -50,20 +52,20 @@ export default function StudyModeScreen() {
   const isNavigatingRef = useRef(false);
 
   const scrollTo = (index) => {
-  if (!flatRef.current) return;
+    if (!flatRef.current) return;
 
-  if (Platform.OS === 'web') {
-    flatRef.current.scrollToOffset({
-      offset: index * CARD_WIDTH,
-      animated: true,
-    });
-  } else {
-    flatRef.current.scrollToIndex({
-      index,
-      animated: true,
-    });
-  }
-};
+    if (Platform.OS === 'web') {
+      flatRef.current.scrollToOffset({
+        offset: index * CARD_WIDTH,
+        animated: true,
+      });
+    } else {
+      flatRef.current.scrollToIndex({
+        index,
+        animated: true,
+      });
+    }
+  };
 
   /* ================= LOAD DATA ================= */
 
@@ -108,88 +110,84 @@ export default function StudyModeScreen() {
   };
 
   const goNext = () => {
-  if (currentIndex < total - 1) {
-    const nextIndex = currentIndex + 1;
+    if (currentIndex < total - 1) {
+      const nextIndex = currentIndex + 1;
 
-    isNavigatingRef.current = true;
-    setCurrentIndex(nextIndex);
+      isNavigatingRef.current = true;
+      setCurrentIndex(nextIndex);
 
-    requestAnimationFrame(() => {
-      scrollTo(nextIndex);
-      isNavigatingRef.current = false;
-    });
-  } else {
-  setStudyCompleted(true);
-}
-
-};
-
+      requestAnimationFrame(() => {
+        scrollTo(nextIndex);
+        isNavigatingRef.current = false;
+      });
+    } else {
+      setStudyCompleted(true);
+    }
+  };
 
   const handleDifficulty = async (difficulty) => {
-  if (isNavigatingRef.current) return;
+    if (isNavigatingRef.current) return;
 
-  const currentCard = flashcards[currentIndex];
-  if (!currentCard) return;
+    const currentCard = flashcards[currentIndex];
+    if (!currentCard) return;
 
-  if (difficulty === 'repeat') {
-  setRevealed((prev) => ({
-    ...prev,
-    [currentCard.id]: false,
-  }));
-  return; 
-}
-
-
-  const hadDifficultyBefore = !!currentCard.difficulty;
-
-  try {
-    await updateCard(
-      String(subjectId),
-      String(collectionId),
-      currentCard.id,
-      { difficulty }
-    );
-
-    if (!hadDifficultyBefore) {
-      await updateCollectionProgress(
-        String(subjectId),
-        String(collectionId),
-        difficulty
-      );
+    if (difficulty === 'repeat') {
+      setRevealed((prev) => ({
+        ...prev,
+        [currentCard.id]: false,
+      }));
+      return;
     }
 
-    setSessionProgress((prev) => ({
-      ...prev,
-      [difficulty]: prev[difficulty] + 1,
-    }));
+    const hadDifficultyBefore = !!currentCard.difficulty;
 
-    setFlashcards((prev) =>
-      prev.map((card) =>
-        card.id === currentCard.id ? { ...card, difficulty } : card
-      )
-    );
-  } catch (err) {
-    console.log('Gabim gjatë vështirësisë së përditësimit:', err);
-  }
+    try {
+      await updateCard(
+        String(subjectId),
+        String(collectionId),
+        currentCard.id,
+        { difficulty }
+      );
 
-  goNext();
-};
+      if (!hadDifficultyBefore) {
+        await updateCollectionProgress(
+          String(subjectId),
+          String(collectionId),
+          difficulty
+        );
+      }
 
+      setSessionProgress((prev) => ({
+        ...prev,
+        [difficulty]: prev[difficulty] + 1,
+      }));
+
+      setFlashcards((prev) =>
+        prev.map((card) =>
+          card.id === currentCard.id ? { ...card, difficulty } : card
+        )
+      );
+    } catch (err) {
+      console.log('Gabim gjatë vështirësisë së përditësimit:', err);
+    }
+
+    goNext();
+  };
 
   /* ================= RENDER ================= */
 
   if (loading) {
     return (
-      <View style={styles.screen}>
+      <View style={[styles.screen, { backgroundColor: colors.background }]}>
         <Header
-          backgroundColor={subject?.headerColor || '#4F46E5'}
+          backgroundColor={subject?.headerColor || accent}
           title="Loading..."
           icon="book-outline"
           showBack
           showHome
         />
         <View style={styles.center}>
-          <ActivityIndicator />
+          <ActivityIndicator color={accent} />
         </View>
       </View>
     );
@@ -197,24 +195,26 @@ export default function StudyModeScreen() {
 
   if (!subject || !collection || flashcards.length === 0) {
     return (
-      <View style={styles.screen}>
+      <View style={[styles.screen, { backgroundColor: colors.background }]}>
         <Header
-          backgroundColor={subject?.headerColor || '#4F46E5'}
+          backgroundColor={subject?.headerColor || accent}
           title={subject?.name || 'Study'}
           icon={subject?.icon || 'book-outline'}
           showBack
           showHome
         />
         <View style={styles.center}>
-          <Text style={styles.emptyText}>Nuk ka karta për të studiuar</Text>
+          <Text style={[styles.emptyText, { color: colors.mutedText ?? '#6B7280' }]}>
+            Nuk ka karta për të studiuar
+          </Text>
         </View>
       </View>
     );
   }
 
   return (
-    <View style={styles.screen}>
-      <StatusBar barStyle="light-content" />
+    <View style={[styles.screen, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} />
 
       <Header
         backgroundColor={subject.headerColor}
@@ -226,18 +226,20 @@ export default function StudyModeScreen() {
       />
 
       <View style={styles.progressWrap}>
-        <ProgressBar value={progress / total} />
+        <ProgressBar
+          value={progress / total}
+          trackColor={colors.progressTrack ?? (theme === 'dark' ? '#374151' : '#E5E7EB')}
+          fillColor={colors.progressFill ?? accent}
+        />
       </View>
-      <StudyCompleteModal
-  visible={studyCompleted}
-  onClose={() => {
-    setStudyCompleted(false);
-    router.replace(
-      `/subjects/${subjectId}/collections/${collectionId}`
-    );
-  }}
-/>
 
+      <StudyCompleteModal
+        visible={studyCompleted}
+        onClose={() => {
+          setStudyCompleted(false);
+          router.replace(`/subjects/${subjectId}/collections/${collectionId}`);
+        }}
+      />
 
       <FlatList
         ref={flatRef}
@@ -271,7 +273,7 @@ export default function StudyModeScreen() {
           />
           <Button
             title="Vështirë"
-            onPress={() => handleDifficulty('hard')}
+            onPress={() => handleDifficulty('Vështirë')}
             style={[styles.btn, { backgroundColor: '#EF4444' }]}
           />
         </View>
@@ -279,18 +281,17 @@ export default function StudyModeScreen() {
         <View style={styles.row}>
           <Button
             title="Mesme"
-            onPress={() => handleDifficulty('medium')}
+            onPress={() => handleDifficulty('Mesme')}
             style={[styles.btn, { backgroundColor: '#FACC15' }]}
           />
           <Button
             title="Lehtë"
-            onPress={() => handleDifficulty('easy')}
+            onPress={() => handleDifficulty('Lehtë')}
             style={[styles.btn, { backgroundColor: '#22C55E' }]}
           />
         </View>
       </View>
     </View>
-    
   );
 }
 

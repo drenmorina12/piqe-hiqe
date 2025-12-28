@@ -1,10 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { memo, useCallback, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '../../context/ThemeContext';
 import AnimatedButton from './AnimatedButton';
 import ProgressBar from './ProgressBar';
 
 const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
+  const { colors } = useTheme();
+
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
 
@@ -31,20 +34,35 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+      style={({ pressed }) => [
+        styles.card,
+        { backgroundColor: colors.card ?? colors.background ?? '#FFFFFF' },
+        pressed && styles.cardPressed,
+      ]}
     >
       <View style={styles.content}>
         {/* Icon */}
-        <View style={[styles.iconWrapper, isCompleted ? styles.iconCompleted : styles.iconDefault]}>
-          <Ionicons name="folder-open" size={24} color={isCompleted ? '#059669' : '#4F46E5'} />
+        <View
+          style={[
+            styles.iconWrapper,
+            isCompleted ? styles.iconCompleted : styles.iconDefault,
+            !isCompleted && { backgroundColor: colors.surface ?? '#F9FAFB' },
+          ]}
+        >
+          <Ionicons
+            name="folder-open"
+            size={24}
+            color={isCompleted ? '#059669' : (colors.primary ?? colors.tint ?? '#4F46E5')}
+          />
         </View>
 
         {/* Collection Info */}
         <View style={styles.info}>
           <View style={styles.header}>
-            <Text style={styles.name} numberOfLines={1}>
+            <Text style={[styles.name, { color: colors.text ?? '#111827' }]} numberOfLines={1}>
               {collection.name}
             </Text>
+
             {isCompleted && (
               <View style={styles.completeBadge}>
                 <Ionicons name="checkmark-circle" size={16} color="#059669" />
@@ -53,15 +71,19 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
             )}
           </View>
 
-          <Text style={styles.cardCount}>
+          <Text style={[styles.cardCount, { color: colors.mutedText ?? '#6B7280' }]}>
             {collection.completed} / {collection.cards} karta
           </Text>
 
           <ProgressBar
             value={progress}
             height={8}
-            trackColor="#E5E7EB"
-            fillColor={isCompleted ? '#10B981' : (gradientColors?.[1] ?? '#4F46E5')}
+            trackColor={colors.border ?? '#E5E7EB'}
+            fillColor={
+              isCompleted
+                ? '#10B981'
+                : (gradientColors?.[1] ?? (colors.primary ?? colors.tint ?? '#4F46E5'))
+            }
             style={{}}
           />
         </View>
@@ -69,7 +91,7 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
 
       {/* 3 pikat – nuk e prishin layout-in */}
       <TouchableOpacity style={styles.menuButton} onPress={openOptions}>
-        <Ionicons name="ellipsis-vertical" size={18} color="#4B5563" />
+        <Ionicons name="ellipsis-vertical" size={18} color={colors.icon ?? '#4B5563'} />
       </TouchableOpacity>
 
       {/* Modal 1: Options */}
@@ -79,15 +101,19 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
         animationType="fade"
         onRequestClose={closeOptions}
       >
-        <Pressable style={styles.backdrop} onPress={closeOptions}>
-          <View style={styles.modal}>
-            <Text style={styles.modalTitle}>Options</Text>
+        <Pressable
+          style={[styles.backdrop, { backgroundColor: colors.overlay ?? 'rgba(0,0,0,0.35)' }]}
+          onPress={closeOptions}
+        >
+          <View style={[styles.modal, { backgroundColor: colors.card ?? colors.background ?? '#FFFFFF' }]}>
+            <Text style={[styles.modalTitle, { color: colors.text ?? '#111827' }]}>Options</Text>
 
             <AnimatedButton
               title="Fshi koleksionin"
               variant="danger"
               onPress={openConfirm}
               style={styles.modalButtonSpacing}
+              textStyle={{ color: '#fff' }}
             />
 
             <AnimatedButton
@@ -107,10 +133,15 @@ const CollectionCard = ({ collection, onPress, gradientColors, onDelete }) => {
         animationType="fade"
         onRequestClose={closeConfirm}
       >
-        <Pressable style={styles.backdrop} onPress={closeConfirm}>
-          <View style={styles.modal}>
-            <Text style={styles.modalTitle}>Konfirmo fshirjen</Text>
-            <Text style={styles.modalText}>Jeni i sigurt që dëshironi ta fshini këtë koleksion?</Text>
+        <Pressable
+          style={[styles.backdrop, { backgroundColor: colors.overlay ?? 'rgba(0,0,0,0.35)' }]}
+          onPress={closeConfirm}
+        >
+          <View style={[styles.modal, { backgroundColor: colors.card ?? colors.background ?? '#FFFFFF' }]}>
+            <Text style={[styles.modalTitle, { color: colors.text ?? '#111827' }]}>Konfirmo fshirjen</Text>
+            <Text style={[styles.modalText, { color: colors.mutedText ?? '#4B5563' }]}>
+              Jeni i sigurt që dëshironi ta fshini këtë koleksion?
+            </Text>
 
             <AnimatedButton
               title="Po, fshi"

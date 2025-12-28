@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
+import { useTheme } from '../../context/ThemeContext';
 
 const SIZE = 160;
 const STROKE_WIDTH = 22;
@@ -7,13 +8,17 @@ const RADIUS = (SIZE - STROKE_WIDTH) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export default function CollectionProgressPie({ progress }) {
+  const { colors } = useTheme();
+
   const { easy = 0, medium = 0, hard = 0 } = progress || {};
   const total = easy + medium + hard;
 
   if (total === 0) {
     return (
       <View style={styles.empty}>
-        <Text style={styles.emptyText}>Ende nuk ka progres</Text>
+        <Text style={[styles.emptyText, { color: colors.mutedText ?? '#9CA3AF' }]}>
+          Ende nuk ka progres
+        </Text>
       </View>
     );
   }
@@ -28,14 +33,13 @@ export default function CollectionProgressPie({ progress }) {
 
   return (
     <View style={styles.container}>
-
       <Svg width={SIZE} height={SIZE}>
         {/* Background */}
         <Circle
           cx={SIZE / 2}
           cy={SIZE / 2}
           r={RADIUS}
-          stroke="#E5E7EB"
+          stroke={colors.border ?? '#E5E7EB'}
           strokeWidth={STROKE_WIDTH}
           fill="none"
         />
@@ -85,19 +89,19 @@ export default function CollectionProgressPie({ progress }) {
 
       {/* Legend */}
       <View style={styles.legend}>
-        <Legend color="#22C55E" label={`Lehtë (${easy})`} />
-        <Legend color="#FACC15" label={`Mesëm (${medium})`} />
-        <Legend color="#EF4444" label={`Vështirë (${hard})`} />
+        <Legend color="#22C55E" label={`Lehtë (${easy})`} textColor={colors.text ?? '#374151'} />
+        <Legend color="#FACC15" label={`Mesëm (${medium})`} textColor={colors.text ?? '#374151'} />
+        <Legend color="#EF4444" label={`Vështirë (${hard})`} textColor={colors.text ?? '#374151'} />
       </View>
     </View>
   );
 }
 
-function Legend({ color, label }) {
+function Legend({ color, label, textColor }) {
   return (
     <View style={styles.legendItem}>
       <View style={[styles.dot, { backgroundColor: color }]} />
-      <Text style={styles.legendText}>{label}</Text>
+      <Text style={[styles.legendText, { color: textColor }]}>{label}</Text>
     </View>
   );
 }

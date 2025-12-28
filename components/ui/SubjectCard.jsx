@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { memo, useCallback, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '../../context/ThemeContext';
 import AnimatedButton from './AnimatedButton';
 
 const SubjectCard = ({
@@ -13,6 +14,8 @@ const SubjectCard = ({
   subjectId,
   onDelete,
 }) => {
+  const { colors } = useTheme();
+
   const [optionsVisible, setOptionsVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
 
@@ -34,7 +37,10 @@ const SubjectCard = ({
   }, [onDelete, subjectId]);
 
   return (
-    <View testID="subject-card" style={styles.card}>
+    <View
+      testID="subject-card"
+      style={[styles.card, { backgroundColor: colors.card ?? colors.background }]}
+    >
       {/* UI JOTE EKZISTUESE – e paprekur */}
       <View style={[styles.iconWrapper, { backgroundColor: iconBackgroundColor }]}>
         <Image
@@ -45,16 +51,18 @@ const SubjectCard = ({
           transition={200}
         />
       </View>
-      <Text style={styles.subjectText}>{subjectName}</Text>
+
+      <Text style={[styles.subjectText, { color: colors.text }]}>{subjectName}</Text>
+
       {collectionCount !== undefined && (
-        <Text style={styles.collectionText}>
+        <Text style={[styles.collectionText, { color: colors.mutedText ?? colors.icon }]}>
           {collectionCount} {collectionCount === 1 ? 'koleksion' : 'koleksione'}
         </Text>
       )}
 
       {/* 3 pikat – vetëm kjo pjesë e re SHFAQET në kartelë */}
       <TouchableOpacity testID="subject-menu" style={styles.menuButton} onPress={openOptions}>
-        <Ionicons name="ellipsis-vertical" size={18} color="#4B5563" />
+        <Ionicons name="ellipsis-vertical" size={18} color={colors.icon} />
       </TouchableOpacity>
 
       {/* Modal 1 – Options (Delete / Cancel) */}
@@ -64,17 +72,20 @@ const SubjectCard = ({
         animationType="fade"
         onRequestClose={closeOptions}
       >
-        <Pressable style={styles.backdrop} onPress={closeOptions}>
-          <View style={styles.modal}>
-            <Text style={styles.modalTitle}>Opsione</Text>
+        <Pressable
+          style={[styles.backdrop, { backgroundColor: colors.overlay ?? 'rgba(0,0,0,0.35)' }]}
+          onPress={closeOptions}
+        >
+          <View style={[styles.modal, { backgroundColor: colors.card ?? colors.background }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Opsione</Text>
 
-            <AnimatedButton
-              testID="subject-delete"
-              title="Fshi lëndën"
-              variant="danger"
-              onPress={openConfirm}
-              style={styles.modalButtonSpacing}
-            />
+              <AnimatedButton
+                title="Fshi lëndën"
+                variant="danger"
+                onPress={openConfirm}
+                style={styles.modalButtonSpacing}
+                textStyle={{ color: '#fff' }}
+              />
 
             <AnimatedButton
               testID="subject-cancel-options"
@@ -94,10 +105,15 @@ const SubjectCard = ({
         animationType="fade"
         onRequestClose={closeConfirm}
       >
-        <Pressable style={styles.backdrop} onPress={closeConfirm}>
-          <View style={styles.modal}>
-            <Text style={styles.modalTitle}>Konfirmo fshirjen</Text>
-            <Text style={styles.modalText}>Jeni i sigurt që dëshironi ta fshini këtë lëndë?</Text>
+        <Pressable
+          style={[styles.backdrop, { backgroundColor: colors.overlay ?? 'rgba(0,0,0,0.35)' }]}
+          onPress={closeConfirm}
+        >
+          <View style={[styles.modal, { backgroundColor: colors.card ?? colors.background }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Konfirmo fshirjen</Text>
+            <Text style={[styles.modalText, { color: colors.mutedText ?? colors.icon }]}>
+              Jeni i sigurt që dëshironi ta fshini këtë lëndë?
+            </Text>
 
             <AnimatedButton
               testID="subject-confirm-delete"
