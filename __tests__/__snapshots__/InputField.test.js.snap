@@ -20,6 +20,10 @@ exports[`StatsCard snapshot 1`] = `
         "shadowOpacity": 0.1,
         "shadowRadius": 4,
       },
+      {
+        "backgroundColor": "#FFFFFF",
+        "borderColor": "#E5E7EB",
+      },
       false,
     ]
   }
@@ -33,6 +37,10 @@ exports[`StatsCard snapshot 1`] = `
           "fontWeight": "bold",
           "marginBottom": 15,
         },
+        {
+          "color": "#11181C",
+        },
+        false,
         false,
       ]
     }
@@ -86,23 +94,33 @@ exports[`StatsCard snapshot 1`] = `
       </View>
       <Text
         style={
-          {
-            "color": "#666",
-            "fontSize": 14,
-            "textAlign": "center",
-          }
+          [
+            {
+              "color": "#666",
+              "fontSize": 14,
+              "textAlign": "center",
+            },
+            {
+              "color": "#6B7280",
+            },
+          ]
         }
       >
         Lehtë
       </Text>
       <Text
         style={
-          {
-            "color": "#333",
-            "fontSize": 16,
-            "fontWeight": "bold",
-            "marginTop": 2,
-          }
+          [
+            {
+              "color": "#333",
+              "fontSize": 16,
+              "fontWeight": "bold",
+              "marginTop": 2,
+            },
+            {
+              "color": "#11181C",
+            },
+          ]
         }
       >
         NaN
@@ -148,23 +166,33 @@ exports[`StatsCard snapshot 1`] = `
       </View>
       <Text
         style={
-          {
-            "color": "#666",
-            "fontSize": 14,
-            "textAlign": "center",
-          }
+          [
+            {
+              "color": "#666",
+              "fontSize": 14,
+              "textAlign": "center",
+            },
+            {
+              "color": "#6B7280",
+            },
+          ]
         }
       >
         Mesatare
       </Text>
       <Text
         style={
-          {
-            "color": "#333",
-            "fontSize": 16,
-            "fontWeight": "bold",
-            "marginTop": 2,
-          }
+          [
+            {
+              "color": "#333",
+              "fontSize": 16,
+              "fontWeight": "bold",
+              "marginTop": 2,
+            },
+            {
+              "color": "#11181C",
+            },
+          ]
         }
       >
         NaN
@@ -210,23 +238,33 @@ exports[`StatsCard snapshot 1`] = `
       </View>
       <Text
         style={
-          {
-            "color": "#666",
-            "fontSize": 14,
-            "textAlign": "center",
-          }
+          [
+            {
+              "color": "#666",
+              "fontSize": 14,
+              "textAlign": "center",
+            },
+            {
+              "color": "#6B7280",
+            },
+          ]
         }
       >
         Vështirë
       </Text>
       <Text
         style={
-          {
-            "color": "#333",
-            "fontSize": 16,
-            "fontWeight": "bold",
-            "marginTop": 2,
-          }
+          [
+            {
+              "color": "#333",
+              "fontSize": 16,
+              "fontWeight": "bold",
+              "marginTop": 2,
+            },
+            {
+              "color": "#11181C",
+            },
+          ]
         }
       >
         NaN

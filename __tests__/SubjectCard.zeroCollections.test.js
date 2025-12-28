@@ -1,5 +1,5 @@
-import { render } from "@testing-library/react-native";
 import SubjectCard from "../components/ui/SubjectCard";
+import { render } from "../test-utils";
 
 test("renders 0 collections correctly", () => {
   const onPress = jest.fn();
@@ -7,19 +7,17 @@ test("renders 0 collections correctly", () => {
   const subject = {
     id: "s1",
     name: "Math",
-    title: "Math",            // fallback nese komponenta e përdor title
+    title: "Math",
     collectionsCount: 0,
-    collections: [],          // fallback nese e përdor arrays
+    collections: [],
   };
 
   const { getByTestId, toJSON } = render(
     <SubjectCard
       subject={subject}
-      // i japim disa fallback props (nuk dëmtojnë edhe nëse s’përdoren)
-      title="Math"
-      name="Math"
+      subjectName="Math"
+      collectionCount={0}
       collectionsCount={0}
-      count={0}
       onPress={onPress}
       onDelete={jest.fn()}
       onEdit={jest.fn()}
@@ -28,7 +26,5 @@ test("renders 0 collections correctly", () => {
 
   expect(getByTestId("subject-card")).toBeTruthy();
   expect(getByTestId("subject-menu")).toBeTruthy();
-
-  // snapshot për rastin 0 collections
   expect(toJSON()).toMatchSnapshot();
 });

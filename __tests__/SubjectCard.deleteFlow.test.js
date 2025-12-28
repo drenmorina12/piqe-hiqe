@@ -1,24 +1,40 @@
-import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import SubjectCard from "../components/ui/SubjectCard";
+import { fireEvent, render, waitFor } from "../test-utils";
+
+const DELETE_SUBJECT_RE = /Fshi lëndën|Fshije lëndën|Delete subject/i;
+const CONFIRM_TITLE_RE = /Konfirmo fshirjen|Confirm delete/i;
+const CONFIRM_BTN_RE = /Po,\s*fshi|Yes,\s*delete|Confirm/i;
+const CANCEL_RE = /Anulo|Cancel/i;
 
 test("delete flow opens confirm modal and closes after confirm", async () => {
+  const onDelete = jest.fn();
+  const subject = { id: "s1", name: "Math", collectionsCount: 2 };
+
   const { getByTestId, findByText, queryByText } = render(
-    <SubjectCard subjectName="Math" collectionCount={2} />
+    <SubjectCard
+      subject={subject}
+      onPress={() => {}}
+      onDelete={onDelete}
+      onEdit={() => {}}
+    />
   );
 
-  // hap Options
+  // open options
   fireEvent.press(getByTestId("subject-menu"));
-  expect(await findByText("Options")).toBeTruthy();
 
-  // hap Confirm delete
-  fireEvent.press(getByTestId("subject-delete"));
-  expect(await findByText("Confirm delete")).toBeTruthy();
+  // press delete (text)
+  const deleteBtn = await findByText(DELETE_SUBJECT_RE);
+  fireEvent.press(deleteBtn);
 
-  // konfirmo delete
-  fireEvent.press(getByTestId("subject-confirm-delete"));
+  // confirm modal visible
+  expect(await findByText(CONFIRM_TITLE_RE)).toBeTruthy();
 
-  // confirm modal duhet me u mbyll
+  // confirm delete (text)
+  const confirmBtn = await findByText(CONFIRM_BTN_RE);
+  fireEvent.press(confirmBtn);
+
+  // modal should close
   await waitFor(() => {
-    expect(queryByText("Confirm delete")).toBeNull();
+    expect(queryByText(CONFIRM_TITLE_RE)).toBeNull();
   });
 });
