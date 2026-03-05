@@ -1,41 +1,58 @@
-import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import SubjectCard from "../components/ui/SubjectCard";
+import { fireEvent, render, waitFor } from "../test-utils";
+
+const DELETE_SUBJECT_RE = /Fshi lëndën|Fshije lëndën|Delete subject/i;
+const CONFIRM_TITLE_RE = /Konfirmo fshirjen|Confirm delete/i;
+const CONFIRM_BTN_RE = /Po,\s*fshi|Yes,\s*delete|Confirm/i;
+const CANCEL_RE = /Anulo|Cancel/i;
 
 test("opens Options modal from menu", async () => {
+  const subject = { id: "s1", name: "Math", collectionsCount: 2 };
+
   const { getByTestId, findByText } = render(
-    <SubjectCard subjectName="Math" collectionCount={2} />
+    <SubjectCard subject={subject} onPress={() => {}} onDelete={() => {}} onEdit={() => {}} />
   );
 
   fireEvent.press(getByTestId("subject-menu"));
 
-  expect(await findByText("Options")).toBeTruthy();
+  // options modal is open if delete option appears
+  expect(await findByText(DELETE_SUBJECT_RE)).toBeTruthy();
 });
 
 test("opens Confirm delete modal after pressing Delete subject", async () => {
+  const subject = { id: "s1", name: "Math", collectionsCount: 2 };
+
   const { getByTestId, findByText } = render(
-    <SubjectCard subjectName="Math" collectionCount={2} />
+    <SubjectCard subject={subject} onPress={() => {}} onDelete={() => {}} onEdit={() => {}} />
   );
 
   fireEvent.press(getByTestId("subject-menu"));
-  await findByText("Options");
 
-  // nëse nuk i ke shtu testID, mundesh me përdor getByText("Delete subject")
-  fireEvent.press(getByTestId("subject-delete"));
+  const deleteBtn = await findByText(DELETE_SUBJECT_RE);
+  fireEvent.press(deleteBtn);
 
-  expect(await findByText("Confirm delete")).toBeTruthy();
+  // confirm modal shows
+  expect(await findByText(CONFIRM_TITLE_RE)).toBeTruthy();
+  expect(await findByText(CONFIRM_BTN_RE)).toBeTruthy();
 });
 
-test("cancel closes options modal", async () => {
+test("cancel closes confirm modal", async () => {
+  const subject = { id: "s1", name: "Math", collectionsCount: 2 };
+
   const { getByTestId, findByText, queryByText } = render(
-    <SubjectCard subjectName="Math" collectionCount={2} />
+    <SubjectCard subject={subject} onPress={() => {}} onDelete={() => {}} onEdit={() => {}} />
   );
 
   fireEvent.press(getByTestId("subject-menu"));
-  await findByText("Options");
 
-  fireEvent.press(getByTestId("subject-cancel-options"));
+  const deleteBtn = await findByText(DELETE_SUBJECT_RE);
+  fireEvent.press(deleteBtn);
+
+  expect(await findByText(CONFIRM_TITLE_RE)).toBeTruthy();
+
+  fireEvent.press(await findByText(CANCEL_RE));
 
   await waitFor(() => {
-    expect(queryByText("Options")).toBeNull();
+    expect(queryByText(CONFIRM_TITLE_RE)).toBeNull();
   });
 });

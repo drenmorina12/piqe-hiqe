@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { useTheme } from '../../context/ThemeContext';
 
 const AnimatedButton = ({
   title,
@@ -9,6 +10,8 @@ const AnimatedButton = ({
   disabled = false,
   variant = 'primary', // 'primary', 'danger', 'secondary'
 }) => {
+  const { colors } = useTheme();
+
   const variantStyle = useMemo(() => {
     switch (variant) {
       case 'danger':
@@ -33,14 +36,49 @@ const AnimatedButton = ({
     }
   }, [variant]);
 
+  // ✅ vetëm ngjyrat i marrim prej theme (pa prek logjikën/strukturën)
+  const themeVariantStyle = useMemo(() => {
+    switch (variant) {
+      case 'danger':
+        return {
+          backgroundColor: colors.danger ?? '#EF4444',
+        };
+      case 'secondary':
+        return {
+          backgroundColor: colors.card ?? colors.background ?? '#FFFFFF',
+          borderColor: colors.border ?? '#D1D5DB',
+        };
+      case 'primary':
+      default:
+        return {
+          backgroundColor: colors.primary ?? colors.tint ?? '#4F46E5',
+        };
+    }
+  }, [variant, colors]);
+
+  const themeTextVariantStyle = useMemo(() => {
+    switch (variant) {
+      case 'secondary':
+        return {
+          color: colors.text ?? '#111827',
+        };
+      case 'danger':
+      case 'primary':
+      default:
+        return {
+          color: colors.onPrimary ?? '#FFFFFF',
+        };
+    }
+  }, [variant, colors]);
+
   return (
     <TouchableOpacity
       activeOpacity={0.6}
       onPress={onPress}
       disabled={disabled}
-      style={[variantStyle, disabled && styles.disabled, style]}
+      style={[variantStyle, themeVariantStyle, disabled && styles.disabled, style]}
     >
-      <Text style={[textVariantStyle, textStyle]}>{title}</Text>
+      <Text style={[textVariantStyle, themeTextVariantStyle, textStyle]}>{title}</Text>
     </TouchableOpacity>
   );
 };

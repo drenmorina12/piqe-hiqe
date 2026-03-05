@@ -21,6 +21,7 @@ import { StatsCard } from '../components/ui/StatsCard';
 import SubjectCard from '../components/ui/SubjectCard';
 import Toast from '../components/ui/Toast';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 import { fetchCollections } from '../firebase/collectionService';
 import { auth, db } from '../firebase/firebaseConfig';
@@ -33,6 +34,8 @@ import {
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 export default function HomeScreen() {
+  const { colors, isDark } = useTheme();
+
   const { user, loading: authLoading } = useAuth();
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -152,10 +155,10 @@ export default function HomeScreen() {
       setSubjects((prev) => [...prev, createdWithCount]);
       setNewSubject('');
       setShowInput(false);
-      setSuccess('Subject created successfully');
+      setSuccess('Lënda u krijua me sukses');
     } catch (err) {
-      console.log('Error adding subject:', err);
-      setError(err.message ?? 'Failed to create subject. Please try again.');
+      console.log('Gabim gjatë shtimit të lëndës:', err);
+      setError(err.message ?? 'Krijimi i lëndës dështoi. Ju lutemi provoni përsëri.');
       setErrorType('error');
     } finally {
       setLoading(false);
@@ -168,10 +171,10 @@ export default function HomeScreen() {
       setError('');
       await deleteSubjectFromDb(subjectId);
       setSubjects((prev) => prev.filter((s) => s.id !== subjectId));
-      setSuccess('Subject deleted successfully');
+      setSuccess('Lënda u fshi me sukses');
     } catch (err) {
       console.log('Error deleting subject:', err);
-      setError(err.message ?? 'Failed to delete subject. Please try again.');
+      setError(err.message ?? 'Fshirja e lëndës dështoi. Ju lutemi provoni përsëri.');
       setErrorType('error');
     } finally {
       setLoading(false);
@@ -207,15 +210,20 @@ export default function HomeScreen() {
 
   if (authLoading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" />
+      <View style={[styles.centered, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary ?? colors.tint} />
       </View>
     );
   }
 
+  const accent = colors.primary ?? colors.tint ?? '#2563EB';
+
   return (
-    <View style={{ flex: 1 }}>
-      <StatusBar style="light" backgroundColor="#007AFF" />
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <StatusBar
+        style={isDark ? 'light' : 'dark'}
+        backgroundColor={accent}
+      />
 
       {/* HEADER */}
       <Header
@@ -225,25 +233,23 @@ export default function HomeScreen() {
           <>
             <Link href="/profile" asChild>
               <Pressable>
-                <Ionicons name="person-circle-outline" size={28} color="white" />
+                <Ionicons name="person-circle-outline" size={28} color={ 'white'} />
               </Pressable>
             </Link>
           </>
         }
       />
 
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.generalStatsContainer}>
-          {/* Day Streak – TANI dinamike */}
           <StatsCard
             subject={dayStreak.toString()}
             easy={0}
             medium={0}
             hard={0}
-            label="Day Streak"
+            label="Ditët"
           />
 
-          {/* Cards Done U HEQ – mbesin vetëm Day Streak + Subjects */}
           <StatsCard
             subject={subjects.length.toString()}
             easy={0}
@@ -253,11 +259,11 @@ export default function HomeScreen() {
           />
         </View>
 
-        <Text style={styles.title}>Lëndet e tua</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Lëndet e tua</Text>
 
         {loading && (
           <View style={{ marginBottom: 10 }}>
-            <ActivityIndicator />
+            <ActivityIndicator color={accent} />
           </View>
         )}
 
@@ -278,7 +284,9 @@ export default function HomeScreen() {
           renderItem={renderSubjectItem}
           ListEmptyComponent={
             !loading && (
-              <Text style={{ color: '#777', marginTop: 20 }}>Asnjë lëndë e shtuar deri tani.</Text>
+              <Text style={{ color: colors.mutedText ?? '#777', marginTop: 20 }}>
+                Asnjë lëndë e shtuar deri tani.
+              </Text>
             )
           }
           removeClippedSubviews={true}
@@ -289,41 +297,74 @@ export default function HomeScreen() {
       </View>
 
       <AnimatedModal visible={showInput} onClose={() => setShowInput(false)}>
-        <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 12 }}>Shto lëndë të re</Text>
+        <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 12, color: colors.text }}>
+          Shto lëndë të re
+        </Text>
 
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              borderColor: colors.border ?? '#ccc',
+              backgroundColor: colors.inputBg ?? colors.card ?? colors.background,
+              color: colors.text,
+            },
+          ]}
           placeholder="Vendos emrin e lëndës"
+          placeholderTextColor={colors.placeholder ?? colors.mutedText ?? '#9CA3AF'}
           value={newSubject}
           onChangeText={setNewSubject}
         />
 
         <TouchableOpacity
-          style={[styles.addButton, { marginTop: 16, marginBottom: 8 }]}
+          style={[
+            styles.addButton,
+            { marginTop: 16, marginBottom: 8, backgroundColor: accent },
+          ]}
           activeOpacity={0.6}
           onPress={handleAddSubject}
         >
-          <Text style={styles.addButtonText}>Shto</Text>
+          <Text style={[styles.addButtonText, { color: '#fff' }]}>Shto</Text>
         </TouchableOpacity>
       </AnimatedModal>
 
-      <SafeAreaView edges={['bottom']} style={styles.footerSafe}>
-        <View style={styles.footer}>
+      <SafeAreaView
+        edges={['bottom']}
+        style={[styles.footerSafe, { backgroundColor: colors.background }]}
+      >
+        <View
+          style={[
+            styles.footer,
+            { backgroundColor: colors.background, borderTopColor: colors.border ?? '#E5E7EB' },
+          ]}
+        >
           <TouchableOpacity
-            style={styles.footerButton}
+            style={[
+              styles.footerButton,
+              {
+                backgroundColor: colors.card ?? colors.background,
+                borderColor: accent,
+              },
+            ]}
             activeOpacity={0.6}
             onPress={() => setShowInput(!showInput)}
           >
-            <Ionicons name="add" size={34} color="#2563EB" />
+            <Ionicons name="add" size={34} color={accent} />
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.footerButton}
+            style={[
+              styles.footerButton,
+              {
+                backgroundColor: colors.card ?? colors.background,
+                borderColor: accent,
+              },
+            ]}
             activeOpacity={0.6}
             onPress={() => router.push('/timer')}
           >
-            <Ionicons name="stopwatch-outline" size={26} color="#2563EB" />
-            <Text style={styles.footerText}>Timer</Text>
+            <Ionicons name="stopwatch-outline" size={26} color={accent} />
+            <Text style={[styles.footerText, { color: accent }]}>Timer</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>

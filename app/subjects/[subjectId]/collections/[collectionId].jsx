@@ -19,6 +19,7 @@ import CollectionProgressPie from '../../../../components/charts/CollectionProgr
 import Header from '../../../../components/layout/Header';
 import AnimatedModal from '../../../../components/ui/AnimatedModal';
 import Toast from '../../../../components/ui/Toast';
+import { useTheme } from '../../../../context/ThemeContext';
 import {
   addCard,
   deleteCard,
@@ -32,6 +33,9 @@ import {
 import { getSubjectById as fetchSubjectById } from '../../../../firebase/subjectService';
 
 export default function CollectionDetailScreen() {
+  const { colors } = useTheme();
+  const accent = colors.primary ?? colors.tint ?? '#4F46E5';
+
   const params = useLocalSearchParams();
   const { subjectId, collectionId, deletedFlashcard } = params;
   const [subject, setSubject] = useState(null);
@@ -72,7 +76,7 @@ export default function CollectionDetailScreen() {
       setCollection(collWithCounts);
       setFlashcards(cards);
     } catch (err) {
-      console.log('Error loading collection or cards:', err);
+      console.log('Gabim gjatë ngarkimit të koleksionit ose kartave:', err);
     } finally {
       setLoading(false);
     }
@@ -84,7 +88,7 @@ export default function CollectionDetailScreen() {
     if (savingCard) return; // prevent duplicate presses
 
     if (newQuestion.trim() === '' || newAnswer.trim() === '') {
-      setFormError('Both question and answer are required.');
+      setFormError('Kërkohen pyetje edhe përgjigje.');
       return;
     }
 
@@ -106,11 +110,11 @@ export default function CollectionDetailScreen() {
       setNewQuestion('');
       setNewAnswer('');
       setShowForm(false);
-      setSuccess('Flashcard created successfully');
+      setSuccess('Karta u krijua me sukses');
     } catch (err) {
-      console.log('Error adding card:', err);
-      setFormError(err.message ?? 'Failed to create flashcard.');
-      setError(err.message ?? 'Failed to create flashcard. Please try again.');
+      console.log('Gabim gjatë shtimit të kartës:', err);
+      setFormError(err.message ?? 'Krijimi i kartelës dështoi.');
+      setError(err.message ?? 'Krijimi i kartelës dështoi. Ju lutemi provoni përsëri.');
       setErrorType('error');
     } finally {
       setSavingCard(false);
@@ -128,10 +132,10 @@ export default function CollectionDetailScreen() {
           ...prev,
           cards: Math.max((prev?.cards ?? 1) - 1, 0),
         }));
-        setSuccess('Flashcard deleted successfully');
+        setSuccess('Karta u fshi me sukses');
       } catch (err) {
-        console.log('Error deleting card:', err);
-        setError(err.message ?? 'Failed to delete flashcard. Please try again.');
+        console.log('Gabim gjatë fshirjes së kartës:', err);
+        setError(err.message ?? 'Fshirja e kartelës dështoi. Ju lutemi provoni përsëri.');
         setErrorType('error');
       }
     },
@@ -161,7 +165,7 @@ export default function CollectionDetailScreen() {
       // 3️⃣ refresh EVERYTHING from source of truth
       await loadData();
     } catch (err) {
-      console.log('Error resetting progress:', err);
+      console.log('Gabim gjatë rivendosjes së progresit:', err);
     }
   }, [subjectId, collectionId, loadData]);
 
@@ -184,26 +188,40 @@ export default function CollectionDetailScreen() {
   const renderFlashcardItem = useCallback(
     ({ item }) => (
       <Pressable
-        style={({ pressed }) => [styles.flashcardItem, pressed && styles.flashcardItemPressed]}
+        style={({ pressed }) => [
+          styles.flashcardItem,
+          {
+            backgroundColor: colors.card ?? colors.background,
+            borderColor: colors.border ?? 'transparent',
+          },
+          pressed && styles.flashcardItemPressed,
+        ]}
         onPress={() => handleFlashcardPress(item.id)}
       >
         <View style={styles.flashcardContent}>
           <View style={styles.flashcardHeader}>
-            <Ionicons name="help-circle-outline" size={20} color="#4F46E5" />
-            <Text style={styles.flashcardQuestion} numberOfLines={2}>
+            <Ionicons name="help-circle-outline" size={20} color={accent} />
+            <Text style={[styles.flashcardQuestion, { color: colors.text }]} numberOfLines={2}>
               {item.question}
             </Text>
           </View>
           {item.difficulty && (
-            <View style={styles.difficultyBadge}>
-              <Text style={styles.difficultyText}>{item.difficulty}</Text>
+            <View
+              style={[
+                styles.difficultyBadge,
+                { backgroundColor: colors.chipBg ?? colors.surface ?? '#F3F4F6' },
+              ]}
+            >
+              <Text style={[styles.difficultyText, { color: colors.mutedText ?? '#6B7280' }]}>
+                {item.difficulty}
+              </Text>
             </View>
           )}
         </View>
-        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+        <Ionicons name="chevron-forward" size={20} color={colors.mutedText ?? '#9CA3AF'} />
       </Pressable>
     ),
-    [handleFlashcardPress]
+    [handleFlashcardPress, colors, accent]
   );
 
   // Reload data when screen comes into focus (after returning from study/edit/import)
@@ -213,7 +231,7 @@ export default function CollectionDetailScreen() {
 
       // Check if we returned from deleting a flashcard
       if (deletedFlashcard === 'true') {
-        setSuccess('Flashcard deleted successfully');
+        setSuccess('Karta u fshi me sukses');
         // Clear the param by replacing the route without it
         router.replace({
           pathname: '/subjects/[subjectId]/collections/[collectionId]',
@@ -242,30 +260,34 @@ export default function CollectionDetailScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.errorContainer}>
-        <ActivityIndicator />
+      <SafeAreaView style={[styles.errorContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator color={accent} />
       </SafeAreaView>
     );
   }
 
   if (!subject || !collection) {
     return (
-      <SafeAreaView style={styles.errorContainer}>
-        <Text style={styles.errorText}>Collection not found</Text>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>Go Back</Text>
+      <SafeAreaView style={[styles.errorContainer, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.mutedText ?? '#6B7280' }]}>
+          Koleksioni nuk u gjet
+        </Text>
+        <Pressable onPress={() => router.back()} style={[styles.backButton, { backgroundColor: accent }]}>
+          <Text style={[styles.backButtonText, { color: colors.onPrimary ?? 'white' }]}>
+            Kthehu prapa
+          </Text>
         </Pressable>
       </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <Header
         backgroundColor={subject.headerColor}
         title={subject.name}
-        subtitle={`${flashcards.length} ${flashcards.length === 1 ? 'flashcard' : 'flashcards'}`}
+        subtitle={`${flashcards.length} ${flashcards.length === 1 ? 'kartë' : 'karta'}`}
         icon={subject.icon}
         showBack={true}
         showHome
@@ -274,9 +296,9 @@ export default function CollectionDetailScreen() {
       {/* Content */}
       <View style={styles.content}>
         <View style={styles.collectionInfo}>
-          <Text style={styles.collectionName}>{collection.name}</Text>
-          <Text style={styles.cardCount}>
-            {flashcards.length} {flashcards.length === 1 ? 'card' : 'cards'}
+          <Text style={[styles.collectionName, { color: colors.text }]}>{collection.name}</Text>
+          <Text style={[styles.cardCount, { color: colors.mutedText ?? '#6B7280' }]}>
+            {flashcards.length} {flashcards.length === 1 ? 'kartë' : 'karta'}
           </Text>
         </View>
 
@@ -306,10 +328,14 @@ export default function CollectionDetailScreen() {
                         paddingVertical: 6,
                         paddingHorizontal: 14,
                         borderRadius: 8,
-                        backgroundColor: '#F3F4F6',
+                        backgroundColor: colors.card ?? '#F3F4F6',
+                        borderWidth: 1,
+                        borderColor: colors.border ?? 'transparent',
                       }}
                     >
-                      <Text style={{ color: '#6B7280', fontWeight: '600' }}>Reset progress</Text>
+                      <Text style={{ color: colors.mutedText ?? '#6B7280', fontWeight: '600' }}>
+                        Rivendosni progresin
+                      </Text>
                     </Pressable>
                   </>
                 ) : null
@@ -318,30 +344,44 @@ export default function CollectionDetailScreen() {
 
             {/* Start Study Button */}
             {!showForm && (
-              <Pressable style={styles.studyButton} onPress={handleStartStudy}>
-                <Ionicons name="school" size={20} color="white" />
-                <Text style={styles.studyButtonText}>Start Study Session</Text>
+              <Pressable style={[styles.studyButton, { backgroundColor: accent }]} onPress={handleStartStudy}>
+                <Ionicons name="school" size={20} color={'white'} />
+                <Text style={[styles.studyButtonText, { color: 'white' }]}>
+                  Filloni seancën e studimit
+                </Text>
               </Pressable>
             )}
           </>
         ) : (
           !showForm && (
             <View style={styles.emptyContainer}>
-              <Ionicons name="document-text-outline" size={64} color="#D1D5DB" />
-              <Text style={styles.emptyText}>No flashcards yet</Text>
-              <Text style={styles.emptySubtext}>Create your first flashcard to get started</Text>
+              <Ionicons name="document-text-outline" size={64} color={colors.mutedText ?? '#D1D5DB'} />
+              <Text style={[styles.emptyText, { color: colors.mutedText ?? '#6B7280' }]}>Nuk keni karta</Text>
+              <Text style={[styles.emptySubtext, { color: colors.placeholder ?? '#9CA3AF' }]}>
+                Krijoni kartën e parë për të filluar
+              </Text>
             </View>
           )
         )}
 
         {/* Add Flashcard Button */}
         {!showForm && (
-          <Pressable style={styles.addButton} onPress={() => setShowForm(true)}>
-            <Ionicons name="add" size={20} color="#4F46E5" />
-            <Text style={styles.addButtonText}>Add Flashcard</Text>
+          <Pressable
+            style={[
+              styles.addButton,
+              {
+                backgroundColor: colors.card ?? colors.background,
+                borderColor: accent,
+              },
+            ]}
+            onPress={() => setShowForm(true)}
+          >
+            <Ionicons name="add" size={20} color={accent} />
+            <Text style={[styles.addButtonText, { color: accent }]}>Shto kartë</Text>
           </Pressable>
         )}
       </View>
+
       <AnimatedModal
         visible={showForm}
         variant="bottom"
@@ -357,14 +397,20 @@ export default function CollectionDetailScreen() {
           style={{ width: '100%' }}
         >
           <View
-            style={[styles.formContainer, { maxWidth: 650, width: '95%', alignSelf: 'center' }]}
+            style={[
+              styles.formContainer,
+              {
+                maxWidth: 650,
+                width: '95%',
+                alignSelf: 'center',
+                backgroundColor: colors.card ?? colors.background,
+                borderColor: colors.border ?? 'transparent',
+              },
+            ]}
           >
             {/* Header */}
             <View style={styles.formHeader}>
-              <Text style={styles.formTitle}>New Flashcard</Text>
-              <Pressable onPress={() => setShowForm(false)}>
-                <Ionicons name="close" size={24} color="#6B7280" />
-              </Pressable>
+              <Text style={[styles.formTitle, { color: colors.text }]}>Kartë e re</Text>
             </View>
 
             {/* Scrollable content */}
@@ -373,22 +419,42 @@ export default function CollectionDetailScreen() {
               contentContainerStyle={{ paddingBottom: 16 }}
               showsVerticalScrollIndicator={false}
             >
-              <Text style={styles.inputLabel}>Question</Text>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>Pyetje</Text>
               <TextInput
-                style={[styles.input, styles.questionInput]}
-                placeholder="Enter your question..."
+                style={[
+                  styles.input,
+                  styles.questionInput,
+                  {
+                    borderColor: colors.border ?? '#D1D5DB',
+                    backgroundColor: colors.inputBg ?? colors.surface ?? '#F9FAFB',
+                    color: colors.text,
+                  },
+                ]}
+                placeholder="Shkruani pyetjen tuaj..."
+                placeholderTextColor={colors.placeholder ?? colors.mutedText ?? '#9CA3AF'}
                 value={newQuestion}
                 onChangeText={setNewQuestion}
                 multiline
+                selectionColor={accent}
               />
 
-              <Text style={styles.inputLabel}>Answer</Text>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>Përgjigje</Text>
               <TextInput
-                style={[styles.input, styles.answerInput]}
-                placeholder="Enter the answer..."
+                style={[
+                  styles.input,
+                  styles.answerInput,
+                  {
+                    borderColor: colors.border ?? '#D1D5DB',
+                    backgroundColor: colors.inputBg ?? colors.surface ?? '#F9FAFB',
+                    color: colors.text,
+                  },
+                ]}
+                placeholder="Shkruani përgjigjen..."
+                placeholderTextColor={colors.placeholder ?? colors.mutedText ?? '#9CA3AF'}
                 value={newAnswer}
                 onChangeText={setNewAnswer}
                 multiline
+                selectionColor={accent}
               />
 
               {formError ? (
@@ -399,21 +465,34 @@ export default function CollectionDetailScreen() {
             {/* FIXED BUTTONS */}
             <View style={styles.formButtons}>
               <Pressable
-                style={[styles.formButton, styles.cancelButton]}
+                style={[
+                  styles.formButton,
+                  styles.cancelButton,
+                  { backgroundColor: colors.card ?? '#F3F4F6', borderColor: colors.border ?? 'transparent' },
+                ]}
                 onPress={() => setShowForm(false)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={[styles.cancelButtonText, { color: colors.mutedText ?? '#6B7280' }]}>
+                  Anulo
+                </Text>
               </Pressable>
 
               <Pressable
-                style={[styles.formButton, styles.createButton, savingCard && { opacity: 0.7 }]}
+                style={[
+                  styles.formButton,
+                  styles.createButton,
+                  { backgroundColor: accent },
+                  savingCard && { opacity: 0.7 },
+                ]}
                 onPress={handleAddFlashcard}
                 disabled={savingCard}
               >
                 {savingCard ? (
-                  <ActivityIndicator color="#fff" />
+                  <ActivityIndicator color={colors.onPrimary ?? '#fff'} />
                 ) : (
-                  <Text style={styles.createButtonText}>Create</Text>
+                  <Text style={[styles.createButtonText, { color: colors.onPrimary ?? 'white' }]}>
+                    Krijo
+                  </Text>
                 )}
               </Pressable>
             </View>
@@ -422,7 +501,6 @@ export default function CollectionDetailScreen() {
       </AnimatedModal>
 
       <Toast message={success} type="success" visible={!!success} onHide={() => setSuccess('')} />
-
       <Toast message={error} type={errorType} visible={!!error} onHide={() => setError('')} />
     </View>
   );

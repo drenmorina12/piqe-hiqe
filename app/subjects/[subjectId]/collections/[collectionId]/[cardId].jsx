@@ -16,10 +16,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../../../../../components/layout/Header';
 import Toast from '../../../../../components/ui/Toast';
+import { useTheme } from '../../../../../context/ThemeContext';
 import { deleteCard, getCardById, updateCard } from '../../../../../firebase/cardService';
 import { getSubjectById as fetchSubjectById } from '../../../../../firebase/subjectService';
 
 export default function FlashcardEditScreen() {
+  const { colors } = useTheme();
+  const accent = colors.primary ?? colors.tint ?? '#4F46E5';
+
   const { subjectId, collectionId, cardId } = useLocalSearchParams();
   const [subject, setSubject] = useState(null);
   const [card, setCard] = useState(null);
@@ -50,7 +54,7 @@ export default function FlashcardEditScreen() {
         setAnswer(flashcard.answer || '');
       } catch (err) {
         console.log('Error loading flashcard:', err);
-        setError('Failed to load flashcard');
+        setError('Ngarkimi i kartelës dështoi');
       } finally {
         setLoading(false);
       }
@@ -64,7 +68,7 @@ export default function FlashcardEditScreen() {
     if (saving) return;
 
     if (question.trim() === '' || answer.trim() === '') {
-      setError('Both question and answer are required.');
+      setError('Kërkohen pyetje edhe përgjigje.');
       return;
     }
 
@@ -75,13 +79,13 @@ export default function FlashcardEditScreen() {
         answer: answer.trim(),
       });
 
-      setSuccess('Flashcard updated successfully');
+      setSuccess('Karta u përditësua me sukses');
       setTimeout(() => {
         router.back();
       }, 1000);
     } catch (err) {
-      console.log('Error updating card:', err);
-      setError(err.message ?? 'Failed to update flashcard. Please try again.');
+      console.log('Gabim gjatë përditësimit të kartës:', err);
+      setError(err.message ?? 'Përditësimi i kartës dështoi. Ju lutemi provoni përsëri.');
       setErrorType('error');
     } finally {
       setSaving(false);
@@ -91,7 +95,7 @@ export default function FlashcardEditScreen() {
   const handleDelete = async () => {
     if (Platform.OS === 'web') {
       const confirmed = window.confirm(
-        'Are you sure you want to delete this flashcard? This action cannot be undone.'
+        'Jeni i sigurt që dëshironi të fshini këtë kartë? Ky veprim nuk mund të zhbëhet.'
       );
 
       if (!confirmed) return;
@@ -109,8 +113,8 @@ export default function FlashcardEditScreen() {
           },
         });
       } catch (err) {
-        console.log('Error deleting card:', err);
-        setError('Failed to delete flashcard. Please try again.');
+        console.log('Gabim gjatë fshirjes së kartës:', err);
+        setError('Fshirja e kartës dështoi. Ju lutemi provoni përsëri.');
         setErrorType('error');
       } finally {
         setDeleting(false);
@@ -120,12 +124,12 @@ export default function FlashcardEditScreen() {
     }
 
     Alert.alert(
-      'Delete Flashcard',
-      'Are you sure you want to delete this flashcard? This action cannot be undone.',
+      'Fshi Kartën',
+      'Jeni i sigurt që dëshironi të fshini këtë kartë? Ky veprim nuk mund të zhbëhet.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Delete',
+          text: 'Fshije',
           style: 'destructive',
           onPress: async () => {
             setDeleting(true);
@@ -142,7 +146,7 @@ export default function FlashcardEditScreen() {
               });
             } catch (err) {
               console.log('Error deleting card:', err);
-              Alert.alert('Error', 'Failed to delete flashcard. Please try again.');
+              Alert.alert('Error', 'Fshirja e kartës dështoi. Ju lutemi provoni përsëri.');
             } finally {
               setDeleting(false);
             }
@@ -154,18 +158,21 @@ export default function FlashcardEditScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" style={{ marginTop: 100 }} />
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" style={{ marginTop: 100 }} color={accent} />
       </SafeAreaView>
     );
   }
 
   if (!card || !subject) {
     return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.errorText}>Flashcard not found</Text>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>Go Back</Text>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.mutedText ?? '#6B7280' }]}>Karta nuk u gjet</Text>
+        <Pressable
+          onPress={() => router.back()}
+          style={[styles.backButton, { backgroundColor: accent }]}
+        >
+          <Text style={[styles.backButtonText, { color: colors.onPrimary ?? 'white' }]}>Kthehu</Text>
         </Pressable>
       </SafeAreaView>
     );
@@ -174,12 +181,12 @@ export default function FlashcardEditScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
     >
       <Header
         backgroundColor={subject.headerColor}
         title={subject.name}
-        subtitle="Edit Flashcard"
+        subtitle="Përditëso kartën"
         icon={subject.icon}
         showBack={true}
         showHome
@@ -191,33 +198,60 @@ export default function FlashcardEditScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.section}>
-          <Text style={styles.label}>Question</Text>
+          <Text style={[styles.label, { color: colors.text }]}>Pyetja</Text>
           <TextInput
-            style={[styles.input, styles.questionInput]}
-            placeholder="Enter your question..."
+            style={[
+              styles.input,
+              styles.questionInput,
+              {
+                borderColor: colors.border ?? '#D1D5DB',
+                backgroundColor: colors.inputBg ?? colors.card ?? 'white',
+                color: colors.text,
+              },
+            ]}
+            placeholder="Shkruani pyetjen tuaj..."
+            placeholderTextColor={colors.placeholder ?? colors.mutedText ?? '#9CA3AF'}
             value={question}
             onChangeText={setQuestion}
             multiline
             autoFocus
+            selectionColor={accent}
           />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.label}>Answer</Text>
+          <Text style={[styles.label, { color: colors.text }]}>Përgjigjia</Text>
           <TextInput
-            style={[styles.input, styles.answerInput]}
-            placeholder="Enter the answer..."
+            style={[
+              styles.input,
+              styles.answerInput,
+              {
+                borderColor: colors.border ?? '#D1D5DB',
+                backgroundColor: colors.inputBg ?? colors.card ?? 'white',
+                color: colors.text,
+              },
+            ]}
+            placeholder="Shkruani përgjigjen..."
+            placeholderTextColor={colors.placeholder ?? colors.mutedText ?? '#9CA3AF'}
             value={answer}
             onChangeText={setAnswer}
             multiline
+            selectionColor={accent}
           />
         </View>
 
         {card.difficulty && (
           <View style={styles.section}>
-            <Text style={styles.label}>Current Difficulty</Text>
-            <View style={styles.difficultyBadge}>
-              <Text style={styles.difficultyText}>{card.difficulty}</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Vështirësia aktuale</Text>
+            <View
+              style={[
+                styles.difficultyBadge,
+                { backgroundColor: colors.chipBg ?? colors.surface ?? '#F3F4F6' },
+              ]}
+            >
+              <Text style={[styles.difficultyText, { color: colors.mutedText ?? '#6B7280' }]}>
+                {card.difficulty}
+              </Text>
             </View>
           </View>
         )}
@@ -226,22 +260,33 @@ export default function FlashcardEditScreen() {
 
         <View style={styles.buttonContainer}>
           <Pressable
-            style={[styles.button, styles.saveButton, saving && { opacity: 0.7 }]}
+            style={[
+              styles.button,
+              styles.saveButton,
+              { backgroundColor: accent },
+              saving && { opacity: 0.7 },
+            ]}
             onPress={handleSave}
             disabled={saving || deleting}
           >
             {saving ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={colors.onPrimary ?? '#fff'} />
             ) : (
               <>
-                <Ionicons name="checkmark-circle" size={20} color="white" />
-                <Text style={styles.saveButtonText}>Save Changes</Text>
+                <Ionicons name="checkmark-circle" size={20} color={'white'} />
+                <Text style={[styles.saveButtonText, { color: 'white' }]}>
+                  Ruaj Ndryshimet
+                </Text>
               </>
             )}
           </Pressable>
 
           <Pressable
-            style={[styles.button, styles.deleteButton, deleting && { opacity: 0.7 }]}
+            style={[
+              styles.button,
+              styles.deleteButton,
+              deleting && { opacity: 0.7 },
+            ]}
             onPress={handleDelete}
             disabled={saving || deleting}
           >
@@ -250,7 +295,7 @@ export default function FlashcardEditScreen() {
             ) : (
               <>
                 <Ionicons name="trash" size={20} color="white" />
-                <Text style={styles.deleteButtonText}>Delete</Text>
+                <Text style={styles.deleteButtonText}>Fshije</Text>
               </>
             )}
           </Pressable>
@@ -258,7 +303,6 @@ export default function FlashcardEditScreen() {
       </ScrollView>
 
       <Toast message={success} type="success" visible={!!success} onHide={() => setSuccess('')} />
-
       <Toast message={error} type={errorType} visible={!!error} onHide={() => setError('')} />
     </KeyboardAvoidingView>
   );

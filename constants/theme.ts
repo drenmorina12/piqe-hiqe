@@ -1,48 +1,77 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
+import { Platform } from "react-native";
 
-import { Platform } from 'react-native';
+const tintColorLight = '#4F46E5';
+const tintColorDark = '#4F46E5';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
+    // ✅ existing (mos i prek, mos i fshi)
+    text: "#11181C",
+    background: "#fff",
     tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
+    icon: "#687076",
+    tabIconDefault: "#687076",
     tabIconSelected: tintColorLight,
+
+    // ✅ added tokens (për UI konsistente)
+    mutedText: "#6B7280",
+    surface: "#F6F7FB",
+    card: "#FFFFFF",
+    border: "#E5E7EB",
+    inputBg: "#FFFFFF",
+    placeholder: "#9CA3AF",
+
+    primary: tintColorLight,
+    onPrimary: "#FFFFFF",
+
+    danger: "#DC2626",
+    overlay: "rgba(0,0,0,0.45)",
   },
+
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
+    // ✅ existing
+    text: "#ECEDEE",
+    background: "#151718",
     tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
+    icon: "#9BA1A6",
+    tabIconDefault: "#9BA1A6",
     tabIconSelected: tintColorDark,
+
+    // ✅ added tokens
+    mutedText: "#9CA3AF",
+    surface: "#0F1113",
+    card: "#1B1D1F",
+    border: "#2A2E31",
+    inputBg: "#1B1D1F",
+    placeholder: "#7B8186",
+
+    // NOTE: tintColorDark = "#fff" -> button bg e bardhë në dark (ok),
+    // prandaj onPrimary duhet me qenë e errët që teksti të shihet.
+    primary: tintColorDark,
+    onPrimary: "#151718",
+
+    danger: "#F87171",
+    overlay: "rgba(0,0,0,0.60)",
   },
-};
+} as const;
+
+// (opsionale) types për TypeScript, nëse don me i pas “strong typed”
+export type ThemeName = keyof typeof Colors;
+export type ThemeColors = (typeof Colors)["light"];
 
 export const Fonts = Platform.select({
   ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
+    sans: "system-ui",
+    serif: "ui-serif",
+    rounded: "ui-rounded",
+    mono: "ui-monospace",
   },
   default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
+    sans: "normal",
+    serif: "serif",
+    rounded: "normal",
+    mono: "monospace",
   },
   web: {
     sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",

@@ -1,47 +1,58 @@
-
 import { StyleSheet, Text, View } from 'react-native';
+import { useTheme } from '../../context/ThemeContext';
 
 const StatsCard = ({ subject, easy, medium, hard, label }) => {
+  const { colors } = useTheme();
   const isGeneralStat = label !== undefined;
 
   return (
-    <View style={[styles.card, isGeneralStat && styles.generalCard]}>
-      
-      <Text style={[styles.subjectTitle, isGeneralStat && styles.generalValue]}>
-          {subject} 
+    <View
+      style={[
+        styles.card,
+        { backgroundColor: colors.card ?? colors.background ?? '#fff', borderColor: colors.border ?? '#eee' },
+        isGeneralStat && styles.generalCard,
+      ]}
+    >
+      <Text
+        style={[
+          styles.subjectTitle,
+          { color: colors.text ?? '#333' },
+          isGeneralStat && styles.generalValue,
+          isGeneralStat && { color: colors.tint ?? '#8A2BE2' },
+        ]}
+      >
+        {subject}
       </Text>
-      
+
       {isGeneralStat && (
-        <Text style={styles.generalLabel}>{label}</Text>
+        <Text style={[styles.generalLabel, { color: colors.mutedText ?? '#666' }]}>{label}</Text>
       )}
 
       {!isGeneralStat && (
         <View style={styles.statsGroup}>
-          
           <View style={styles.statItem}>
             <View style={[styles.progressCircle, styles.easyColor]}>
               <Text style={styles.progressText}>{easy}%</Text>
             </View>
-            <Text style={styles.statLabel}>Lehtë</Text>
-            <Text style={styles.statValue}>{Math.round(easy * 10)}</Text>
+            <Text style={[styles.statLabel, { color: colors.mutedText ?? '#666' }]}>Lehtë</Text>
+            <Text style={[styles.statValue, { color: colors.text ?? '#333' }]}>{Math.round(easy * 10)}</Text>
           </View>
 
           <View style={styles.statItem}>
             <View style={[styles.progressCircle, styles.mediumColor]}>
               <Text style={styles.progressText}>{medium}%</Text>
             </View>
-            <Text style={styles.statLabel}>Mesatare</Text>
-            <Text style={styles.statValue}>{Math.round(medium * 10)}</Text>
+            <Text style={[styles.statLabel, { color: colors.mutedText ?? '#666' }]}>Mesatare</Text>
+            <Text style={[styles.statValue, { color: colors.text ?? '#333' }]}>{Math.round(medium * 10)}</Text>
           </View>
 
           <View style={styles.statItem}>
             <View style={[styles.progressCircle, styles.hardColor]}>
               <Text style={styles.progressText}>{hard}%</Text>
             </View>
-            <Text style={styles.statLabel}>Vështirë</Text>
-            <Text style={styles.statValue}>{Math.round(hard * 10)}</Text>
+            <Text style={[styles.statLabel, { color: colors.mutedText ?? '#666' }]}>Vështirë</Text>
+            <Text style={[styles.statValue, { color: colors.text ?? '#333' }]}>{Math.round(hard * 10)}</Text>
           </View>
-
         </View>
       )}
     </View>
@@ -54,12 +65,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginVertical: 8,
-    elevation: 3, 
-    shadowColor: '#000', 
+    elevation: 3,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    borderWidth: 1, 
+    borderWidth: 1,
     borderColor: '#eee',
   },
   subjectTitle: {
@@ -69,19 +80,19 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   statsGroup: {
-    flexDirection: 'row', 
+    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   statItem: {
-    alignItems: 'center', 
-    flex: 1, 
+    alignItems: 'center',
+    flex: 1,
     marginHorizontal: 5,
   },
   progressCircle: {
     width: 60,
     height: 60,
-    borderRadius: 30, 
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
@@ -102,29 +113,29 @@ const styles = StyleSheet.create({
     color: '#333',
     marginTop: 2,
   },
-  easyColor: { backgroundColor: '#87d068' }, 
-  mediumColor: { backgroundColor: '#ffc107' }, 
-  hardColor: { backgroundColor: '#f55d5d' }, 
-  
+  easyColor: { backgroundColor: '#87d068' },
+  mediumColor: { backgroundColor: '#ffc107' },
+  hardColor: { backgroundColor: '#f55d5d' },
+
   generalCard: {
-    flex: 1, 
-    height: 120, 
+    flex: 1,
+    height: 120,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
     marginHorizontal: 5,
   },
   generalValue: {
-    fontSize: 30, 
+    fontSize: 30,
     fontWeight: 'bold',
     marginBottom: 5,
-    color: '#8A2BE2', 
+    color: '#8A2BE2',
   },
   generalLabel: {
     fontSize: 14,
     color: '#666',
     fontWeight: '500',
-  }
+  },
 });
 
 export { StatsCard };

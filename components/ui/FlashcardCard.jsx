@@ -1,28 +1,33 @@
 import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { useTheme } from "../../context/ThemeContext";
 import Button from "./Button";
 
 const { width, height } = Dimensions.get("window");
 
 export default function FlashcardCard({ question, answer, revealed, onReveal }) {
+  const { colors } = useTheme();
+
+  const accent = colors.primary ?? colors.tint ?? "#4F46E5"; // ✅ e njejta per te dyja
+
   return (
     <View style={styles.wrapper}>
-      <View style={styles.card}>
-        <Text style={[styles.label, { color: "#4F46E5" }]}>Question</Text>
-        <Text style={styles.question}>{question}</Text>
+      <View style={[styles.card, { backgroundColor: colors.card ?? colors.background ?? "#FFFFFF" }]}>
+        <Text style={[styles.label, { color: accent }]}>Pyetje</Text>
+        <Text style={[styles.question, { color: colors.text ?? "#111827" }]}>{question}</Text>
 
         {revealed ? (
           <>
-            <View style={styles.divider} />
-            <Text style={[styles.label, { color: "#06B6D4" }]}>Answer</Text>
-            <Text style={styles.answer}>{answer}</Text>
+            <View style={[styles.divider, { backgroundColor: colors.border ?? "#E5E7EB" }]} />
+            <Text style={[styles.label, { color: "#06B6D4" }]}>Përgjigje</Text>
+            <Text style={[styles.answer, { color: colors.text ?? "#111827" }]}>{answer}</Text>
           </>
         ) : (
           <View style={{ marginTop: 32 }}>
             <Button
-              title="Show Answer"
+              title="Trego përgjigjen"
               onPress={onReveal}
-              style={styles.showButton}
-              textStyle={styles.showButtonText}
+              style={[styles.showButton, { backgroundColor: accent }]} // ✅ e njejta ngjyre
+              textStyle={[styles.showButtonText, { color: "#FFFFFF" }]}
             />
           </View>
         )}
@@ -38,8 +43,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   card: {
-    width: width * 0.89, 
-    minHeight: height * 0.50, 
+    width: width * 0.89,
+    minHeight: height * 0.5,
     backgroundColor: "#FFFFFF",
     borderRadius: 24,
     paddingVertical: 32,

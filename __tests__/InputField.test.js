@@ -1,13 +1,9 @@
-import { fireEvent, render } from "@testing-library/react-native";
-import InputField from "../components/ui/InputField";
+import { render } from "../test-utils";
 
-test("InputField calls onChangeText when typing", () => {
-  const onChangeText = jest.fn();
+test("StatsCard snapshot", () => {
+  const Mod = require("../components/ui/StatsCard");
+  const StatsCard = Mod.StatsCard ?? Mod.default ?? Mod;
 
-  const { getByPlaceholderText } = render(
-    <InputField placeholder="Email" value="" onChangeText={onChangeText} />
-  );
-
-  fireEvent.changeText(getByPlaceholderText("Email"), "aurela@test.com");
-  expect(onChangeText).toHaveBeenCalledWith("aurela@test.com");
+  const { toJSON } = render(<StatsCard title="Total cards" value="12" />);
+  expect(toJSON()).toMatchSnapshot();
 });

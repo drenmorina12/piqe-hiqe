@@ -8,6 +8,12 @@ import AnimatedButton from '../components/ui/AnimatedButton';
 import { auth } from '../firebase/firebaseConfig';
 
 export default function SignupScreen() {
+  const [nameFocused, setNameFocused] = useState(false);
+  const [lastnameFocused, setLastnameFocused] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
+  const [confirmPasswordFocused, setConfirmPasswordFocused] = useState(false);
+
   const [form, setForm] = useState({
     name: '',
     lastname: '',
@@ -70,108 +76,151 @@ export default function SignupScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffffff' }}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Image
             alt="App Logo"
             contentFit="contain"
             style={styles.headerImg}
-            source={require('./../assets/images/login.png')}
+            source={require('./../assets/images/logo.jpg')}
             cachePolicy="memory-disk"
             transition={200}
           />
 
           <Text style={styles.title}>
-            Krijoni <Text style={{ color: '#075eec' }}> llogarinë tuaj</Text>
+            Krijo <Text style={{ color: '#4bb8e7ff' }}> llogarinë tënde</Text>
           </Text>
 
-          <Text style={styles.subtitle}>Bashkohu me Piqe-Hiqe dhe fillo të mësosh më zgjuar</Text>
-        </View>
+          </View>
 
-        <View style={styles.form}>
-          <View style={styles.inputRow}>
-            <View style={[styles.input, { flex: 1, marginRight: 8 }]}>
-              <Text style={styles.inputLabel}>Emri</Text>
+          <View style={styles.form}>
+
+            <View style={styles.igInputContainer}>
+              <Text
+                style={[
+                  styles.igLabel,
+                  (nameFocused || form.name) && styles.igLabelActive,
+                ]}
+              >
+                Emri
+              </Text>
+
               <TextInput
-                autoCapitalize="words"
-                autoCorrect={false}
-                placeholder="John"
-                placeholderTextColor="#6b7280"
-                style={styles.inputControl}
+                style={[styles.igInput, nameFocused && styles.igInputFocused]}
                 value={form.name}
                 onChangeText={(name) => setForm({ ...form, name })}
+                onFocus={() => setNameFocused(true)}
+                onBlur={() => setNameFocused(false)}
+                autoCapitalize="words"
               />
             </View>
 
-            <View style={[styles.input, { flex: 1, marginLeft: 8 }]}>
-              <Text style={styles.inputLabel}>Mbiemri</Text>
+
+            <View style={styles.igInputContainer}>
+              <Text
+                style={[
+                  styles.igLabel,
+                  (lastnameFocused || form.lastname) && styles.igLabelActive,
+                ]}
+              >
+                Mbiemri
+              </Text>
+
               <TextInput
-                autoCapitalize="words"
-                autoCorrect={false}
-                placeholder="Doe"
-                placeholderTextColor="#6b7280"
-                style={styles.inputControl}
+                style={[styles.igInput, lastnameFocused && styles.igInputFocused]}
                 value={form.lastname}
                 onChangeText={(lastname) => setForm({ ...form, lastname })}
+                onFocus={() => setLastnameFocused(true)}
+                onBlur={() => setLastnameFocused(false)}
+                autoCapitalize="words"
               />
             </View>
-          </View>
 
-          <View style={styles.input}>
-            <Text style={styles.inputLabel}>Email adresa</Text>
-            <TextInput
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="email-address"
-              placeholder="john@example.com"
-              placeholderTextColor="#6b7280"
-              style={styles.inputControl}
-              value={form.email}
-              onChangeText={(email) => setForm({ ...form, email })}
-            />
-          </View>
 
-          <View style={styles.input}>
-            <Text style={styles.inputLabel}>Password</Text>
-            <TextInput
-              secureTextEntry={true}
-              placeholder="********"
-              placeholderTextColor="#6b7280"
-              style={styles.inputControl}
-              value={form.password}
-              onChangeText={(password) => setForm({ ...form, password })}
-            />
-          </View>
 
-          <View style={styles.input}>
-            <Text style={styles.inputLabel}>Konfirmo Passwordin</Text>
-            <TextInput
-              secureTextEntry={true}
-              placeholder="********"
-              placeholderTextColor="#6b7280"
-              style={styles.inputControl}
-              value={form.confirmPassword}
-              onChangeText={(confirmPassword) => setForm({ ...form, confirmPassword })}
-            />
-          </View>
+            <View style={styles.igInputContainer}>
+              <Text
+                style={[
+                  styles.igLabel,
+                  (emailFocused || form.email) && styles.igLabelActive,
+                ]}
+              >
+                Email
+              </Text>
+              <TextInput
+                style={[styles.igInput, emailFocused && styles.igInputFocused]}
+                value={form.email}
+                onChangeText={(email) => setForm({ ...form, email })}
+                onFocus={() => setEmailFocused(true)}
+                onBlur={() => setEmailFocused(false)}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
 
-          <AnimatedButton
+
+            <View style={styles.igInputContainer}>
+              <Text
+                style={[
+                  styles.igLabel,
+                  (passwordFocused || form.password) && styles.igLabelActive,
+                ]}
+              >
+                Password
+              </Text>
+
+              <TextInput
+                style={[styles.igInput, passwordFocused && styles.igInputFocused]}
+                value={form.password}
+                onChangeText={(password) => setForm({ ...form, password })}
+                onFocus={() => setPasswordFocused(true)}
+                onBlur={() => setPasswordFocused(false)}
+                secureTextEntry
+              />
+            </View>
+
+
+            <View style={styles.igInputContainer}>
+              <Text
+                style={[
+                  styles.igLabel,
+                  (confirmPasswordFocused || form.confirmPassword) && styles.igLabelActive,
+                ]}
+              >
+                Konfirmo Passwordin
+              </Text>
+
+              <TextInput
+                style={[styles.igInput, confirmPasswordFocused && styles.igInputFocused]}
+                value={form.confirmPassword}
+                onChangeText={(confirmPassword) => setForm({ ...form, confirmPassword })}
+                onFocus={() => setConfirmPasswordFocused(true)}
+                onBlur={() => setConfirmPasswordFocused(false)}
+                secureTextEntry
+              />
+            </View>
+
+
+            <AnimatedButton
             title="Regjistrohu"
             onPress={handleSignUp}
             style={styles.btn}
             textStyle={styles.btnText}
           />
 
-          <TouchableOpacity
-            onPress={() => {
-              router.push('/');
-            }}
-          >
-            <Text style={styles.formLink}>Keni një llogari? Hyr</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                router.push('/');
+              }}
+            >
+              <Text style={styles.formLink}>Keni një llogari? Hyr</Text>
+            </TouchableOpacity>
+          </View>
+
+
+          
         </View>
-      </View>
     </SafeAreaView>
   );
 }
@@ -185,7 +234,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 30,
     fontWeight: '700',
-    color: '#1D2A32',
+    color: '#01314eff',
     marginBottom: 6,
   },
   subtitle: {
@@ -200,10 +249,10 @@ const styles = StyleSheet.create({
     marginVertical: 30,
   },
   headerImg: {
-    width: 80,
-    height: 80,
+    width: 130,
+    height: 130,
     alignSelf: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
   },
   form: {
     flexGrow: 1,
@@ -244,8 +293,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderWidth: 1,
-    backgroundColor: '#075eec',
-    borderColor: '#075eec',
+    backgroundColor: '#4bb8e7ff',
+    borderColor: '#4bb8e7ff',
   },
   btnText: {
     fontSize: 18,
@@ -256,7 +305,37 @@ const styles = StyleSheet.create({
   formLink: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#075eec',
+    color: '#001d4dff',
     textAlign: 'center',
+    padding: '10',
   },
+  igInputContainer: {
+    position: 'relative',
+    marginBottom: 12
+  },
+  igLabel: {
+    position: 'absolute',
+    left: 12, top: 15,
+    fontSize: 16,
+    color: '#8e8e8e',
+    zIndex: 1
+  },
+  igLabelActive: {
+    top: 6,
+    fontSize: 11
+  },
+  igInput: {
+    height: 50,
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    fontSize: 15,
+    borderWidth: 1,
+    borderColor: '#8e8e8e'
+  },
+  igInputFocused: {
+    backgroundColor: '#f4f6fa'
+  },
+
 });
